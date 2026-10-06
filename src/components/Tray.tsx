@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
-import { useSharedValue } from 'react-native-reanimated';
+import type Animated from 'react-native-reanimated';
+import { useSharedValue, type AnimatedRef } from 'react-native-reanimated';
 
 import type { Tray as TrayState } from '../game/state';
 import { UI } from '../theme';
@@ -15,10 +16,19 @@ interface TrayProps {
   draws: number;
   cellSize: number;
   gridCellSize: number;
+  gridRef: AnimatedRef<Animated.View>;
+  onTargetChange: (index: number, col: number, row: number) => void;
 }
 
 /** The pieces offered to the player, one per slot; a played slot stays empty. */
-export function Tray({ tray, draws, cellSize, gridCellSize }: TrayProps) {
+export function Tray({
+  tray,
+  draws,
+  cellSize,
+  gridCellSize,
+  gridRef,
+  onTargetChange,
+}: TrayProps) {
   const activeIndex = useSharedValue(NO_PIECE);
 
   return (
@@ -32,7 +42,9 @@ export function Tray({ tray, draws, cellSize, gridCellSize }: TrayProps) {
               index={index}
               trayCellSize={cellSize}
               gridCellSize={gridCellSize}
+              gridRef={gridRef}
               activeIndex={activeIndex}
+              onTargetChange={onTargetChange}
             />
           ) : null}
         </View>

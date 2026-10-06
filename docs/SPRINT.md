@@ -17,7 +17,7 @@
   - Une seule pièce à la fois. Un emplacement vide du plateau ne réagit pas.
   - Hook `useGame` dans `src/hooks/` : il détient l'état du jeu et expose l'action de pose.
 
-- [ ] **K-12 — Aperçu sur la grille**
+- [x] **K-12 — Aperçu sur la grille**
   - Une fonction pure et testée convertit la position de la pièce à l'écran en case de grille (colonne, ligne) pour son coin haut-gauche, avec arrondi à la case la plus proche. Tests : centre d'une case, bord entre deux cases, hors grille.
   - Pendant le geste, si la pièce peut être posée à la case visée, ses cases s'affichent en transparence sur la grille. Sinon, aucun aperçu.
   - L'aperçu ne se met à jour que lorsque la case visée change.

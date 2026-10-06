@@ -1,10 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Grid, GRID_PADDING } from '../components/Grid';
+import { Grid, GRID_PADDING, type GridPreview } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
+import { canPlace } from '../game/placement';
 import { SAMPLE_GAME } from '../game/sampleGame';
 import { createGame } from '../game/state';
 import { useGame } from '../hooks/useGame';
@@ -30,6 +33,19 @@ export function GameScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { game } = useGame(createInitialGame);
+  const gridRef = useAnimatedRef<Animated.View>();
+  /** The tray slot being dragged and the cell it aims at, whether the piece fits there or not. */
+  const [target, setTarget] = useState<{ index: number; col: number; row: number } | null>(null);
+
+  const handleTargetChange = useCallback((index: number, col: number, row: number) => {
+    setTarget(col < 0 ? null : { index, col, row });
+  }, []);
+
+  const targetPiece = target ? game.tray[target.index] : null;
+  const preview: GridPreview | null =
+    target && targetPiece && canPlace(game.grid, targetPiece, target.col, target.row)
+      ? { piece: targetPiece, col: target.col, row: target.row }
+      : null;
 
   const cellSize = Math.floor((width - 2 * (GRID_MARGIN + GRID_PADDING)) / GRID_SIZE);
   const trayCellSize = Math.round(cellSize * TRAY_CELL_RATIO);
@@ -49,7 +65,9 @@ export function GameScreen() {
           <ScoreHeader score={game.score} />
         </View>
         <View style={styles.grid}>
-          <Grid grid={game.grid} cellSize={cellSize} />
+          <Animated.View ref={gridRef}>
+            <Grid grid={game.grid} cellSize={cellSize} preview={preview} />
+          </Animated.View>
         </View>
         <View style={styles.tray}>
           <Tray
@@ -57,6 +75,8 @@ export function GameScreen() {
             draws={game.draws}
             cellSize={trayCellSize}
             gridCellSize={cellSize}
+            gridRef={gridRef}
+            onTargetChange={handleTargetChange}
           />
         </View>
       </View>
