@@ -12,7 +12,7 @@
   - Types : grille 8×8 (couleur ou vide par case), plateau de 3 emplacements (pièce ou vide), score, niveau de série, nombre de tirages, partie terminée ou non.
   - `createGame(seed)` renvoie une partie neuve : grille vide, 3 pièces tirées avec `createRng(seed)`. Même graine, même partie (testé).
 
-- [ ] **K-06 — Pose**
+- [x] **K-06 — Pose**
   - `canPlace(grid, piece, col, row)` : vrai si toutes les cases de la pièce sont dans la grille et sur des cases vides. Tests : bords, coins, chevauchement.
   - `placePiece(...)` renvoie une nouvelle grille avec la pièce dans sa couleur.
 
