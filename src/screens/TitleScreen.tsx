@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { UI } from '../theme';
+import { FONTS, UI } from '../theme';
 
 export function TitleScreen() {
   return (
@@ -25,8 +25,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: UI.text,
+    fontFamily: FONTS.title,
     fontSize: 64,
-    fontWeight: '800',
-    letterSpacing: 2,
   },
 });

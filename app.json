@@ -26,7 +26,8 @@
           "image": "./assets/images/app/splash-icon.png",
           "backgroundColor": "#12162B"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

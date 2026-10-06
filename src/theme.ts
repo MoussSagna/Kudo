@@ -17,7 +17,13 @@ export const UI = {
   cellEdge: '#2F3868',
   text: '#FFFFFF',
   textMuted: '#8F97C4',
+  textSoft: '#A9B0DA',
   accent: '#FFD23F',
+} as const;
+
+export const FONTS = {
+  title: 'Fredoka_700Bold',
+  body: 'DMSans_400Regular',
 } as const;
 
 export const GRID_SIZE = 8;
