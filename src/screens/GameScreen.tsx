@@ -1,5 +1,4 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,6 +7,7 @@ import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
 import { SAMPLE_GAME } from '../game/sampleGame';
 import { createGame } from '../game/state';
+import { useGame } from '../hooks/useGame';
 import { GRID_SIZE, UI } from '../theme';
 
 /** Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME=1 to show the mockup's game. */
@@ -22,10 +22,14 @@ const MIN_BOTTOM_PADDING = 34;
 /** Size of a tray block compared to a grid cell. */
 const TRAY_CELL_RATIO = 0.68;
 
+function createInitialGame() {
+  return SHOW_SAMPLE_GAME ? SAMPLE_GAME : createGame(Date.now());
+}
+
 export function GameScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const [game] = useState(() => (SHOW_SAMPLE_GAME ? SAMPLE_GAME : createGame(Date.now())));
+  const { game } = useGame(createInitialGame);
 
   const cellSize = Math.floor((width - 2 * (GRID_MARGIN + GRID_PADDING)) / GRID_SIZE);
   const trayCellSize = Math.round(cellSize * TRAY_CELL_RATIO);
@@ -48,7 +52,12 @@ export function GameScreen() {
           <Grid grid={game.grid} cellSize={cellSize} />
         </View>
         <View style={styles.tray}>
-          <Tray tray={game.tray} cellSize={trayCellSize} />
+          <Tray
+            tray={game.tray}
+            draws={game.draws}
+            cellSize={trayCellSize}
+            gridCellSize={cellSize}
+          />
         </View>
       </View>
     </LinearGradient>

@@ -11,7 +11,7 @@
 
 ## Stories
 
-- [ ] **K-11 — Glisser une pièce**
+- [x] **K-11 — Glisser une pièce**
   - Chaque pièce du plateau se saisit au doigt et suit le geste.
   - À la saisie, la pièce passe de sa taille de plateau à la taille des cases de la grille, et se place au-dessus du doigt (décalage vertical d'environ 70 pt) pour rester visible.
   - Une seule pièce à la fois. Un emplacement vide du plateau ne réagit pas.

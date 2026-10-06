@@ -8,10 +8,17 @@ interface PieceViewProps {
   cellSize: number;
 }
 
+/** Width and height of a piece, in cells. */
+export function pieceSpan(piece: Piece): { columns: number; rows: number } {
+  return {
+    columns: Math.max(...piece.cells.map(([col]) => col)) + 1,
+    rows: Math.max(...piece.cells.map(([, row]) => row)) + 1,
+  };
+}
+
 /** A piece drawn with one block image per cell, sized to its bounding box. */
 export function PieceView({ piece, cellSize }: PieceViewProps) {
-  const columns = Math.max(...piece.cells.map(([col]) => col)) + 1;
-  const rows = Math.max(...piece.cells.map(([, row]) => row)) + 1;
+  const { columns, rows } = pieceSpan(piece);
 
   return (
     <View style={{ width: columns * cellSize, height: rows * cellSize }}>
