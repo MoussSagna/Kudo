@@ -16,9 +16,12 @@
     3. Quand le dernier bloc est posé, le logo entier fait une pulsation : échelle 1 → 1,07 → 1 en 150 ms environ.
     4. « Kubo » monte de 22 pt en fondu (250 ms).
     5. L'accroche monte de 14 pt en fondu (250 ms), 120 ms après le titre.
-  - Durée totale, de la première image au passage à l'écran titre : 2,3 secondes au maximum. Toutes les durées et tous les délais sont regroupés dans un seul objet de constantes en haut du fichier.
-  - Le passage à l'écran titre se déclenche à la fin de l'animation, pas sur une minuterie indépendante.
-  - Si « réduire les animations » est activé sur l'appareil : afficher directement l'état final pendant 1 seconde, sans mouvement.
+    6. Pause : tout reste affiché et immobile pendant 400 ms.
+    7. Sortie, tout en même temps, en 300 ms : les blocs et la case vide passent de l'opacité 1 à 0 et de l'échelle 1 à 0,8 ; le titre et l'accroche passent de l'opacité 1 à 0, sans bouger.
+    8. L'écran titre apparaît ensuite en fondu (opacité 0 à 1, 200 ms), sur le même fond `#12162B`, sans écran vide perceptible entre les deux.
+  - Durée totale, de la première image au début de l'écran titre : 2,9 secondes environ (2,2 d'entrée, 0,4 de pause, 0,3 de sortie), 3 secondes au maximum. Toutes les durées et tous les délais sont regroupés dans un seul objet de constantes en haut du fichier.
+  - Le passage à l'écran titre se déclenche à la fin de la sortie, pas sur une minuterie indépendante.
+  - Si « réduire les animations » est activé sur l'appareil : afficher directement l'état final pendant 1 seconde, sans mouvement ni changement d'échelle, puis un simple fondu de 200 ms vers l'écran titre.
   - Jouée une seule fois, au lancement à froid.
   - Vérification de l'état final : boucle « Intégration des écrans » avec une capture prise en fin d'animation, comparée à `docs/design/splash.png`. 3 passages maximum.
   - Vérification du mouvement : vidéo du lancement avec `xcrun simctl io booted recordVideo docs/design/captures/splash.mov`. C'est Moussa qui juge le rythme et le rebond ; l'agent ne déclare pas l'animation « conforme ».
@@ -79,6 +82,16 @@ _À remplir par l'agent à la fin, puis attendre la validation._
 - Durée totale : 2 150 ms par construction, 2,23 s mesurés sur la vidéo (échantillonnage à 60 images/s). L'écart d'environ 80 ms est la latence d'affichage ; la pause finale a été ramenée de 175 à 125 ms pour garder de la marge sous 2,3 s.
 - Vidéo : `docs/design/captures/splash-v2.mov`, l'animation commence à 12,75 s. État final confirmé par la capture `splash-v2-final.png`, identique à `splash-1.png`.
 - Les chiffres de durée donnés plus haut dans cette revue (1 470 ms, 1,5 s) décrivent la première version.
+
+### Ajout demandé par Moussa : sortie en fondu
+- Après l'accroche : pause de 400 ms, sortie de 300 ms (le logo passe à l'opacité 0 et à l'échelle 0,8 ; titre et accroche s'effacent sans bouger), puis l'écran titre monte en fondu en 200 ms sur le fond `#12162B`.
+- Le passage à l'écran titre est déclenché par la fin de la sortie. `pauseMs`, `exitMs`, `exitLogoScale` et `titleScreenFadeInMs` sont dans `LAUNCH` ; `endHoldMs` est remplacé par `pauseMs`.
+- Durée totale, de la première image au début de l'écran titre : 2 725 ms par construction, 2,78 s mesurés sur la vidéo. C'est moins que les 2,9 s visées, car l'entrée dure 2 025 ms une fois l'ancienne pause finale retirée (2,2 s l'incluait).
+- Entre la fin de la sortie et le début du fondu de l'écran titre, la vidéo montre environ 50 ms de fond uni (le temps que l'écran titre soit monté). À juger par Moussa.
+- L'échelle de sortie est appliquée au logo entier, pas à chaque bloc séparément.
+- « Réduire les animations » vérifié : état final immobile pendant environ 1,07 s, puis fondu croisé d'environ 200 ms vers l'écran titre, sans changement d'échelle. Réglage du simulateur remis à sa valeur d'origine.
+- Vidéo : `docs/design/captures/splash-v3.mov`, l'animation commence à 12,20 s. Capture pendant la pause : `splash-v3-pause.png`, identique à l'état final validé.
+- `App.tsx` : l'écran titre est monté par-dessus l'écran de lancement pendant son fondu, puis l'écran de lancement est retiré.
 
 ### Proposition de stories détaillées pour le sprint suivant
 - Sprint 1 — La grille et les règles (K-05 à K-10) : la proposition détaillée est dans `docs/reviews/sprint-0.md`. Branche suggérée : `sprint/1-grid-and-rules`.

@@ -1,20 +1,10 @@
 import { useEffect } from 'react';
-import {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
+import { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
 export interface RiseIn {
   delayMs: number;
   distance: number;
   durationMs: number;
-  /** Called once the rise and the hold that follows it are over. */
-  onEnd?: () => void;
-  holdMs?: number;
 }
 
 /** Fades an element in while it rises to its place. Without `rise`, the element is static. */
@@ -26,18 +16,7 @@ export function useRiseIn(rise?: RiseIn) {
     if (!rise) {
       return;
     }
-    const { delayMs, durationMs, onEnd, holdMs = 0 } = rise;
-    progress.value = withDelay(
-      delayMs,
-      withSequence(
-        withTiming(1, { duration: durationMs }),
-        withTiming(1, { duration: holdMs }, (finished) => {
-          if (finished && onEnd) {
-            scheduleOnRN(onEnd);
-          }
-        }),
-      ),
-    );
+    progress.value = withDelay(rise.delayMs, withTiming(1, { duration: rise.durationMs }));
   }, [progress, rise]);
 
   return useAnimatedStyle(() => ({
