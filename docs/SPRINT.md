@@ -16,7 +16,7 @@
   - `canPlace(grid, piece, col, row)` : vrai si toutes les cases de la pièce sont dans la grille et sur des cases vides. Tests : bords, coins, chevauchement.
   - `placePiece(...)` renvoie une nouvelle grille avec la pièce dans sa couleur.
 
-- [ ] **K-07 — Effacement**
+- [x] **K-07 — Effacement**
   - `clearLines(grid)` renvoie la nouvelle grille et le nombre de lignes et colonnes vidées. Lignes et colonnes sont détectées avant tout effacement, puis vidées ensemble. Tests : une ligne, une colonne, croisement ligne + colonne, aucune.
 
 - [ ] **K-08 — Coup complet et score**
