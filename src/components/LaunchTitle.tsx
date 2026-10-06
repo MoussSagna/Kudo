@@ -1,9 +1,17 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { useRiseIn, type RiseIn } from '../hooks/useRiseIn';
 import { FONTS, UI } from '../theme';
 
-export function LaunchTitle() {
-  return <Text style={styles.title}>Kubo</Text>;
+interface LaunchTitleProps {
+  rise?: RiseIn;
+}
+
+export function LaunchTitle({ rise }: LaunchTitleProps) {
+  const riseStyle = useRiseIn(rise);
+
+  return <Animated.Text style={[styles.title, riseStyle]}>Kubo</Animated.Text>;
 }
 
 const styles = StyleSheet.create({

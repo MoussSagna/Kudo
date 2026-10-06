@@ -21,6 +21,14 @@ Kubo est un block puzzle mobile avec un défi quotidien. Lis ce fichier en entie
 - Une idée hors périmètre va dans « Idées » en bas de `docs/BACKLOG.md`. Elle ne se code pas.
 - Tu ne modifies pas `docs/SPEC.md` ni l'ordre du backlog sans accord.
 
+### Branches
+- Ne committe jamais directement sur `main`.
+- Au début de chaque sprint, crée une branche depuis `main` à jour : `git checkout main && git pull && git checkout -b sprint/<nom-du-sprint>` (exemples : `sprint/0-bis-2-launch-animation`, `sprint/1-grid-and-rules`).
+- Tous les commits du sprint, y compris ceux de documentation, vont sur cette branche. Pousse-la avec `git push -u origin <branche>` après chaque story.
+- En fin de sprint, ne fusionne pas toi-même. Indique dans la revue de sprint le nom de la branche et arrête-toi : c'est Moussa qui fusionne dans `main` après validation.
+- Si tu constates que tu es sur `main` au moment de committer, arrête-toi et crée la branche avant de continuer.
+- Jamais de `git push --force`, ni de réécriture d'historique sur une branche poussée.
+
 ## Définition de terminé (Definition of Done)
 Une story est terminée quand :
 - tous ses critères d'acceptation sont vérifiés ;
@@ -59,10 +67,10 @@ Règles de la boucle :
 - `expo-linear-gradient` pour les fonds en dégradé, `react-native-safe-area-context` pour les zones sûres.
 - `expo-splash-screen` pour le splash natif, `expo-font` pour charger les polices.
 - `@expo-google-fonts/fredoka` (titres, Fredoka Bold) et `@expo-google-fonts/dm-sans` (textes, DM Sans).
-- `moti` pour l'animation de l'écran de lancement (K-31) uniquement. Le glisser-déposer et les animations de jeu restent en `react-native-reanimated` pur.
 - Jest pour les tests.
 - Pas de moteur de jeu, pas de backend, pas de librairie d'état global. Toute nouvelle dépendance doit être justifiée dans la revue de sprint.
 - Installe les paquets Expo avec `npx expo install` pour avoir des versions compatibles.
+- Pas d'installation d'essai de paquets hors du projet. Pour vérifier une compatibilité, utilise `npm view <paquet> dependencies peerDependencies` et la documentation, qui ne téléchargent rien.
 
 ## Architecture
 ```

@@ -1,9 +1,17 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { useRiseIn, type RiseIn } from '../hooks/useRiseIn';
 import { FONTS, UI } from '../theme';
 
-export function LaunchTagline() {
-  return <Text style={styles.tagline}>Un puzzle par jour.</Text>;
+interface LaunchTaglineProps {
+  rise?: RiseIn;
+}
+
+export function LaunchTagline({ rise }: LaunchTaglineProps) {
+  const riseStyle = useRiseIn(rise);
+
+  return <Animated.Text style={[styles.tagline, riseStyle]}>Un puzzle par jour.</Animated.Text>;
 }
 
 const styles = StyleSheet.create({
