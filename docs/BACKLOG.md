@@ -1,6 +1,6 @@
 # Kubo — backlog
 
-Un sprint = un incrément que l'on peut lancer et montrer. Ordre fixe. Le détail du sprint en cours est dans `SPRINT.md`.
+Un sprint = un écran (ou une moitié d'écran quand il est gros), que l'on peut lancer et montrer. Ordre fixe. Le détail du sprint en cours est dans `SPRINT.md`.
 
 ## Sprint 0 — Socle
 But : un projet propre qui démarre.
@@ -25,47 +25,53 @@ But : au lancement, l'app affiche l'écran de lancement, puis passe à l'écran 
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que l'écran animé soit prêt.
   - Si le système demande de réduire les animations, afficher directement le logo complet, sans mouvement ni changement d'échelle, pendant 1 seconde, puis un simple fondu de 200 ms vers l'écran titre.
 
-## Sprint 1 — La grille et les règles
-But : la logique du jeu existe et est testée ; la grille s'affiche.
+## Écran de jeu, partie 1 — règles et affichage
+But : toute la logique du jeu existe et est testée ; l'écran de jeu s'affiche, sans interaction.
 - **K-05** Types et état de jeu (`GameState`), création d'une partie depuis une graine.
 - **K-06** `canPlace` et `placePiece`.
 - **K-07** `clearLines` (lignes et colonnes simultanées).
-- **K-08** Calcul du score, série comprise.
+- **K-08** Coup complet (`applyMove`) et calcul du score, série comprise.
 - **K-09** `hasAnyMove` et détection de fin de partie.
-- **K-10** Affichage de la grille 8×8 et du plateau de 3 pièces (sans interaction).
+- **K-10** Affichage de l'écran de jeu : score, grille 8×8 et plateau de 3 pièces (sans interaction).
 
-## Sprint 2 — Jouable
-But : on peut jouer une partie complète.
+## Écran de jeu, partie 2 — jouable
+But : on peut jouer une partie complète, et le jeu est agréable à manipuler.
 - **K-11** Glisser une pièce du plateau avec le doigt.
 - **K-12** Aperçu de la position sur la grille pendant le glisser.
 - **K-13** Pose valide, retour au plateau si invalide.
 - **K-14** Effacement, score affiché, nouveau tirage.
-- **K-15** Écran de fin de partie avec score et bouton « Rejouer ».
-
-## Sprint 3 — Sensations
-But : le jeu est agréable à manipuler.
 - **K-16** Sons (prise, pose, refus, effacement, combo, fin).
 - **K-17** Vibrations.
 - **K-18** Animations de pose et d'effacement.
-- **K-19** Meilleur score sauvegardé et affiché, son de record.
 
-## Sprint 4 — Défi du jour
+## Fin de partie
+But : la partie a une fin, un record et se partage.
+- **K-15** Écran de fin de partie avec score et bouton « Rejouer ».
+- **K-19** Meilleur score sauvegardé et affiché, son de record.
+- **K-26** Partage du résultat en emojis.
+
+## Tutoriel interactif
+But : au premier lancement, le joueur apprend en jouant.
+- **K-27** Tutoriel au premier lancement. Utilise le moteur et le glisser-déposer du jeu. Maquettes : `tuto-1a`, `tuto-1b`, `tuto-2a`, `tuto-2b`, `tuto-3`.
+
+## Accueil
+But : le jeu a un point d'entrée.
+- **K-24** Écran d'accueil (défi du jour, partie libre, série, meilleur score).
+- **K-25** Mode partie libre.
+
+## Défi du jour et « Reviens demain »
 But : tout le monde joue la même partie, une fois par jour.
 - **K-20** Suite de pièces issue de la graine du jour.
 - **K-21** Sauvegarde et reprise de la partie du jour.
 - **K-22** Une seule tentative par jour, écran « Reviens demain » avec compte à rebours.
 - **K-23** Série de jours consécutifs.
 
-## Sprint 5 — Partage et navigation
-But : le jeu a un début, une fin, et se partage.
-- **K-24** Écran d'accueil (défi du jour, partie libre, série, meilleur score).
-- **K-25** Mode partie libre.
-- **K-26** Partage du résultat en emojis.
-
-## Sprint 6 — Finition
-But : prêt à être montré ou publié.
-- **K-27** Tutoriel au premier lancement.
+## Réglages
+But : le joueur règle le son et les vibrations.
 - **K-28** Réglages (son, vibrations).
+
+## Finition
+But : prêt à être montré ou publié.
 - **K-29** Accessibilité et tailles d'écran (petits téléphones, tablettes).
 - **K-30** Build de test (EAS).
 

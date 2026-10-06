@@ -1,4 +1,4 @@
-import { DMSans_400Regular } from '@expo-google-fonts/dm-sans';
+import { DMSans_400Regular, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -14,17 +14,17 @@ import Animated, {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { LaunchScreen, TITLE_SCREEN_FADE_IN_MS } from './src/screens/LaunchScreen';
-import { TitleScreen } from './src/screens/TitleScreen';
+import { GameScreen } from './src/screens/GameScreen';
+import { LaunchScreen, NEXT_SCREEN_FADE_IN_MS } from './src/screens/LaunchScreen';
 import { UI } from './src/theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const [fontsLoaded, fontsError] = useFonts({ Fredoka_700Bold, DMSans_400Regular });
+  const [fontsLoaded, fontsError] = useFonts({ Fredoka_700Bold, DMSans_400Regular, DMSans_700Bold });
   const [launchDone, setLaunchDone] = useState(false);
   const [launchRemoved, setLaunchRemoved] = useState(false);
-  const titleOpacity = useSharedValue(0);
+  const gameOpacity = useSharedValue(0);
   const fontsReady = fontsLoaded || fontsError !== null;
 
   useEffect(() => {
@@ -39,18 +39,18 @@ export default function App() {
     if (!launchDone) {
       return;
     }
-    titleOpacity.value = withTiming(
+    gameOpacity.value = withTiming(
       1,
-      { duration: TITLE_SCREEN_FADE_IN_MS, reduceMotion: ReduceMotion.Never },
+      { duration: NEXT_SCREEN_FADE_IN_MS, reduceMotion: ReduceMotion.Never },
       (finished) => {
         if (finished) {
           scheduleOnRN(setLaunchRemoved, true);
         }
       },
     );
-  }, [launchDone, titleOpacity]);
+  }, [launchDone, gameOpacity]);
 
-  const titleStyle = useAnimatedStyle(() => ({ opacity: titleOpacity.value }));
+  const gameStyle = useAnimatedStyle(() => ({ opacity: gameOpacity.value }));
 
   if (!fontsReady) {
     return null;
@@ -61,8 +61,8 @@ export default function App() {
       <View style={styles.root}>
         {launchRemoved ? null : <LaunchScreen onDone={handleLaunchDone} />}
         {launchDone ? (
-          <Animated.View style={[StyleSheet.absoluteFill, titleStyle]}>
-            <TitleScreen />
+          <Animated.View style={[StyleSheet.absoluteFill, gameStyle]}>
+            <GameScreen />
           </Animated.View>
         ) : null}
       </View>

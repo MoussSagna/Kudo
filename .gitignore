@@ -42,3 +42,6 @@ yarn-error.*
 
 # screen integration captures
 docs/design/captures/
+
+# test coverage report
+coverage/

@@ -15,6 +15,8 @@ export const UI = {
   backgroundTop: '#1E2550',
   cell: '#252C52',
   cellEdge: '#2F3868',
+  panel: '#191F42',
+  tray: '#1C2346',
   text: '#FFFFFF',
   textMuted: '#8F97C4',
   textSoft: '#A9B0DA',
@@ -24,6 +26,7 @@ export const UI = {
 export const FONTS = {
   title: 'Fredoka_700Bold',
   body: 'DMSans_400Regular',
+  bodyBold: 'DMSans_700Bold',
 } as const;
 
 export const GRID_SIZE = 8;
