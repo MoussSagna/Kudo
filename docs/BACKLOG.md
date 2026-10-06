@@ -25,6 +25,13 @@ But : au lancement, l'app affiche l'écran de lancement, puis passe à l'écran 
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que l'écran animé soit prêt.
   - Si le système demande de réduire les animations, afficher directement le logo complet, sans mouvement ni changement d'échelle, pendant 1 seconde, puis un simple fondu de 200 ms vers l'écran titre.
 
+## Sprint 0 ter — Tutoriel
+But : au premier lancement, le joueur voit trois écrans d'explication avant l'écran titre.
+- **K-27** Tutoriel au premier lancement.
+  - **K-27a** Mémoriser que le tutoriel a été vu.
+  - **K-27b** Les trois écrans.
+  - **K-27c** Navigation et enchaînement.
+
 ## Sprint 1 — La grille et les règles
 But : la logique du jeu existe et est testée ; la grille s'affiche.
 - **K-05** Types et état de jeu (`GameState`), création d'une partie depuis une graine.
@@ -64,7 +71,6 @@ But : le jeu a un début, une fin, et se partage.
 
 ## Sprint 6 — Finition
 But : prêt à être montré ou publié.
-- **K-27** Tutoriel au premier lancement.
 - **K-28** Réglages (son, vibrations).
 - **K-29** Accessibilité et tailles d'écran (petits téléphones, tablettes).
 - **K-30** Build de test (EAS).
