@@ -19,7 +19,7 @@
 - [x] **K-07 — Effacement**
   - `clearLines(grid)` renvoie la nouvelle grille et le nombre de lignes et colonnes vidées. Lignes et colonnes sont détectées avant tout effacement, puis vidées ensemble. Tests : une ligne, une colonne, croisement ligne + colonne, aucune.
 
-- [ ] **K-08 — Coup complet et score**
+- [x] **K-08 — Coup complet et score**
   - `applyMove(state, trayIndex, col, row)` : pose, efface, calcule le score selon `SPEC.md` (1 point par case, 10 × n × n par effacement, multiplicateur de série), vide l'emplacement du plateau, retire 3 nouvelles pièces quand le plateau est vide, puis met à jour « partie terminée ».
   - Un coup invalide renvoie l'état inchangé.
   - Tests chiffrés sur le score, dont deux effacements consécutifs (série ×2) et la remise à 1 de la série.
