@@ -5,7 +5,7 @@
 
 ## Stories
 
-- [ ] **K-01 — Créer le projet**
+- [x] **K-01 — Créer le projet**
   - Projet Expo avec le modèle TypeScript, `strict: true` dans `tsconfig.json`.
   - Arborescence `src/` créée comme décrit dans `AGENTS.md`.
   - `npm run start` lance l'app sans erreur.
