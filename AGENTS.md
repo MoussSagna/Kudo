@@ -57,6 +57,7 @@ Règles de la boucle :
 - `@react-native-async-storage/async-storage` pour la sauvegarde.
 - `expo-audio` pour les sons, `expo-haptics` pour les vibrations.
 - `expo-linear-gradient` pour les fonds en dégradé, `react-native-safe-area-context` pour les zones sûres.
+- `moti` pour l'animation de l'écran de lancement (K-31) uniquement. Le glisser-déposer et les animations de jeu restent en `react-native-reanimated` pur.
 - Jest pour les tests.
 - Pas de moteur de jeu, pas de backend, pas de librairie d'état global. Toute nouvelle dépendance doit être justifiée dans la revue de sprint.
 - Installe les paquets Expo avec `npx expo install` pour avoir des versions compatibles.

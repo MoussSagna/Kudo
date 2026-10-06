@@ -57,7 +57,8 @@ But : prêt à être montré ou publié.
   - Les 9 cases du logo (grille 3×3 de l'icône) tombent une par une, de bas en haut, avec un léger rebond ; le logo fait ensuite une courte pulsation ; puis « Kubo » monte en fondu, suivi de « Un puzzle par jour. ».
   - Durée totale inférieure à 1,5 seconde, puis transition vers l'accueil.
   - Jouée uniquement au lancement à froid, une seule fois.
-  - Réalisée avec `react-native-reanimated` (`withDelay`, `withSequence`, `withSpring`). Pas de Moti ni d'autre librairie d'animation.
+  - Réalisée avec `moti` (`MotiView`, `MotiText`, `MotiImage`) : chute et rebond des blocs avec une transition `spring` et un `delay` croissant par bloc, pulsation du logo en séquence, apparition des textes avec une transition `timing`.
+  - Avant d'installer `moti`, vérifie qu'il est compatible avec la version de `react-native-reanimated` du projet. S'il ne l'est pas, n'installe rien, ne force pas de version : note-le dans « Questions ouvertes » et arrête-toi.
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que l'écran animé soit prêt.
   - Si le système demande de réduire les animations, afficher directement le logo complet, sans mouvement.
 
