@@ -42,11 +42,11 @@ const LAUNCH = {
   pauseMs: 400,
   exitMs: 300,
   exitLogoScale: 0.8,
-  titleScreenFadeInMs: 200,
+  nextScreenFadeInMs: 200,
   reducedMotionHoldMs: 1000,
 } as const;
 
-export const TITLE_SCREEN_FADE_IN_MS = LAUNCH.titleScreenFadeInMs;
+export const NEXT_SCREEN_FADE_IN_MS = LAUNCH.nextScreenFadeInMs;
 
 const FALLING_BLOCKS = 8;
 const PULSE_DELAY_MS =
@@ -86,7 +86,7 @@ const TAGLINE_RISE: RiseIn = {
 };
 
 interface LaunchScreenProps {
-  /** Called when the title screen can start to appear. */
+  /** Called when the next screen can start to appear. */
   onDone: () => void;
 }
 

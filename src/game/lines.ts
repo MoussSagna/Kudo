@@ -1,3 +1,4 @@
+import { GRID_SIZE } from '../theme';
 import type { Grid } from './state';
 
 export interface ClearResult {
@@ -19,7 +20,7 @@ export function clearLines(grid: Grid): ClearResult {
       fullRows.add(rowIndex);
     }
   });
-  for (let col = 0; col < (grid[0]?.length ?? 0); col++) {
+  for (let col = 0; col < GRID_SIZE; col++) {
     if (grid.every((row) => row[col] !== null)) {
       fullCols.add(col);
     }

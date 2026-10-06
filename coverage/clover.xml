@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1791322472259" clover="3.2.0">
+  <project timestamp="1791322472259" name="All files">
+    <metrics statements="66" coveredstatements="64" conditionals="42" coveredconditionals="40" methods="30" coveredmethods="29" elements="138" coveredelements="133" complexity="0" loc="66" ncloc="66" packages="1" files="7" classes="7"/>
+    <file name="lines.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/lines.ts">
+      <metrics statements="13" coveredstatements="13" conditionals="12" coveredconditionals="11" methods="6" coveredmethods="6"/>
+      <line num="14" count="28" type="stmt"/>
+      <line num="15" count="28" type="stmt"/>
+      <line num="17" count="28" type="stmt"/>
+      <line num="18" count="472" type="cond" truecount="2" falsecount="0"/>
+      <line num="19" count="16" type="stmt"/>
+      <line num="22" count="28" type="cond" truecount="1" falsecount="1"/>
+      <line num="23" count="445" type="cond" truecount="2" falsecount="0"/>
+      <line num="24" count="6" type="stmt"/>
+      <line num="28" count="28" type="stmt"/>
+      <line num="29" count="28" type="cond" truecount="2" falsecount="0"/>
+      <line num="30" count="14" type="stmt"/>
+      <line num="32" count="14" type="stmt"/>
+      <line num="34" count="896" type="cond" truecount="4" falsecount="0"/>
+    </file>
+    <file name="moves.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/moves.ts">
+      <metrics statements="21" coveredstatements="21" conditionals="19" coveredconditionals="19" methods="6" coveredmethods="6"/>
+      <line num="6" count="2" type="stmt"/>
+      <line num="7" count="2" type="stmt"/>
+      <line num="11" count="29" type="stmt"/>
+      <line num="12" count="62" type="cond" truecount="2" falsecount="0"/>
+      <line num="13" count="26" type="stmt"/>
+      <line num="15" count="36" type="stmt"/>
+      <line num="16" count="133" type="stmt"/>
+      <line num="17" count="926" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="24" type="stmt"/>
+      <line num="22" count="12" type="stmt"/>
+      <line num="28" count="14" type="stmt"/>
+      <line num="37" count="26" type="stmt"/>
+      <line num="38" count="26" type="cond" truecount="5" falsecount="0"/>
+      <line num="39" count="5" type="stmt"/>
+      <line num="42" count="21" type="stmt"/>
+      <line num="43" count="21" type="stmt"/>
+      <line num="45" count="21" type="stmt"/>
+      <line num="49" count="63" type="cond" truecount="2" falsecount="0"/>
+      <line num="50" count="48" type="stmt"/>
+      <line num="51" count="21" type="cond" truecount="2" falsecount="0"/>
+      <line num="53" count="21" type="stmt"/>
+    </file>
+    <file name="notation.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/notation.ts">
+      <metrics statements="6" coveredstatements="6" conditionals="4" coveredconditionals="4" methods="5" coveredmethods="5"/>
+      <line num="5" count="5" type="stmt"/>
+      <line num="20" count="1416" type="cond" truecount="2" falsecount="0"/>
+      <line num="24" count="131" type="stmt"/>
+      <line num="25" count="16" type="cond" truecount="2" falsecount="0"/>
+      <line num="26" count="1" type="stmt"/>
+      <line num="28" count="15" type="stmt"/>
+    </file>
+    <file name="pieces.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/pieces.ts">
+      <metrics statements="10" coveredstatements="9" conditionals="2" coveredconditionals="1" methods="5" coveredmethods="4"/>
+      <line num="12" count="7" type="stmt"/>
+      <line num="48" count="39" type="stmt"/>
+      <line num="49" count="39" type="stmt"/>
+      <line num="50" count="1212" type="stmt"/>
+      <line num="51" count="1212" type="stmt"/>
+      <line num="52" count="1212" type="stmt"/>
+      <line num="53" count="1212" type="stmt"/>
+      <line num="54" count="1212" type="stmt"/>
+      <line num="60" count="0" type="stmt"/>
+      <line num="64" count="108" type="stmt"/>
+    </file>
+    <file name="placement.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/placement.ts">
+      <metrics statements="8" coveredstatements="8" conditionals="5" coveredconditionals="5" methods="4" coveredmethods="4"/>
+      <line num="7" count="966" type="stmt"/>
+      <line num="8" count="1080" type="stmt"/>
+      <line num="9" count="1080" type="stmt"/>
+      <line num="10" count="1080" type="stmt"/>
+      <line num="22" count="224" type="stmt"/>
+      <line num="23" count="28" type="stmt"/>
+      <line num="24" count="52" type="stmt"/>
+      <line num="26" count="28" type="stmt"/>
+    </file>
+    <file name="sampleGame.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/sampleGame.ts">
+      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <line num="5" count="0" type="stmt"/>
+    </file>
+    <file name="state.ts" path="/Users/fatoufofana/Documents/Mouss coding/Kubo/src/game/state.ts">
+      <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
+      <line num="4" count="5" type="stmt"/>
+      <line num="29" count="280" type="stmt"/>
+      <line num="34" count="31" type="stmt"/>
+      <line num="35" count="31" type="stmt"/>
+      <line num="36" count="24" type="stmt"/>
+      <line num="38" count="31" type="stmt"/>
+      <line num="42" count="23" type="stmt"/>
+    </file>
+  </project>
+</coverage>
