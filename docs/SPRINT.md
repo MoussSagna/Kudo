@@ -11,7 +11,7 @@
 
 ## Stories
 
-- [ ] **K-27a — Mémoriser que le tutoriel a été vu**
+- [x] **K-27a — Mémoriser que le tutoriel a été vu**
   - Reprendre le commit K-27a de la branche `sprint/tutorial` (`git cherry-pick`), l'adapter au module de stockage actuel, garder ses tests. Ne rien reprendre d'autre. Signaler tout conflit au lieu de le résoudre à l'aveugle.
 
 - [ ] **K-27d — Étape 1 : poser une pièce**
