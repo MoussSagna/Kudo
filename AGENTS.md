@@ -34,6 +34,7 @@ Une story est terminée quand :
 - `react-native-gesture-handler` + `react-native-reanimated` pour le glisser-déposer et les animations.
 - `@react-native-async-storage/async-storage` pour la sauvegarde.
 - `expo-audio` pour les sons, `expo-haptics` pour les vibrations.
+- `expo-linear-gradient` pour les fonds en dégradé, `react-native-safe-area-context` pour les zones sûres.
 - Jest pour les tests.
 - Pas de moteur de jeu, pas de backend, pas de librairie d'état global. Toute nouvelle dépendance doit être justifiée dans la revue de sprint.
 - Installe les paquets Expo avec `npx expo install` pour avoir des versions compatibles.

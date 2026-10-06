@@ -55,3 +55,4 @@ But : prêt à être montré ou publié.
 
 ## Idées (non planifiées)
 _L'agent ajoute ici ce qui sort du périmètre._
+- `SHARE_EMOJI` (`src/theme.ts`) : `cyan` et `blue` utilisent le même emoji 🟦, donc indistinguables dans le partage (K-26). À trancher avec Moussa.
