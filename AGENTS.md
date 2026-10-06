@@ -29,6 +29,28 @@ Une story est terminée quand :
 - l'app se lance dans Expo Go sans erreur ni warning rouge ;
 - aucun code mort, `any`, `console.log` ou TODO n'est laissé.
 
+## Intégration des écrans
+
+Les maquettes de référence sont dans `docs/design/` (un PNG par écran, 390 × 844).
+Pour toute story qui crée ou modifie un écran, applique cette boucle :
+
+1. Ouvre la maquette correspondante et liste ce que tu vois : structure, espacements, tailles de texte, couleurs, rayons, alignements.
+2. Intègre l'écran.
+3. Lance l'app sur l'émulateur et prends une capture :
+   - Android : `adb exec-out screencap -p > docs/design/captures/<ecran>-<n>.png`
+   - iOS : `xcrun simctl io booted screenshot docs/design/captures/<ecran>-<n>.png`
+4. Ouvre la capture et compare-la à la maquette, point par point. Note chaque écart visible : position, taille, espacement, couleur, élément manquant ou en trop.
+5. Corrige les écarts, puis reprends à l'étape 3.
+
+Règles de la boucle :
+- 3 passages maximum (3 captures). Arrête-toi plus tôt s'il ne reste aucun écart notable.
+- Après le 3e passage, n'itère plus, même s'il reste des écarts : liste-les dans la revue de sprint et laisse Moussa décider.
+- Compare toujours avec une capture réelle. Ne déclare jamais un écran conforme sans l'avoir regardé.
+- Les écarts dus à la taille d'écran de l'émulateur (proportions, zones sûres) ne sont pas des défauts : la maquette donne les proportions, pas des pixels exacts.
+- Les données affichées dans les maquettes (scores, dates, séries) sont des exemples.
+- Si l'émulateur n'est pas disponible ou que la capture échoue, ne contourne pas : arrête-toi et dis-le.
+- Dans la revue de sprint, indique pour chaque écran le nombre de passages effectués et les écarts restants.
+
 ## Stack imposée
 - Expo (dernière version stable du SDK), TypeScript en mode `strict`.
 - `react-native-gesture-handler` + `react-native-reanimated` pour le glisser-déposer et les animations.
