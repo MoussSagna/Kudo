@@ -1,4 +1,8 @@
-import { DMSans_400Regular } from '@expo-google-fonts/dm-sans';
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_700Bold,
+} from '@expo-google-fonts/dm-sans';
 import { Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -21,7 +25,12 @@ import { UI } from './src/theme';
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const [fontsLoaded, fontsError] = useFonts({ Fredoka_700Bold, DMSans_400Regular });
+  const [fontsLoaded, fontsError] = useFonts({
+    Fredoka_700Bold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_700Bold,
+  });
   const [launchDone, setLaunchDone] = useState(false);
   const [launchRemoved, setLaunchRemoved] = useState(false);
   const titleOpacity = useSharedValue(0);

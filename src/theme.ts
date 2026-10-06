@@ -15,15 +15,20 @@ export const UI = {
   backgroundTop: '#1E2550',
   cell: '#252C52',
   cellEdge: '#2F3868',
+  panel: '#191F42',
   text: '#FFFFFF',
   textMuted: '#8F97C4',
   textSoft: '#A9B0DA',
   accent: '#FFD23F',
+  accentEdge: '#C29708',
+  dotInactive: '#4B5586',
 } as const;
 
 export const FONTS = {
   title: 'Fredoka_700Bold',
   body: 'DMSans_400Regular',
+  bodyMedium: 'DMSans_500Medium',
+  bodyBold: 'DMSans_700Bold',
 } as const;
 
 export const GRID_SIZE = 8;
