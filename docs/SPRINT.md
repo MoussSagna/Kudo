@@ -22,7 +22,7 @@
   - Pendant le geste, si la pièce peut être posée à la case visée, ses cases s'affichent en transparence sur la grille. Sinon, aucun aperçu.
   - L'aperçu ne se met à jour que lorsque la case visée change.
 
-- [ ] **K-13 — Pose et retour**
+- [x] **K-13 — Pose et retour**
   - Au relâchement sur une position valide : la pièce se pose exactement là où l'aperçu l'indiquait, via `applyMove`.
   - Au relâchement ailleurs ou sur une position invalide : la pièce revient à sa place dans le plateau avec un ressort court.
   - Geste annulé par le système : même retour au plateau.

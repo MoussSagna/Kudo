@@ -34,6 +34,8 @@ interface DraggablePieceProps {
   activeIndex: SharedValue<number>;
   /** Called when the cell aimed at changes; col and row are -1 when no cell is aimed at. */
   onTargetChange: (index: number, col: number, row: number) => void;
+  /** Called when the piece is released over a cell; returns false when it cannot be placed there. */
+  onDrop: (index: number, col: number, row: number) => boolean;
 }
 
 /** A tray piece that follows the finger, at grid size, while it is dragged. */
@@ -45,6 +47,7 @@ export function DraggablePiece({
   gridRef,
   activeIndex,
   onTargetChange,
+  onDrop,
 }: DraggablePieceProps) {
   const pieceRef = useAnimatedRef<Animated.View>();
   const dragX = useSharedValue(0);
@@ -62,6 +65,20 @@ export function DraggablePiece({
   const pickedUpScale = gridCellSize / trayCellSize;
   const pickedUpWidth = columns * gridCellSize;
   const pickedUpHeight = rows * gridCellSize;
+
+  const returnToTray = () => {
+    'worklet';
+    dragX.value = withSpring(0, RETURN_SPRING);
+    dragY.value = withSpring(0, RETURN_SPRING);
+    lift.value = withSpring(0, RETURN_SPRING);
+    scale.value = withSpring(1, RETURN_SPRING);
+  };
+
+  const drop = (col: number, row: number) => {
+    if (!onDrop(index, col, row)) {
+      returnToTray();
+    }
+  };
 
   const pan = Gesture.Pan()
     .maxPointers(1)
@@ -107,11 +124,12 @@ export function DraggablePiece({
         scheduleOnRN(onTargetChange, index, col, row);
       }
     })
-    .onEnd(() => {
-      dragX.value = withSpring(0, RETURN_SPRING);
-      dragY.value = withSpring(0, RETURN_SPRING);
-      lift.value = withSpring(0, RETURN_SPRING);
-      scale.value = withSpring(1, RETURN_SPRING);
+    .onEnd((_event, success) => {
+      if (success && targetCol.value !== NONE) {
+        scheduleOnRN(drop, targetCol.value, targetRow.value);
+      } else {
+        returnToTray();
+      }
     })
     .onFinalize(() => {
       if (activeIndex.get() === index) {

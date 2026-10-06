@@ -32,7 +32,7 @@ function createInitialGame() {
 export function GameScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { game } = useGame(createInitialGame);
+  const { game, place } = useGame(createInitialGame);
   const gridRef = useAnimatedRef<Animated.View>();
   /** The tray slot being dragged and the cell it aims at, whether the piece fits there or not. */
   const [target, setTarget] = useState<{ index: number; col: number; row: number } | null>(null);
@@ -40,6 +40,15 @@ export function GameScreen() {
   const handleTargetChange = useCallback((index: number, col: number, row: number) => {
     setTarget(col < 0 ? null : { index, col, row });
   }, []);
+
+  const handleDrop = (index: number, col: number, row: number) => {
+    const piece = game.tray[index];
+    if (!piece || !canPlace(game.grid, piece, col, row)) {
+      return false;
+    }
+    place(index, col, row);
+    return true;
+  };
 
   const targetPiece = target ? game.tray[target.index] : null;
   const preview: GridPreview | null =
@@ -77,6 +86,7 @@ export function GameScreen() {
             gridCellSize={cellSize}
             gridRef={gridRef}
             onTargetChange={handleTargetChange}
+            onDrop={handleDrop}
           />
         </View>
       </View>
