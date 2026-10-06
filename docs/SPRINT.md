@@ -16,7 +16,7 @@
   - `app.json` : `name` Kubo, `slug` kubo, orientation portrait, icône, icône adaptative et splash avec le fond `#12162B`.
   - L'icône et le splash s'affichent correctement.
 
-- [ ] **K-03 — Outillage qualité**
+- [x] **K-03 — Outillage qualité**
   - ESLint configuré avec la config Expo.
   - Jest configuré (`jest-expo`), avec un test sur `createRng` : même graine, même suite.
   - `npm run check` enchaîne types, lint et tests, et passe.
