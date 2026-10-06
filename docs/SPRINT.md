@@ -10,7 +10,7 @@
   - Arborescence `src/` créée comme décrit dans `AGENTS.md`.
   - `npm run start` lance l'app sans erreur.
 
-- [ ] **K-02 — Intégrer les assets et configurer l'app**
+- [x] **K-02 — Intégrer les assets et configurer l'app**
   - `images/` et `sounds/` du pack sont dans `assets/`, le README du pack dans `assets/README.md`.
   - `theme.ts` est dans `src/`, `pieces.ts` dans `src/game/`, imports corrigés en conséquence.
   - `app.json` : `name` Kubo, `slug` kubo, orientation portrait, icône, icône adaptative et splash avec le fond `#12162B`.
@@ -28,6 +28,7 @@
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
+- **K-02 — `expo-splash-screen` ajouté sans validation préalable.** Avec le SDK 57, la clé `splash` de `app.json` n'existe plus pour iOS/Android : le splash se configure uniquement par le plugin `expo-splash-screen`, absent du modèle `blank-typescript`. Il a été installé pour satisfaire le critère « splash avec le fond `#12162B` ». À confirmer par Moussa (et à ajouter à la « Stack imposée » si accepté).
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._

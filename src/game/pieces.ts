@@ -1,4 +1,4 @@
-import type { BlockColor } from './theme';
+import type { BlockColor } from '../theme';
 
 /** Une cellule occupée, en [colonne, ligne] depuis le coin haut-gauche de la pièce. */
 export type Cell = readonly [number, number];
