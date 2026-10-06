@@ -12,25 +12,25 @@ import { UI } from '../theme';
 /**
  * Every duration and delay of the launch animation, in milliseconds (distances in points).
  * Total = emptyCellFade + 7 × blockStagger + blockSettle + pulse + taglineDelay + taglineFade
- * + endHold, to keep at or under 1500.
+ * + endHold, to keep at or under 2300.
  */
 const LAUNCH = {
-  emptyCellFadeMs: 150,
-  blockStaggerMs: 50,
-  blockFadeMs: 120,
+  emptyCellFadeMs: 225,
+  blockStaggerMs: 75,
+  blockFadeMs: 180,
   blockDropDistance: 180,
   /** Perceptual duration: the spring actually settles in about 1.5 times this value. */
-  blockSpring: { duration: 240, dampingRatio: 0.6 },
+  blockSpring: { duration: 350, dampingRatio: 0.5 },
   /** Time given to the last block to land before the pulse starts. */
-  blockSettleMs: 350,
+  blockSettleMs: 525,
   pulseScale: 1.07,
-  pulseMs: 150,
+  pulseMs: 220,
   titleRiseDistance: 22,
-  titleFadeMs: 250,
-  taglineDelayMs: 120,
+  titleFadeMs: 350,
+  taglineDelayMs: 180,
   taglineRiseDistance: 14,
-  taglineFadeMs: 250,
-  endHoldMs: 100,
+  taglineFadeMs: 350,
+  endHoldMs: 125,
   reducedMotionHoldMs: 1000,
 } as const;
 

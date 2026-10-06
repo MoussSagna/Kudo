@@ -18,7 +18,7 @@ But : au lancement, l'app affiche l'écran de lancement, puis passe à l'écran 
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que les polices soient chargées.
 - **K-31b** Animation de l'écran de lancement.
   - Les 9 cases du logo (grille 3×3 de l'icône) tombent une par une, de bas en haut, avec un léger rebond ; le logo fait ensuite une courte pulsation ; puis « Kubo » monte en fondu, suivi de « Un puzzle par jour. ».
-  - Durée totale inférieure à 1,5 seconde, puis transition vers l'accueil.
+  - Durée totale de 2,3 secondes au maximum, puis transition vers l'accueil.
   - Jouée uniquement au lancement à froid, une seule fois.
   - Réalisée avec `react-native-reanimated` (`withDelay`, `withSequence`, `withSpring`, `withTiming`).
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que l'écran animé soit prêt.

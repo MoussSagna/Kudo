@@ -16,7 +16,7 @@
     3. Quand le dernier bloc est posé, le logo entier fait une pulsation : échelle 1 → 1,07 → 1 en 150 ms environ.
     4. « Kubo » monte de 22 pt en fondu (250 ms).
     5. L'accroche monte de 14 pt en fondu (250 ms), 120 ms après le titre.
-  - Durée totale, de la première image au passage à l'écran titre : 1,5 seconde au maximum. Toutes les durées et tous les délais sont regroupés dans un seul objet de constantes en haut du fichier.
+  - Durée totale, de la première image au passage à l'écran titre : 2,3 secondes au maximum. Toutes les durées et tous les délais sont regroupés dans un seul objet de constantes en haut du fichier.
   - Le passage à l'écran titre se déclenche à la fin de l'animation, pas sur une minuterie indépendante.
   - Si « réduire les animations » est activé sur l'appareil : afficher directement l'état final pendant 1 seconde, sans mouvement.
   - Jouée une seule fois, au lancement à froid.
@@ -72,6 +72,13 @@ _À remplir par l'agent à la fin, puis attendre la validation._
 - **Écran de lancement (état final) : 1 passage** (`splash-1.png`, capture prise en fin d'animation avec `endHoldMs` allongé temporairement, puis remis à 100 ms).
   - Positions et tailles identiques à l'écran statique validé en K-31a.
   - Écarts restants : aucun notable (toujours environ 8 pt plus bas que la maquette, à cause de l'encoche de l'iPhone 18 Pro).
+
+### Retour de Moussa : animation ralentie
+- Demande : animation trop rapide, à allonger d'environ 50 % ; durée visée 2,2 s, 2,3 s au maximum. Seul l'objet `LAUNCH` a changé ; ordre, positions, état final et mode « réduire les animations » sont inchangés.
+- Nouvelles valeurs : case vide 225 ms ; écart entre blocs 75 ms ; fondu des blocs 180 ms ; ressort plus souple (`duration` 350, `dampingRatio` 0,5) ; attente avant la pulsation 525 ms ; pulsation 220 ms ; titre 350 ms ; accroche 350 ms, 180 ms après le titre ; pause finale 125 ms.
+- Durée totale : 2 150 ms par construction, 2,23 s mesurés sur la vidéo (échantillonnage à 60 images/s). L'écart d'environ 80 ms est la latence d'affichage ; la pause finale a été ramenée de 175 à 125 ms pour garder de la marge sous 2,3 s.
+- Vidéo : `docs/design/captures/splash-v2.mov`, l'animation commence à 12,75 s. État final confirmé par la capture `splash-v2-final.png`, identique à `splash-1.png`.
+- Les chiffres de durée donnés plus haut dans cette revue (1 470 ms, 1,5 s) décrivent la première version.
 
 ### Proposition de stories détaillées pour le sprint suivant
 - Sprint 1 — La grille et les règles (K-05 à K-10) : la proposition détaillée est dans `docs/reviews/sprint-0.md`. Branche suggérée : `sprint/1-grid-and-rules`.
