@@ -6,7 +6,6 @@ import Animated, {
   withDelay,
   withSequence,
   withTiming,
-  type WithSpringConfig,
 } from 'react-native-reanimated';
 
 import type { BlockColor } from '../theme';
@@ -26,7 +25,9 @@ export interface LogoMotion {
   blockStaggerMs: number;
   blockFadeMs: number;
   blockDropDistance: number;
-  blockSpring: WithSpringConfig;
+  blockDropMs: number;
+  blockBounceHeight: number;
+  blockBounceMs: number;
   pulseDelayMs: number;
   pulseScale: number;
   pulseMs: number;
@@ -39,12 +40,21 @@ function buildBlockEnters(motion: LogoMotion): BlockEnter[][] {
   for (let row = LOGO_ROWS.length - 1; row >= 0; row--) {
     enters[row] = LOGO_ROWS[row].map((color) =>
       color === null
-        ? { delayMs: 0, fadeMs: motion.emptyCellFadeMs, dropDistance: 0, spring: motion.blockSpring }
+        ? {
+            delayMs: 0,
+            fadeMs: motion.emptyCellFadeMs,
+            dropDistance: 0,
+            dropMs: 0,
+            bounceHeight: 0,
+            bounceMs: 0,
+          }
         : {
             delayMs: motion.blocksDelayMs + motion.blockStaggerMs * fallen++,
             fadeMs: motion.blockFadeMs,
             dropDistance: motion.blockDropDistance,
-            spring: motion.blockSpring,
+            dropMs: motion.blockDropMs,
+            bounceHeight: motion.blockBounceHeight,
+            bounceMs: motion.blockBounceMs,
           },
     );
   }

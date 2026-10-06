@@ -19,7 +19,7 @@
     6. Pause : tout reste affiché et immobile pendant 400 ms.
     7. Sortie, tout en même temps, en 300 ms : les blocs et la case vide passent de l'opacité 1 à 0 et de l'échelle 1 à 0,8 ; le titre et l'accroche passent de l'opacité 1 à 0, sans bouger.
     8. L'écran titre apparaît ensuite en fondu (opacité 0 à 1, 200 ms), sur le même fond `#12162B`, sans écran vide perceptible entre les deux.
-  - Durée totale, de la première image au début de l'écran titre : 2,9 secondes environ (2,2 d'entrée, 0,4 de pause, 0,3 de sortie), 3 secondes au maximum. Toutes les durées et tous les délais sont regroupés dans un seul objet de constantes en haut du fichier.
+  - Durée totale, de la première image au début de l'écran titre : 3,1 secondes environ (2,4 d'entrée, 0,4 de pause, 0,3 de sortie), 3,3 secondes au maximum. Toutes les durées et tous les délais sont regroupés dans un seul objet de constantes en haut du fichier.
   - Le passage à l'écran titre se déclenche à la fin de la sortie, pas sur une minuterie indépendante.
   - Si « réduire les animations » est activé sur l'appareil : afficher directement l'état final pendant 1 seconde, sans mouvement ni changement d'échelle, puis un simple fondu de 200 ms vers l'écran titre.
   - Jouée une seule fois, au lancement à froid.
@@ -92,6 +92,16 @@ _À remplir par l'agent à la fin, puis attendre la validation._
 - « Réduire les animations » vérifié : état final immobile pendant environ 1,07 s, puis fondu croisé d'environ 200 ms vers l'écran titre, sans changement d'échelle. Réglage du simulateur remis à sa valeur d'origine.
 - Vidéo : `docs/design/captures/splash-v3.mov`, l'animation commence à 12,20 s. Capture pendant la pause : `splash-v3-pause.png`, identique à l'état final validé.
 - `App.tsx` : l'écran titre est monté par-dessus l'écran de lancement pendant son fondu, puis l'écran de lancement est retiré.
+
+### Retour de Moussa : chute des blocs ralentie
+- Demande : chute beaucoup trop rapide ; on doit voir chaque bloc tomber, atterrir et rebondir. Seule la chute a changé ; pulsation, textes, pause et sortie gardent leurs réglages.
+- Le ressort est remplacé par un mouvement décomposé : descente de 450 ms en `withTiming` avec accélération (ease-in), puis rebond de 14 pt en 200 ms (montée puis retombée). L'opacité passe de 0 à 1 pendant le premier tiers de la chute (150 ms). Hauteur de départ inchangée (180 pt). Écart entre deux blocs : 110 ms.
+- Trois réglages distincts dans `LAUNCH` : `blockDropMs` (durée de chute), `blockStaggerMs` (écart entre blocs), `blockBounceHeight` (amplitude du rebond) ; `blockBounceMs` règle la durée du rebond. `blockSpring`, `blockSettleMs` et `blockFadeMs` disparaissent.
+- La pulsation part exactement quand le dernier bloc est stabilisé (fin de son rebond).
+- Durée totale, de la première image au début de l'écran titre : 3 095 ms par construction, 3,17 s mesurés sur la vidéo. Le critère passe à « 3,1 secondes environ, 3,3 secondes au maximum ».
+- Mesure sur le bloc rouge (premier à tomber) : chute de 442 ms, rebond de 14 pt, stabilisé 200 ms après l'atterrissage. Quatre images extraites pendant sa chute (`splash-v4-chute.png`, à 100 ms d'intervalle) le montrent à 223, 249, 294 et 356 pt du haut de l'écran, pour une position finale à 394 pt.
+- Vidéo : `docs/design/captures/splash-v4.mov`, l'animation commence à 14,38 s.
+- Le mode « réduire les animations » n'a pas été retesté : son code n'a pas changé.
 
 ### Proposition de stories détaillées pour le sprint suivant
 - Sprint 1 — La grille et les règles (K-05 à K-10) : la proposition détaillée est dans `docs/reviews/sprint-0.md`. Branche suggérée : `sprint/1-grid-and-rules`.

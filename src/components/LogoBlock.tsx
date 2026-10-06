@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withSpring,
+  withSequence,
   withTiming,
-  type WithSpringConfig,
 } from 'react-native-reanimated';
 
 import { BLOCK_IMAGES, CELL_EMPTY_IMAGE, type BlockColor } from '../theme';
@@ -18,7 +18,10 @@ export interface BlockEnter {
   fadeMs: number;
   /** Height the block falls from, 0 for a fade in place. */
   dropDistance: number;
-  spring: WithSpringConfig;
+  dropMs: number;
+  /** How high the block bounces back after landing. */
+  bounceHeight: number;
+  bounceMs: number;
 }
 
 interface LogoBlockProps {
@@ -34,8 +37,16 @@ export function LogoBlock({ color, enter }: LogoBlockProps) {
     if (!enter) {
       return;
     }
+    const halfBounce = enter.bounceMs / 2;
     opacity.value = withDelay(enter.delayMs, withTiming(1, { duration: enter.fadeMs }));
-    translateY.value = withDelay(enter.delayMs, withSpring(0, enter.spring));
+    translateY.value = withDelay(
+      enter.delayMs,
+      withSequence(
+        withTiming(0, { duration: enter.dropMs, easing: Easing.in(Easing.quad) }),
+        withTiming(-enter.bounceHeight, { duration: halfBounce, easing: Easing.out(Easing.quad) }),
+        withTiming(0, { duration: halfBounce, easing: Easing.in(Easing.quad) }),
+      ),
+    );
   }, [enter, opacity, translateY]);
 
   const enterStyle = useAnimatedStyle(() => ({

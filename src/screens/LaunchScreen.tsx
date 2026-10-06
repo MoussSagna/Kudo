@@ -18,18 +18,19 @@ import { UI } from '../theme';
 
 /**
  * Every duration and delay of the launch animation, in milliseconds (distances in points).
- * Total = emptyCellFade + 7 × blockStagger + blockSettle + pulse + taglineDelay + taglineFade
- * + pause + exit, to keep at or under 3000.
+ * Total = emptyCellFade + 7 × blockStagger + blockDrop + blockBounce + pulse + taglineDelay
+ * + taglineFade + pause + exit, to keep at or under 3300.
  */
 const LAUNCH = {
   emptyCellFadeMs: 225,
-  blockStaggerMs: 75,
-  blockFadeMs: 180,
+  /** Delay between two blocks starting to fall. */
+  blockStaggerMs: 110,
   blockDropDistance: 180,
-  /** Perceptual duration: the spring actually settles in about 1.5 times this value. */
-  blockSpring: { duration: 350, dampingRatio: 0.5 },
-  /** Time given to the last block to land before the pulse starts. */
-  blockSettleMs: 525,
+  /** Fall of one block, from its start to its landing. Its fade-in takes the first third. */
+  blockDropMs: 450,
+  /** Bounce amplitude: how high, in points, a block jumps back after landing. */
+  blockBounceHeight: 14,
+  blockBounceMs: 200,
   pulseScale: 1.07,
   pulseMs: 220,
   titleRiseDistance: 22,
@@ -49,7 +50,10 @@ export const TITLE_SCREEN_FADE_IN_MS = LAUNCH.titleScreenFadeInMs;
 
 const FALLING_BLOCKS = 8;
 const PULSE_DELAY_MS =
-  LAUNCH.emptyCellFadeMs + LAUNCH.blockStaggerMs * (FALLING_BLOCKS - 1) + LAUNCH.blockSettleMs;
+  LAUNCH.emptyCellFadeMs +
+  LAUNCH.blockStaggerMs * (FALLING_BLOCKS - 1) +
+  LAUNCH.blockDropMs +
+  LAUNCH.blockBounceMs;
 const TITLE_DELAY_MS = PULSE_DELAY_MS + LAUNCH.pulseMs;
 const TAGLINE_DELAY_MS = TITLE_DELAY_MS + LAUNCH.taglineDelayMs;
 const EXIT_DELAY_MS = TAGLINE_DELAY_MS + LAUNCH.taglineFadeMs + LAUNCH.pauseMs;
@@ -59,9 +63,11 @@ const LOGO_MOTION: LogoMotion = {
   emptyCellFadeMs: LAUNCH.emptyCellFadeMs,
   blocksDelayMs: LAUNCH.emptyCellFadeMs,
   blockStaggerMs: LAUNCH.blockStaggerMs,
-  blockFadeMs: LAUNCH.blockFadeMs,
+  blockFadeMs: LAUNCH.blockDropMs / 3,
   blockDropDistance: LAUNCH.blockDropDistance,
-  blockSpring: LAUNCH.blockSpring,
+  blockDropMs: LAUNCH.blockDropMs,
+  blockBounceHeight: LAUNCH.blockBounceHeight,
+  blockBounceMs: LAUNCH.blockBounceMs,
   pulseDelayMs: PULSE_DELAY_MS,
   pulseScale: LAUNCH.pulseScale,
   pulseMs: LAUNCH.pulseMs,
