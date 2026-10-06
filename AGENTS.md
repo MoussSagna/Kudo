@@ -67,10 +67,10 @@ Règles de la boucle :
 - `expo-linear-gradient` pour les fonds en dégradé, `react-native-safe-area-context` pour les zones sûres.
 - `expo-splash-screen` pour le splash natif, `expo-font` pour charger les polices.
 - `@expo-google-fonts/fredoka` (titres, Fredoka Bold) et `@expo-google-fonts/dm-sans` (textes, DM Sans).
-- `moti` pour l'animation de l'écran de lancement (K-31) uniquement. Le glisser-déposer et les animations de jeu restent en `react-native-reanimated` pur.
 - Jest pour les tests.
 - Pas de moteur de jeu, pas de backend, pas de librairie d'état global. Toute nouvelle dépendance doit être justifiée dans la revue de sprint.
 - Installe les paquets Expo avec `npx expo install` pour avoir des versions compatibles.
+- Pas d'installation d'essai de paquets hors du projet. Pour vérifier une compatibilité, utilise `npm view <paquet> dependencies peerDependencies` et la documentation, qui ne téléchargent rien.
 
 ## Architecture
 ```

@@ -16,12 +16,11 @@ But : au lancement, l'app affiche l'écran de lancement, puis passe à l'écran 
   - Logo en grille 3×3 construit avec les images de blocs du pack, « Kubo » en Fredoka Bold, « Un puzzle par jour. » en DM Sans.
   - Affiché environ 1 seconde, puis transition vers l'écran titre.
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que les polices soient chargées.
-- **K-31b** Animation de l'écran de lancement avec Moti.
+- **K-31b** Animation de l'écran de lancement.
   - Les 9 cases du logo (grille 3×3 de l'icône) tombent une par une, de bas en haut, avec un léger rebond ; le logo fait ensuite une courte pulsation ; puis « Kubo » monte en fondu, suivi de « Un puzzle par jour. ».
   - Durée totale inférieure à 1,5 seconde, puis transition vers l'accueil.
   - Jouée uniquement au lancement à froid, une seule fois.
-  - Réalisée avec `moti` (`MotiView`, `MotiText`, `MotiImage`) : chute et rebond des blocs avec une transition `spring` et un `delay` croissant par bloc, pulsation du logo en séquence, apparition des textes avec une transition `timing`.
-  - Avant d'installer `moti`, vérifie qu'il est compatible avec la version de `react-native-reanimated` du projet. S'il ne l'est pas, n'installe rien, ne force pas de version : note-le dans « Questions ouvertes » et arrête-toi.
+  - Réalisée avec `react-native-reanimated` (`withDelay`, `withSequence`, `withSpring`, `withTiming`).
   - `expo-splash-screen` garde le splash natif affiché jusqu'à ce que l'écran animé soit prêt.
   - Si le système demande de réduire les animations, afficher directement le logo complet, sans mouvement.
 

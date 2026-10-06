@@ -7,8 +7,8 @@
 ## Stories
 
 - [ ] **K-31b — Animation de l'écran de lancement**
-  - Avant tout : vérifier que `moti` est compatible avec la version de `react-native-reanimated` qu'installe `npx expo install`. S'il ne l'est pas, ne rien installer, ne forcer aucune version : le noter dans « Questions ouvertes » et s'arrêter.
-  - Dépendances autorisées : `moti`, `react-native-reanimated` et ce que ce dernier exige (plugin Babel, worklets). Moti ne sert qu'à cet écran.
+  - Réalisée avec `react-native-reanimated` (`withDelay`, `withSequence`, `withSpring`, `withTiming`), installé avec `npx expo install react-native-reanimated` et ce qu'il exige. Pas de Moti.
+  - Passage à l'écran titre déclenché avec l'API recommandée par la version installée (pas de fonction marquée obsolète) ; « réduire les animations » lu avec le hook `useReducedMotion` de Reanimated.
   - L'état final de l'animation est exactement l'écran statique actuel : ne changer ni les tailles ni les positions.
   - Séquence :
     1. La case vide apparaît en fondu (150 ms).
@@ -26,6 +26,8 @@
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
+- **Disque plein (résolu)** : une installation d'essai de `moti` hors du projet a saturé le disque et bloqué toutes les commandes ; espace libéré par Moussa, et les installations d'essai sont désormais interdites (`AGENTS.md`).
+- **Moti abandonné (décidé par Moussa)** : `moti` 0.30.0 amène, via `framer-motion` 6.5.1, une deuxième copie de React (19.3.0 contre 19.2.3 dans le projet) ; K-31b se fait en `react-native-reanimated` pur.
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._
