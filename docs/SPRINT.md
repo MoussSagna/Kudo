@@ -8,7 +8,7 @@
 
 ## Stories
 
-- [ ] **K-05 — État du jeu**
+- [x] **K-05 — État du jeu**
   - Types : grille 8×8 (couleur ou vide par case), plateau de 3 emplacements (pièce ou vide), score, niveau de série, nombre de tirages, partie terminée ou non.
   - `createGame(seed)` renvoie une partie neuve : grille vide, 3 pièces tirées avec `createRng(seed)`. Même graine, même partie (testé).
 
