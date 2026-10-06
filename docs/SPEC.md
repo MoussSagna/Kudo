@@ -14,7 +14,7 @@ Un block puzzle calme et lisible, avec un défi par jour, identique pour tous le
 ## Score
 - Pose : +1 point par case de la pièce.
 - Effacement : `10 × n × n` points, où `n` est le nombre de lignes et colonnes vidées par la même pose (1 → 10, 2 → 40, 3 → 90).
-- Série : si une pose efface au moins une ligne alors que la pose précédente en avait aussi effacé, le gain d'effacement est multiplié par le niveau de série (2, puis 3, etc.). Une pose sans effacement remet la série à 1.
+- Série : si une pose efface au moins une ligne ou une colonne alors que la pose précédente en avait aussi effacé, le gain d'effacement est multiplié par le niveau de série (2, puis 3, etc.). Une pose sans effacement remet la série à 1.
 
 ## Pièces
 Les 31 formes sont dans `src/game/pieces.ts`. Les cases sont en `[colonne, ligne]` depuis le coin haut-gauche. Chaque pièce a une couleur fixe.
