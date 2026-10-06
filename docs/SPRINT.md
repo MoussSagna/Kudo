@@ -6,7 +6,7 @@
 
 ## Stories
 
-- [ ] **K-27a — Mémoriser que le tutoriel a été vu**
+- [x] **K-27a — Mémoriser que le tutoriel a été vu**
   - Installer `@react-native-async-storage/async-storage` avec `npx expo install`.
   - Dans `src/storage/`, deux fonctions : lire si le tutoriel a été vu, et le marquer comme vu. Une seule clé, versionnée (par exemple `kubo:tutorialSeen:v1`).
   - En cas d'erreur de lecture, considérer le tutoriel comme non vu.
