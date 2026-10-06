@@ -24,7 +24,7 @@
   - Un coup invalide renvoie l'état inchangé.
   - Tests chiffrés sur le score, dont deux effacements consécutifs (série ×2) et la remise à 1 de la série.
 
-- [ ] **K-09 — Fin de partie**
+- [x] **K-09 — Fin de partie**
   - `hasAnyMove(grid, tray)` : vrai si au moins une pièce restante peut être posée quelque part. Tests : grille vide, grille pleine, une seule place possible.
 
 - [ ] **K-10 — Affichage de l'écran de jeu**
