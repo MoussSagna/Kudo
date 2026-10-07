@@ -19,7 +19,7 @@
   - Toutes les durées dans un objet de constantes unique.
   - « Réduire les animations » : pas de mouvement ni d'échelle, de simples fondus.
 
-- [ ] **K-16 — Sons**
+- [x] **K-16 — Sons**
   - `expo-audio`, sons du pack préchargés au démarrage de l'écran.
   - Saisie : pick. Pose valide : place. Retour au plateau : invalid. Effacement simple : clear. Effacement de 2 lignes ou plus, ou en série : combo. Fin de partie : gameover.
   - Une pose qui efface joue clear ou combo, pas place en plus.

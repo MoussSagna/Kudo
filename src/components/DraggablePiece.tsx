@@ -44,6 +44,9 @@ interface DraggablePieceProps {
    * points from the first grid cell; returns false when it cannot be placed there.
    */
   onDrop: (index: number, col: number, row: number, left: number, top: number) => boolean;
+  onPickUp: () => void;
+  /** Called when the piece goes back to the tray instead of being placed. */
+  onReturn: () => void;
 }
 
 /** A tray piece that follows the finger, at grid size, while it is dragged. */
@@ -57,6 +60,8 @@ export function DraggablePiece({
   activeIndex,
   onTargetChange,
   onDrop,
+  onPickUp,
+  onReturn,
 }: DraggablePieceProps) {
   const pieceRef = useAnimatedRef<Animated.View>();
   const dragX = useSharedValue(0);
@@ -96,6 +101,7 @@ export function DraggablePiece({
   const drop = (col: number, row: number, left: number, top: number) => {
     if (!onDrop(index, col, row, left, top)) {
       returnToTray();
+      onReturn();
     }
   };
 
@@ -122,6 +128,7 @@ export function DraggablePiece({
       }
       lift.value = withTiming(LIFT, { duration: MOTION.pickUpMs });
       scale.value = withTiming(pickedUpScale, { duration: MOTION.pickUpMs });
+      scheduleOnRN(onPickUp);
     })
     .onUpdate((event) => {
       dragX.value = event.translationX;
@@ -155,6 +162,7 @@ export function DraggablePiece({
         );
       } else {
         returnToTray();
+        scheduleOnRN(onReturn);
       }
     })
     .onFinalize(() => {

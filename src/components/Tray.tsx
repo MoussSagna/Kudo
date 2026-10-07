@@ -21,6 +21,8 @@ interface TrayProps {
   gridRef: AnimatedRef<Animated.View>;
   onTargetChange: (index: number, col: number, row: number) => void;
   onDrop: (index: number, col: number, row: number, left: number, top: number) => boolean;
+  onPickUp: () => void;
+  onReturn: () => void;
 }
 
 /** The pieces offered to the player, one per slot; a played slot stays empty. */
@@ -33,6 +35,8 @@ export function Tray({
   gridRef,
   onTargetChange,
   onDrop,
+  onPickUp,
+  onReturn,
 }: TrayProps) {
   const activeIndex = useSharedValue(NO_PIECE);
 
@@ -52,6 +56,8 @@ export function Tray({
               activeIndex={activeIndex}
               onTargetChange={onTargetChange}
               onDrop={onDrop}
+              onPickUp={onPickUp}
+              onReturn={onReturn}
             />
           ) : null}
         </View>

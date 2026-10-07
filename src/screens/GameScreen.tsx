@@ -8,6 +8,8 @@ import { GameOverBanner } from '../components/GameOverBanner';
 import { Grid, GRID_PADDING, type GridPreview } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
+import { moveFeedback } from '../game/feedback';
+import type { MoveResult } from '../game/moves';
 import { canPlace } from '../game/placement';
 import {
   DEMO_GAME,
@@ -20,6 +22,7 @@ import {
 import { createGame, type GameState } from '../game/state';
 import { useDemoMoves } from '../hooks/useDemoMoves';
 import { useGame } from '../hooks/useGame';
+import { useSounds } from '../hooks/useSounds';
 import { GRID_SIZE, UI } from '../theme';
 
 /**
@@ -37,6 +40,8 @@ const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
 const DEMO_SCRIPT = SAMPLE_GAME_NAME === 'demo' ? DEMO_MOVES : null;
 /** In the demo, a piece is released this fraction of a cell away from its target. */
 const DEMO_RELEASE_OFFSET = 0.45;
+/** The end-of-game feedback comes after the feedback of the last move, not on top of it. */
+const GAME_OVER_FEEDBACK_DELAY_MS = 450;
 
 const GRID_MARGIN = 13;
 const TRAY_MARGIN = 19;
@@ -65,14 +70,35 @@ export function GameScreen() {
     setTarget(col < 0 ? null : { index, col, row });
   }, []);
 
-  const handleDrop = (index: number, col: number, row: number, left: number, top: number) =>
-    place(index, col, row, { left, top }) !== null;
+  const playSound = useSounds();
+
+  /** The sound of a move that was just played. */
+  const giveFeedback = (result: MoveResult) => {
+    playSound(moveFeedback(result));
+    if (result.next.isOver) {
+      setTimeout(() => playSound('gameover'), GAME_OVER_FEEDBACK_DELAY_MS);
+    }
+  };
+
+  const playAt = (index: number, col: number, row: number, left: number, top: number) => {
+    const result = place(index, col, row, { left, top });
+    if (result) {
+      giveFeedback(result);
+    }
+    return result !== null;
+  };
+
+  const handlePickUp = () => playSound('pick');
+  const handleReturn = () => playSound('invalid');
 
   useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
-    place(trayIndex, col, row, {
-      left: (col + DEMO_RELEASE_OFFSET) * cellSize,
-      top: (row + DEMO_RELEASE_OFFSET) * cellSize,
-    });
+    playAt(
+      trayIndex,
+      col,
+      row,
+      (col + DEMO_RELEASE_OFFSET) * cellSize,
+      (row + DEMO_RELEASE_OFFSET) * cellSize,
+    );
   });
 
   const targetPiece = target ? game.tray[target.index] : null;
@@ -110,7 +136,9 @@ export function GameScreen() {
             gridCellSize={cellSize}
             gridRef={gridRef}
             onTargetChange={handleTargetChange}
-            onDrop={handleDrop}
+            onDrop={playAt}
+            onPickUp={handlePickUp}
+            onReturn={handleReturn}
           />
         </View>
         {game.isOver ? (
