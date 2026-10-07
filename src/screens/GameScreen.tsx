@@ -23,6 +23,7 @@ import {
 import { createGame, type GameState } from '../game/state';
 import { useDemoMoves } from '../hooks/useDemoMoves';
 import { playHaptic } from '../haptics';
+import { useBestScore } from '../hooks/useBestScore';
 import { useGame } from '../hooks/useGame';
 import { useSounds } from '../hooks/useSounds';
 import { GRID_SIZE, UI } from '../theme';
@@ -74,6 +75,7 @@ export function GameScreen() {
   }, []);
 
   const playSound = useSounds();
+  const { best, submit: submitScore } = useBestScore();
 
   /** The sound and the vibration of a move that was just played. */
   const giveFeedback = (result: MoveResult) => {
@@ -81,6 +83,7 @@ export function GameScreen() {
     playSound(feedback);
     playHaptic(feedback === 'place' ? 'place' : 'clear');
     if (result.next.isOver) {
+      submitScore(result.next.score);
       setTimeout(() => {
         playSound('gameover');
         playHaptic('gameover');
@@ -134,7 +137,7 @@ export function GameScreen() {
         ]}
       >
         <View style={styles.score}>
-          <ScoreHeader score={game.score} />
+          <ScoreHeader score={game.score} best={best} streak={game.streak} />
         </View>
         <View style={styles.grid}>
           <Animated.View ref={gridRef}>

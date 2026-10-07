@@ -12,7 +12,7 @@
 - [x] **K-33 — Statistiques de partie**
   - L'état du jeu compte, en fonctions pures et testées : le nombre de pièces posées, le nombre de lignes et colonnes effacées, et la meilleure série atteinte.
 
-- [ ] **K-19 — Meilleur score**
+- [x] **K-19 — Meilleur score**
   - Installer `@react-native-async-storage/async-storage` avec `npx expo install`.
   - Dans `src/storage/`, lecture et écriture du meilleur score, clé versionnée. Une erreur de lecture donne 0, une erreur d'écriture est ignorée sans planter. Tests avec le mock officiel.
   - L'en-tête de l'écran de jeu affiche « Meilleur : N » et la pastille « Série ×N » quand la série vaut 2 ou plus, comme sur `docs/design/jeu.png`.
