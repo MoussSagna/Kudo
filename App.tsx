@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   ReduceMotion,
   useAnimatedStyle,
@@ -57,17 +58,19 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.root}>
-        {launchRemoved ? null : <LaunchScreen onDone={handleLaunchDone} />}
-        {launchDone ? (
-          <Animated.View style={[StyleSheet.absoluteFill, gameStyle]}>
-            <GameScreen />
-          </Animated.View>
-        ) : null}
-      </View>
-      <StatusBar style="light" />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <SafeAreaProvider>
+        <View style={styles.root}>
+          {launchRemoved ? null : <LaunchScreen onDone={handleLaunchDone} />}
+          {launchDone ? (
+            <Animated.View style={[StyleSheet.absoluteFill, gameStyle]}>
+              <GameScreen />
+            </Animated.View>
+          ) : null}
+        </View>
+        <StatusBar style="light" />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

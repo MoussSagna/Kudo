@@ -1,110 +1,107 @@
-# Sprint en cours : Écran de jeu, partie 1 — règles et affichage
+# Sprint en cours : Écran de jeu, partie 2 — jouable
 
-**But** : toute la logique du jeu existe et est testée, et l'écran de jeu s'affiche fidèlement à la maquette, sans interaction.
-**Hors périmètre** : gestes, glisser-déposer, animations, sons, sauvegarde, fin de partie à l'écran, défi du jour.
-**Branche** : `sprint/game-screen-1`
+**But** : on peut jouer une partie complète au doigt, du premier coup à la fin de partie.
+**Hors périmètre** : sons, vibrations, animations d'effacement, meilleur score, sauvegarde, écran de fin de partie définitif, en-tête (retour, pause). Ils viennent dans les sprints suivants.
+**Branche** : `sprint/game-screen-2`
 
-**Règle pour K-05 à K-09** : tout va dans `src/game/`, en fonctions pures, sans React ni React Native, sans mutation des arguments, sans `Math.random()`. Chaque fonction a ses tests. Référence unique pour les règles : `docs/SPEC.md`.
+**Règles communes**
+- Toute règle de jeu passe par `applyMove` et `canPlace`. L'interface ne recalcule jamais une règle elle-même.
+- Le glisser se fait sur le fil d'interface avec `react-native-gesture-handler` et `react-native-reanimated` : aucun `setState` à chaque image pendant le geste.
+- `GestureHandlerRootView` à la racine de l'app.
 
 ## Stories
 
-- [x] **K-05 — État du jeu**
-  - Types : grille 8×8 (couleur ou vide par case), plateau de 3 emplacements (pièce ou vide), score, niveau de série, nombre de tirages, partie terminée ou non.
-  - `createGame(seed)` renvoie une partie neuve : grille vide, 3 pièces tirées avec `createRng(seed)`. Même graine, même partie (testé).
+- [x] **K-11 — Glisser une pièce**
+  - Chaque pièce du plateau se saisit au doigt et suit le geste.
+  - À la saisie, la pièce passe de sa taille de plateau à la taille des cases de la grille, et se place au-dessus du doigt (décalage vertical d'environ 70 pt) pour rester visible.
+  - Une seule pièce à la fois. Un emplacement vide du plateau ne réagit pas.
+  - Hook `useGame` dans `src/hooks/` : il détient l'état du jeu et expose l'action de pose.
 
-- [x] **K-06 — Pose**
-  - `canPlace(grid, piece, col, row)` : vrai si toutes les cases de la pièce sont dans la grille et sur des cases vides. Tests : bords, coins, chevauchement.
-  - `placePiece(...)` renvoie une nouvelle grille avec la pièce dans sa couleur.
+- [x] **K-12 — Aperçu sur la grille**
+  - Une fonction pure et testée convertit la position de la pièce à l'écran en case de grille (colonne, ligne) pour son coin haut-gauche, avec arrondi à la case la plus proche. Tests : centre d'une case, bord entre deux cases, hors grille.
+  - Pendant le geste, si la pièce peut être posée à la case visée, ses cases s'affichent en transparence sur la grille. Sinon, aucun aperçu.
+  - L'aperçu ne se met à jour que lorsque la case visée change.
 
-- [x] **K-07 — Effacement**
-  - `clearLines(grid)` renvoie la nouvelle grille et le nombre de lignes et colonnes vidées. Lignes et colonnes sont détectées avant tout effacement, puis vidées ensemble. Tests : une ligne, une colonne, croisement ligne + colonne, aucune.
+- [x] **K-13 — Pose et retour**
+  - Au relâchement sur une position valide : la pièce se pose exactement là où l'aperçu l'indiquait, via `applyMove`.
+  - Au relâchement ailleurs ou sur une position invalide : la pièce revient à sa place dans le plateau avec un ressort court.
+  - Geste annulé par le système : même retour au plateau.
 
-- [x] **K-08 — Coup complet et score**
-  - `applyMove(state, trayIndex, col, row)` : pose, efface, calcule le score selon `SPEC.md` (1 point par case, 10 × n × n par effacement, multiplicateur de série), vide l'emplacement du plateau, retire 3 nouvelles pièces quand le plateau est vide, puis met à jour « partie terminée ».
-  - Un coup invalide renvoie l'état inchangé.
-  - Tests chiffrés sur le score, dont deux effacements consécutifs (série ×2) et la remise à 1 de la série.
-
-- [x] **K-09 — Fin de partie**
-  - `hasAnyMove(grid, tray)` : vrai si au moins une pièce restante peut être posée quelque part. Tests : grille vide, grille pleine, une seule place possible.
-
-- [x] **K-10 — Affichage de l'écran de jeu**
-  - Maquette : `docs/design/jeu.png`.
-  - Composants dans `src/components/` : la grille 8×8, une pièce (construite avec les images de blocs selon ses `cells`), le plateau de 3 pièces, l'en-tête de score.
-  - La taille de case se calcule depuis la largeur de l'écran ; la grille reste carrée et centrée.
-  - Affiche pour l'instant : le score, la grille, le plateau. N'affiche pas encore le bouton retour, le bouton pause, « Série ×2 » ni « Meilleur » : ils arriveront avec les sprints qui les rendent fonctionnels. Pas de bouton inactif.
-  - Après l'écran de lancement, l'app affiche directement l'écran de jeu. Supprimer l'écran titre provisoire.
-  - Pour la comparaison visuelle, créer un état d'exemple reproduisant la maquette et l'afficher via une constante de développement. Grille, ligne par ligne (r rouge, o orange, y jaune, g vert, c cyan, b bleu, p violet, . vide) : `........ / ........ / ..p..... / r.pp.c.c / ....y..o / ..cg..rg / yg..c..b / g.bbbb.b`. Plateau : les pièces `L_d`, `sq2`, `v3`. Score : 1240. Les couleurs des pièces viennent de `pieces.ts` ; un écart de couleur avec la maquette sur les pièces du plateau n'est pas un défaut.
-  - Hors mode d'exemple, l'écran affiche une partie neuve créée par `createGame`.
+- [x] **K-14 — Effacement, score, nouveau tirage, fin**
+  - Après une pose, la grille, le score et le plateau reflètent le nouvel état : lignes et colonnes pleines vidées, score mis à jour, trois nouvelles pièces quand le plateau est vide. Sans animation pour l'instant.
+  - Quand la partie est terminée, les pièces ne se saisissent plus et un bandeau provisoire s'affiche : « Partie terminée », le score, un bouton « Rejouer » qui lance une partie neuve. Ce bandeau sera remplacé par l'écran de fin de partie.
 
 ## Vérification
 - `npm run check` après chaque story.
-- K-10 : boucle « Intégration des écrans » sur le simulateur iOS avec l'état d'exemple, 3 passages maximum. Les éléments volontairement absents (boutons, série, meilleur score) ne comptent pas comme des écarts.
+- Affichage au repos : une capture sur le simulateur, comparée à `docs/design/jeu.png`, pour confirmer que rien n'a bougé. 1 passage suffit.
+- L'agent ne peut pas exécuter de geste sur le simulateur : il ne déclare pas le glisser-déposer vérifié. Il fournit dans la revue une liste de contrôle à dérouler à la main, avec pour chaque point ce que Moussa doit observer : saisie, décalage au-dessus du doigt, aperçu, pose valide, pose invalide, pose sur le bord, effacement d'une ligne, d'une colonne, des deux, nouveau tirage, fin de partie, rejouer.
+- Indiquer comment provoquer vite une fin de partie pour la tester (une graine ou un état d'exemple).
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
-- **`docs/SPEC.md`, « Décisions à confirmer »** : la demande était d'en retirer « le barème », mais la liste ne contient aucune ligne sur le barème. Elle contient deux lignes : le changement de jour à minuit UTC, et la pondération du tirage des pièces. `docs/SPEC.md` n'a donc pas été modifié. Laquelle faut-il retirer ?
-- **Série : « ligne » inclut-il les colonnes ?** `docs/SPEC.md` dit « efface au moins une ligne ». Le code compte lignes et colonnes ensemble (toute pose qui efface quelque chose prolonge la série). À confirmer.
-- **Graine d'une partie neuve** : hors mode d'exemple, l'écran crée la partie avec `Date.now()` comme graine, en attendant le défi du jour (K-20) et la partie libre (K-25). À confirmer.
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._
 
 ### Branche
-`sprint/game-screen-1`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
+`sprint/game-screen-2`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
 
 ### Ce qui a été livré
-- **K-05** `src/game/state.ts` : types `Grid`, `Tray`, `GameState` ; `createEmptyGrid`, `drawTray(seed, drawIndex)`, `createGame(seed)`.
-- **K-06** `src/game/placement.ts` : `canPlace`, `placePiece`. `src/game/notation.ts` : `gridFrom` (grille écrite en lettres) et `pieceById`, utilisés par les tests et par l'état d'exemple.
-- **K-07** `src/game/lines.ts` : `clearLines` (détection de toutes les lignes et colonnes pleines, puis effacement d'un seul coup).
-- **K-08** `src/game/moves.ts` : `applyMove`, `clearPoints`, `hasAnyMove`.
-- **K-09** tests de `hasAnyMove` et de la fin de partie dans `applyMove`.
-- **K-10** écran de jeu `src/screens/GameScreen.tsx` et composants `Grid`, `PieceView`, `Tray`, `ScoreHeader` (plus `formatScore`). L'écran titre provisoire est supprimé : après l'écran de lancement, l'app affiche l'écran de jeu.
-- État d'exemple de la maquette : `src/game/sampleGame.ts`.
-- Documents : backlog réorganisé par écran, maquettes du tutoriel interactif renommées (`tuto-1a.png`, `tuto-1b.png`, `tuto-2a.png`, `tuto-2b.png`, `tuto-3.png`) et commitées.
-
-### Choix de conception à connaître
-- **Série** : `GameState.streak` est le multiplicateur qui s'appliquera au prochain effacement. Il vaut 1 au départ, passe à 2 après une pose qui efface, puis 3, etc. ; une pose sans effacement le remet à 1. Le premier effacement d'une série est donc multiplié par 1, le suivant par 2, comme dans `docs/SPEC.md`.
-- **Tirages reproductibles** : l'état ne contient pas de générateur aléatoire, seulement la graine et le nombre de tirages. Le tirage suivant se recalcule à partir des deux, ce qui rend l'état sauvegardable tel quel (utile pour K-21).
-- **Coup invalide** : `applyMove` renvoie exactement le même objet d'état (emplacement vide, hors grille, case occupée, partie terminée).
+- **K-11** `src/components/DraggablePiece.tsx` : chaque pièce du plateau suit le doigt, passe à la taille des cases de la grille et se place 70 pt au-dessus du doigt. Une seule pièce à la fois. Hook `src/hooks/useGame.ts` (état du jeu, `place`, `restart`). `GestureHandlerRootView` à la racine.
+- **K-12** `src/game/targetCell.ts` : conversion position à l'écran → case de grille, testée. Aperçu translucide sur la grille quand la pose est possible ; il n'est recalculé que lorsque la case visée change.
+- **K-13** pose via `applyMove` à la case de l'aperçu ; retour au plateau avec un ressort court si la position est invalide, hors grille, ou si le geste est annulé.
+- **K-14** l'écran reflète l'état après chaque pose ; en fin de partie, les pièces ne se saisissent plus et le bandeau provisoire `GameOverBanner` affiche « Partie terminée », le score et « Rejouer ».
+- Documents : précision « une ligne ou une colonne » dans `docs/SPEC.md` ; K-16 à K-18 déplacées dans « Écran de jeu, partie 3 — sensations ».
 
 ### Comment le vérifier
-- `npm run check` : sans erreur ni avertissement, 59 tests réussis.
-- `npx expo start --ios` : après l'écran de lancement, l'écran de jeu affiche « SCORE », 0, une grille vide et trois pièces tirées au hasard.
-- Pour afficher la partie de la maquette : `EXPO_PUBLIC_SAMPLE_GAME=1 npx expo start --ios` (développement uniquement). On doit voir le score 1 240, la grille de la maquette et les pièces `L_d`, `sq2`, `v3`.
-- Vérifié par l'agent sur le simulateur iOS (iPhone 18 Pro, Expo Go) : l'état d'exemple et une partie neuve.
-- **Non vérifié** : Android, un vrai téléphone, les petits écrans et les tablettes (K-29).
+- `npm run check` : sans erreur ni avertissement, 68 tests réussis.
+- `npx expo start --ios`, puis dérouler la liste de contrôle ci-dessous.
+- **Vérifié par l'agent** : `npm run check`, `expo-doctor`, et l'affichage au repos sur le simulateur iOS (iPhone 18 Pro, Expo Go) pour trois états : la partie de la maquette, la partie à un coup de la fin, la partie terminée avec son bandeau.
+- **Non vérifié par l'agent** : tout ce qui demande un geste. Le glisser-déposer, l'aperçu, la pose, le retour au plateau, l'effacement en jouant et le bouton « Rejouer » n'ont été exécutés par personne. Seule la logique sous-jacente (`targetCell`, `canPlace`, `applyMove`) est couverte par des tests.
+
+### Liste de contrôle du glisser-déposer, à dérouler à la main
+Lancer avec `EXPO_PUBLIC_SAMPLE_GAME=1 npx expo start --ios` pour les points 1 à 9 (partie de la maquette : pièces `L_d`, `sq2`, `v3`).
+
+1. **Saisie** — poser le doigt sur une pièce du plateau et commencer à glisser. *Attendu* : la pièce suit le doigt sans retard ni saccade ; elle grossit jusqu'à la taille des cases de la grille en un instant (environ 0,1 s).
+2. **Décalage au-dessus du doigt** — pendant le glisser. *Attendu* : la pièce reste visible, environ 70 pt au-dessus du doigt, et passe au-dessus de la grille et du plateau sans être masquée.
+3. **Une seule pièce** — pendant qu'une pièce est tenue, toucher une autre pièce avec un second doigt. *Attendu* : la seconde ne bouge pas. Toucher un emplacement vide du plateau : rien ne se passe.
+4. **Aperçu** — amener la pièce au-dessus de cases vides. *Attendu* : ses cases apparaissent en transparence sur la grille, alignées sur les cases ; l'aperçu saute d'une case à l'autre et ne tremble pas quand on bouge de quelques points.
+5. **Pas d'aperçu** — amener la pièce sur des cases occupées, ou hors de la grille. *Attendu* : aucun aperçu.
+6. **Pose valide** — relâcher quand l'aperçu est visible. *Attendu* : la pièce se pose exactement sur les cases de l'aperçu, dans sa couleur ; son emplacement du plateau reste vide ; le score augmente du nombre de cases (4 pour `L_d` ou `sq2`, 3 pour `v3`).
+7. **Pose invalide** — relâcher sur des cases occupées, sur le plateau, ou hors de la grille. *Attendu* : la pièce revient à sa place dans le plateau, à sa petite taille, avec un ressort court ; le score ne change pas.
+8. **Pose sur le bord** — poser `v3` dans la colonne de droite, puis essayer de la faire dépasser d'une case à droite ou en bas. *Attendu* : contre le bord, l'aperçu s'affiche et la pose réussit ; en dépassant de plus d'une demi-case, pas d'aperçu et retour au plateau.
+9. **Nouveau tirage** — poser les trois pièces. *Attendu* : dès la troisième pose, trois nouvelles pièces apparaissent dans le plateau, à leur taille normale et à leur place.
+10. **Effacement d'une ligne** — en partie normale, compléter une ligne. *Attendu* : la ligne se vide d'un coup (sans animation) ; le score augmente des cases posées plus 10.
+11. **Effacement d'une colonne** — compléter une colonne. *Attendu* : même comportement, plus 10.
+12. **Ligne et colonne ensemble** — compléter une ligne et une colonne avec la même pièce. *Attendu* : les deux se vident ensemble, y compris la case au croisement ; plus 40.
+13. **Série** — effacer avec deux poses de suite. *Attendu* : le second effacement d'une ligne rapporte 20 au lieu de 10. Après une pose sans effacement, le suivant rapporte de nouveau 10.
+14. **Fin de partie** — voir la section suivante. *Attendu* : le bandeau « Partie terminée » s'affiche avec le score ; les pièces restantes ne se saisissent plus.
+15. **Rejouer** — toucher « Rejouer ». *Attendu* : le bandeau disparaît, la grille est vide, le score vaut 0, trois nouvelles pièces sont proposées et se saisissent normalement.
+16. **Geste annulé** — pendant un glisser, faire apparaître le centre de notifications ou recevoir un appel. *Attendu* : la pièce revient au plateau et l'aperçu disparaît.
+
+### Comment provoquer rapidement une fin de partie
+- `EXPO_PUBLIC_SAMPLE_GAME=end npx expo start --ios` : la grille est presque pleine, le plateau contient un point jaune, un carré et une barre de trois. **Poser le point jaune dans la case libre du coin en haut à gauche** : rien ne s'efface, les deux autres pièces n'ont plus de place, la partie se termine avec 481 points. (Le poser sur une case libre des lignes 2, 4, 6 ou 8 efface au contraire une ligne et une colonne, et la partie continue.)
+- `EXPO_PUBLIC_SAMPLE_GAME=over npx expo start --ios` : la partie est déjà terminée, pour voir directement le bandeau et tester « Rejouer ».
+- Ces variables ne sont lues qu'en développement. Si un serveur Expo tourne déjà, l'arrêter d'abord : la variable est lue au démarrage du serveur.
 
 ### Dépendances ajoutées et pourquoi
-- Aucune. La police DM Sans Bold (libellé « SCORE ») vient du paquet `@expo-google-fonts/dm-sans` déjà installé.
+- `react-native-gesture-handler` ~2.32.0 : le glisser-déposer (déjà dans la « Stack imposée »).
 
 ### Écarts par rapport au plan
-- **`docs/SPEC.md` non modifié** : la ligne « barème » à retirer n'existe pas dans « Décisions à confirmer » (voir « Questions ouvertes »).
-- **`hasAnyMove` livré avec K-08** et non K-09, car `applyMove` en a besoin pour mettre à jour « partie terminée ». K-09 apporte ses tests et ceux de la fin de partie.
-- **Place réservée à l'en-tête** : l'écran garde 77 pt vides au-dessus du score, là où la maquette place le bouton retour, le titre et le bouton pause, pour que le score et la grille soient déjà à leur position finale. Le titre « DÉFI DU JOUR / Mardi 6 octobre » n'est pas affiché non plus (défi du jour hors périmètre).
-- **`src/theme.ts`** : ajout des couleurs `UI.panel` (fond de la grille) et `UI.tray` (fond du plateau), et de la police `FONTS.bodyBold`.
-- **Deux tests de fin de partie étaient faux à la première écriture** (grilles de test contenant des lignes déjà pleines) ; ils ont été corrigés, le code du jeu n'a pas changé.
-- **Travail sur le tutoriel statique** : interrompu par Moussa. Il reste sur la branche `sprint/tutorial`, non fusionnée (K-27a testée, plus un commit `wip(K-27b)` non vérifié visuellement). Les anciennes maquettes `tuto-1/2/3.png` y sont supprimées. À décider : garder cette branche comme base du tutoriel interactif (le stockage « tutoriel vu » est réutilisable) ou l'abandonner.
-- **Dossier vide** `docs/design/Kubo — écrans de l'application-png/` présent sur le disque, non suivi par Git ; laissé tel quel.
+- **Exception de lint** : une ligne `eslint-disable-next-line react-hooks/refs` dans `DraggablePiece.tsx`. La règle signale la lecture d'une référence « pendant le rendu », alors que la mesure n'a lieu qu'au début du geste, sur le fil d'interface. C'est un faux positif ; l'alternative était de renommer les variables pour tromper la règle.
+- **Décalage de 70 pt** : il s'ajoute à la position de saisie. Si l'on attrape la pièce par un coin, elle garde ce décalage par rapport au doigt ; elle n'est pas recentrée sous le doigt.
+- **Pose sans transition** : au relâchement sur une position valide, la pièce passe directement de sa position sous le doigt à ses cases (jusqu'à une demi-case d'écart). L'animation de pose est prévue en K-18.
+- **Bandeau de fin** : il se superpose au centre de l'écran et masque une partie de la grille. C'est provisoire.
+- **Trois états d'exemple** au lieu d'un : la maquette (`1`), un coup avant la fin (`end`), partie terminée (`over`). Le dernier n'était pas demandé ; il a permis de vérifier l'affichage du bandeau sans geste.
+- **Captures** : la première tentative a dépassé le délai de la commande (trois démarrages de serveur à la suite) et s'est terminée en arrière-plan ; les trois captures sont valides.
+- **Android** : non testé. L'ordre d'affichage de la pièce tenue au-dessus de la grille repose sur `zIndex`, à vérifier sur Android.
 
 ### Passages de la boucle d'intégration et écarts restants, par écran
-- **Écran de jeu : 3 passages** (`jeu-1.png`, `jeu-2.png`, `jeu-3.png`), avec l'état d'exemple.
-  - Passage 1 : libellé « SCORE » trop petit, trop espacé et 4 pt trop bas ; chiffres du score un peu petits ; espace score → grille de 31,5 pt pour 29,5. Corrigés.
-  - Passage 2 : positions et tailles conformes ; libellé encore 4 pt trop large. Espacement des lettres réduit.
-  - Passage 3 : libellé à 50 pt de large pour 48,5.
-  - Écarts restants : le libellé « SCORE » reste environ 1,5 pt trop large. Les cases font 45 pt au lieu de 44 et l'espace grille → plateau 72 pt au lieu de 67, à cause de l'écran plus grand du simulateur (402 × 874 contre 390 × 844). La pièce `L_d` est orange (couleur de `pieces.ts`) et non bleue : écart accepté d'avance. Le bouton bleu en haut à droite des captures est celui d'Expo Go.
-  - Volontairement absents : bouton retour, bouton pause, titre, « Série ×2 », « Meilleur ».
+- **Écran de jeu au repos : 1 passage** (`jeu-repos-1.png`, état de la maquette). Rien n'a bougé par rapport à la capture validée au sprint précédent (`jeu-3.png`) : mêmes positions pour le score, la grille et le plateau. Écarts restants inchangés (libellé « SCORE » environ 1,5 pt trop large ; différences dues à la taille d'écran du simulateur).
 
-### Couverture de tests de `src/game/`
-- Globale : 97,5 % des instructions, 96,7 % des fonctions.
-- `state.ts`, `placement.ts`, `lines.ts`, `moves.ts`, `notation.ts` : 100 %.
-- `pieces.ts` (fourni par le pack) : 90,9 % ; `dailySeed` n'est pas encore testée ni utilisée (défi du jour, K-20).
-- `sampleGame.ts` : 0 % ; c'est une constante de données, sans logique.
-
-### Proposition de stories détaillées pour le sprint suivant (Écran de jeu, partie 2 — jouable)
-- Préalable : installer `react-native-gesture-handler` avec `npx expo install` (déjà dans la « Stack imposée »).
-- **K-11 — Glisser une pièce** : chaque pièce du plateau suit le doigt ; elle grossit à la taille des cases de la grille et se place au-dessus du doigt pour rester visible.
-- **K-12 — Aperçu** : pendant le glisser, la position visée s'affiche en transparence sur la grille si la pose est valide (`canPlace`). Fonction pure à tester : convertir la position du doigt en case de grille.
-- **K-13 — Pose** : au relâcher, `applyMove` si la position est valide ; sinon la pièce retourne à sa place sur le plateau.
-- **K-14 — Effacement, score, nouveau tirage** : l'écran reflète l'état renvoyé par `applyMove` (hook `useGame`).
-- **K-16 — Sons**, **K-17 — Vibrations**, **K-18 — Animations de pose et d'effacement**.
-- Points à trancher avant de commencer : les deux questions ouvertes sur la série et sur la graine, et l'apparition éventuelle de « Série ×2 » dans ce sprint, puisque la série devient visible en jouant.
+### Proposition de stories détaillées pour le sprint suivant (Écran de jeu, partie 3 — sensations)
+- Préalable : installer `expo-audio` et `expo-haptics` avec `npx expo install`.
+- **K-16 — Sons** : hook `useSounds` ; prise, pose, refus (retour au plateau), effacement, combo (2 lignes ou plus, ou série), fin de partie. Les sons sont préchargés au lancement.
+- **K-17 — Vibrations** : légère à la prise et à la pose, plus marquée à l'effacement, d'erreur au refus.
+- **K-18 — Animations** : la pièce glisse jusqu'à ses cases à la pose ; les lignes effacées disparaissent en fondu ou en échelle avant de se vider ; respect de « réduire les animations ».
+- Points à trancher : faut-il afficher « Série ×2 » dans ce sprint, puisque le combo devient audible ? Les réglages son et vibrations (K-28) arrivent plus tard : tout est-il actif par défaut d'ici là ?

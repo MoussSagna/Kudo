@@ -35,11 +35,14 @@ But : toute la logique du jeu existe et est testée ; l'écran de jeu s'affiche,
 - **K-10** Affichage de l'écran de jeu : score, grille 8×8 et plateau de 3 pièces (sans interaction).
 
 ## Écran de jeu, partie 2 — jouable
-But : on peut jouer une partie complète, et le jeu est agréable à manipuler.
+But : on peut jouer une partie complète au doigt, du premier coup à la fin de partie.
 - **K-11** Glisser une pièce du plateau avec le doigt.
 - **K-12** Aperçu de la position sur la grille pendant le glisser.
 - **K-13** Pose valide, retour au plateau si invalide.
 - **K-14** Effacement, score affiché, nouveau tirage.
+
+## Écran de jeu, partie 3 — sensations
+But : le jeu est agréable à manipuler.
 - **K-16** Sons (prise, pose, refus, effacement, combo, fin).
 - **K-17** Vibrations.
 - **K-18** Animations de pose et d'effacement.
