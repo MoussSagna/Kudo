@@ -65,8 +65,8 @@ const SCORE_MARGIN = 24;
 /** Room kept above the score for the header (back, title, pause) of the mockup. */
 const HEADER_HEIGHT = 77;
 const MIN_BOTTOM_PADDING = 34;
-/** Size of a tray block compared to a grid cell. */
-const TRAY_CELL_RATIO = 0.68;
+/** Height of the tray compared to a grid cell. */
+const TRAY_HEIGHT_RATIO = 3.45;
 
 function createInitialGame() {
   return (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || createGame(Date.now());
@@ -77,7 +77,7 @@ export function GameScreen() {
   const { width } = useWindowDimensions();
   const { game, lastMove, place, restart } = useGame(createInitialGame);
   const cellSize = Math.floor((width - 2 * (GRID_MARGIN + GRID_PADDING)) / GRID_SIZE);
-  const trayCellSize = Math.round(cellSize * TRAY_CELL_RATIO);
+  const trayHeight = Math.round(cellSize * TRAY_HEIGHT_RATIO);
   const gridRef = useAnimatedRef<Animated.View>();
   /** The tray slot being dragged and the cell it aims at, whether the piece fits there or not. */
   const [target, setTarget] = useState<{ index: number; col: number; row: number } | null>(null);
@@ -174,8 +174,8 @@ export function GameScreen() {
             tray={game.tray}
             trayKey={`${game.seed}-${game.draws}`}
             enabled={!game.isOver}
-            cellSize={trayCellSize}
             width={width - 2 * TRAY_MARGIN}
+            height={trayHeight}
             gridCellSize={cellSize}
             gridRef={gridRef}
             onTargetChange={handleTargetChange}

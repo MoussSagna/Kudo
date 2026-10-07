@@ -5,10 +5,8 @@ import { useSharedValue, type AnimatedRef } from 'react-native-reanimated';
 import type { Tray as TrayState } from '../game/state';
 import { UI } from '../theme';
 import { DraggablePiece } from './DraggablePiece';
-import { fitTrayCellSize } from './fitTrayCellSize';
+import { trayCellSize } from './trayCellSize';
 
-/** Rows of blocks the tray leaves room for, so that its height does not depend on its pieces. */
-const TRAY_ROWS = 5;
 const NO_PIECE = -1;
 
 interface TrayProps {
@@ -17,10 +15,9 @@ interface TrayProps {
   trayKey: string;
   /** False once the game is over: pieces can no longer be picked up. */
   enabled: boolean;
-  /** Usual size of a block in the tray; the longest pieces are drawn smaller to fit their slot. */
-  cellSize: number;
   /** Width of the tray, shared equally by its slots. */
   width: number;
+  height: number;
   gridCellSize: number;
   gridRef: AnimatedRef<Animated.View>;
   onTargetChange: (index: number, col: number, row: number) => void;
@@ -34,8 +31,8 @@ export function Tray({
   tray,
   trayKey,
   enabled,
-  cellSize,
   width,
+  height,
   gridCellSize,
   gridRef,
   onTargetChange,
@@ -44,8 +41,7 @@ export function Tray({
   onReturn,
 }: TrayProps) {
   const activeIndex = useSharedValue(NO_PIECE);
-  const height = TRAY_ROWS * cellSize;
-  const slotWidth = width / Math.max(tray.length, 1);
+  const cellSize = trayCellSize(width / Math.max(tray.length, 1), height);
 
   return (
     <View style={[styles.panel, { height }]}>
@@ -57,7 +53,7 @@ export function Tray({
               piece={piece}
               index={index}
               enabled={enabled}
-              trayCellSize={fitTrayCellSize(piece, cellSize, slotWidth, height)}
+              trayCellSize={cellSize}
               gridCellSize={gridCellSize}
               gridRef={gridRef}
               activeIndex={activeIndex}
