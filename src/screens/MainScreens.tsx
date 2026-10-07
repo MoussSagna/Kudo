@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { StyleSheet } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import type { GameMode } from '../game/state';
 import { useBestScore } from '../hooks/useBestScore';
+import { useScreenFade } from '../hooks/useScreenFade';
 import { GameScreen, OPENS_ON_SAMPLE_GAME } from './GameScreen';
 import { HomeScreen } from './HomeScreen';
 import { TutorialScreen, type TutorialEntry } from './TutorialScreen';
@@ -44,50 +47,67 @@ interface MainScreensProps {
 
 /**
  * Everything after the launch screen, without a navigation library: one route at a time, kept in
- * a state.
+ * a state, with a short fade from one screen to the next.
  */
 export function MainScreens({ startsWithTutorial, tutorialEntry, onTutorialDone }: MainScreensProps) {
-  const [route, setRoute] = useState<Route>(() => {
-    if (OPENS_ON_SAMPLE_GAME) {
-      return { name: 'game', mode: 'free', gameId: 0 };
-    }
-    return startsWithTutorial ? { name: 'tutorial' } : { name: 'home' };
-  });
+  const { route, navigate, fadeStyle } = useScreenFade<Route>(
+    OPENS_ON_SAMPLE_GAME
+      ? { name: 'game', mode: 'free', gameId: 0 }
+      : { name: startsWithTutorial ? 'tutorial' : 'home' },
+  );
 
-  const goHome = () => setRoute({ name: 'home' });
+  const goHome = () => navigate({ name: 'home' });
   const startGame = (mode: GameMode) =>
-    setRoute((current) => ({
-      name: 'game',
-      mode,
-      gameId: current.name === 'game' ? current.gameId + 1 : 0,
-    }));
+    navigate({ name: 'game', mode, gameId: route.name === 'game' ? route.gameId + 1 : 0 });
 
+  return (
+    <Animated.View style={[styles.screen, fadeStyle]}>
+      {renderRoute(route, {
+        tutorialEntry,
+        onTutorialDone: () => {
+          onTutorialDone();
+          goHome();
+        },
+        onShowTutorial: () => navigate({ name: 'tutorial' }),
+        goHome,
+        startGame,
+      })}
+    </Animated.View>
+  );
+}
+
+interface RouteActions {
+  tutorialEntry?: TutorialEntry;
+  onTutorialDone: () => void;
+  onShowTutorial: () => void;
+  goHome: () => void;
+  startGame: (mode: GameMode) => void;
+}
+
+function renderRoute(route: Route, actions: RouteActions): ReactNode {
   switch (route.name) {
     case 'tutorial':
       return (
-        <TutorialScreen
-          entry={tutorialEntry}
-          onDone={() => {
-            onTutorialDone();
-            goHome();
-          }}
-        />
+        <TutorialScreen entry={actions.tutorialEntry} onDone={actions.onTutorialDone} />
       );
     case 'game':
       return (
         <GameScreen
           key={route.gameId}
           mode={route.mode}
-          onExit={goHome}
-          onStartFreeGame={() => startGame('free')}
+          onExit={actions.goHome}
+          onStartFreeGame={() => actions.startGame('free')}
         />
       );
     case 'home':
       return (
-        <Home
-          onPlay={startGame}
-          onShowTutorial={() => setRoute({ name: 'tutorial' })}
-        />
+        <Home onPlay={actions.startGame} onShowTutorial={actions.onShowTutorial} />
       );
   }
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+});
