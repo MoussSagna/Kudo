@@ -8,7 +8,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import type { DailyStatus } from '../game/daily';
 import { capitalize, formatWeekdayAndDate } from '../game/dates';
 import { formatScore } from '../game/formatScore';
-import { FONTS, UI } from '../theme';
+import { BLOCK_COLORS, FONTS, UI } from '../theme';
 
 const MIN_TOUCH_SIZE = 44;
 const DAILY_BUTTON_LABELS: Readonly<Record<DailyStatus['kind'], string>> = {
@@ -16,8 +16,9 @@ const DAILY_BUTTON_LABELS: Readonly<Record<DailyStatus['kind'], string>> = {
   inProgress: 'Reprendre',
   done: 'Voir',
 };
-/** Room kept at the top for the streak badge and the settings button of the mockup. */
-const TOP_BAR_HEIGHT = 57;
+/** The top bar holds the streak badge; the settings button of the mockup will join it. */
+const TOP_BAR_TOP = 13;
+const TOP_BAR_HEIGHT = 44;
 const MIN_BOTTOM_PADDING = 24;
 
 interface HomeScreenProps {
@@ -25,6 +26,8 @@ interface HomeScreenProps {
   today: Date;
   /** Where today's challenge stands. */
   daily: DailyStatus;
+  /** Consecutive days with a finished challenge, as it stands today. */
+  streak: number;
   freeBestScore: number;
   /** Plays or resumes today's challenge, or shows it again once it is finished. */
   onOpenDaily: () => void;
@@ -36,6 +39,7 @@ interface HomeScreenProps {
 export function HomeScreen({
   today,
   daily,
+  streak,
   freeBestScore,
   onOpenDaily,
   onPlayFree,
@@ -49,11 +53,22 @@ export function HomeScreen({
       style={[
         styles.screen,
         {
-          paddingTop: insets.top + TOP_BAR_HEIGHT,
+          paddingTop: insets.top + TOP_BAR_TOP,
           paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
         },
       ]}
     >
+      <View style={styles.topBar}>
+        {streak >= 1 ? (
+          <View style={styles.streak}>
+            <View style={styles.flame} />
+            <Text style={styles.streakLabel}>
+              Série : {streak} {streak > 1 ? 'jours' : 'jour'}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+
       <View style={styles.brand}>
         <Logo blockSize={40} gap={4} />
         <Text style={styles.name}>Kubo</Text>
@@ -94,6 +109,36 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingHorizontal: 24,
+  },
+  topBar: {
+    height: TOP_BAR_HEIGHT,
+    flexDirection: 'row',
+  },
+  streak: {
+    height: TOP_BAR_HEIGHT,
+    paddingLeft: 20,
+    paddingRight: 16,
+    borderRadius: TOP_BAR_HEIGHT / 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    backgroundColor: UI.cell,
+  },
+  /** A drop with its point up: a square with one sharp corner, turned by 45 degrees. */
+  flame: {
+    width: 11,
+    height: 11,
+    marginTop: 3,
+    borderWidth: 2.5,
+    borderRadius: 6,
+    borderTopLeftRadius: 1,
+    borderColor: BLOCK_COLORS.orange,
+    transform: [{ rotate: '45deg' }],
+  },
+  streakLabel: {
+    color: UI.text,
+    fontFamily: FONTS.title,
+    fontSize: 15,
   },
   brand: {
     flex: 1,

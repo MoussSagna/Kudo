@@ -52,6 +52,34 @@ describe('daily challenge storage', () => {
     expect(stored.result?.game).toEqual(FINISHED_GAME);
   });
 
+  it('reads back the streak', async () => {
+    const finished = recordDailyMove(EMPTY_DAILY_DATA, FINISHED_GAME);
+    await writeDailyData(finished);
+
+    expect((await readDailyData()).streak).toEqual({
+      count: 1,
+      best: 1,
+      lastDay: '2026-10-06',
+      days: ['2026-10-06'],
+    });
+  });
+
+  it('starts from an empty streak when the saved one makes no sense', async () => {
+    const damaged = [
+      { count: 3, best: 2, lastDay: '2026-10-06', days: [] },
+      { count: 2, best: 2, lastDay: null, days: [] },
+      { count: -1, best: 2, lastDay: '2026-10-06', days: [] },
+      { count: 1, best: 1, lastDay: 'yesterday', days: [] },
+      { count: 1, best: 1, lastDay: '2026-10-06', days: ['tuesday'] },
+      'five days',
+    ];
+    for (const streak of damaged) {
+      await AsyncStorage.setItem(DAILY_KEY, JSON.stringify({ streak }));
+
+      expect((await readDailyData()).streak).toEqual(EMPTY_DAILY_DATA.streak);
+    }
+  });
+
   it('uses a single versioned key', async () => {
     await writeDailyData(withProgress);
 
@@ -79,8 +107,8 @@ describe('daily challenge storage', () => {
     await expect(readDailyData()).resolves.toEqual(EMPTY_DAILY_DATA);
 
     await writeDailyData({
+      ...EMPTY_DAILY_DATA,
       inProgress: { day: '2026-10-06', game: { ...SAMPLE_GAME, mode: 'free' } },
-      result: null,
     });
     await expect(readDailyData()).resolves.toEqual(EMPTY_DAILY_DATA);
   });

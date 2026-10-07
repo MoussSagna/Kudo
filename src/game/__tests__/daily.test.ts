@@ -88,3 +88,34 @@ describe('dailyStatus — one attempt a day', () => {
     expect(dailyStatus(finished, '2026-10-08')).toEqual({ kind: 'new' });
   });
 });
+
+describe('recordDailyMove — streak', () => {
+  const first = { ...createGame(20261007, 'daily'), isOver: true };
+  const second = { ...createGame(20261008, 'daily'), isOver: true };
+  const afterGap = { ...createGame(20261010, 'daily'), isOver: true };
+
+  it('does not count a challenge before it is finished', () => {
+    expect(recordDailyMove(EMPTY_DAILY_DATA, playing).streak).toEqual(EMPTY_DAILY_DATA.streak);
+  });
+
+  it('counts each finished day, and consecutive days make a streak', () => {
+    const one = recordDailyMove(EMPTY_DAILY_DATA, first);
+    const two = recordDailyMove(one, second);
+
+    expect(one.streak.count).toBe(1);
+    expect(two.streak.count).toBe(2);
+    expect(two.streak.days).toEqual(['2026-10-07', '2026-10-08']);
+  });
+
+  it('starts the streak again after a missed day, keeping the record', () => {
+    const two = recordDailyMove(recordDailyMove(EMPTY_DAILY_DATA, first), second);
+    const again = recordDailyMove(two, afterGap);
+
+    expect(again.streak.count).toBe(1);
+    expect(again.streak.best).toBe(2);
+  });
+
+  it('counts a challenge finished after midnight for the day it was started', () => {
+    expect(recordDailyMove(EMPTY_DAILY_DATA, first).streak.lastDay).toBe('2026-10-07');
+  });
+});

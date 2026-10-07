@@ -23,7 +23,7 @@
   - Tant que la date n'a pas changé, le défi ne peut plus être rejoué. Sur l'accueil, la carte affiche « Défi terminé », le score, et un bouton « Voir » qui ouvre l'écran « Reviens demain ».
   - Sur l'écran de fin du défi, « Retour à l'accueil » reste disponible, et « Partager mon score » aussi.
 
-- [ ] **K-23 — Série de jours**
+- [x] **K-23 — Série de jours**
   - La série compte les jours consécutifs où un défi a été terminé. Elle retombe à 0 si un jour complet est manqué. Le record de série est conservé.
   - Cas à tester : premier défi, lendemain, jour manqué, deux lancements le même jour, changement de mois et d'année.
   - Sur l'accueil, la pastille « Série : N jours » apparaît quand N vaut 1 ou plus (« 1 jour » au singulier), comme sur `docs/design/accueil.png`.

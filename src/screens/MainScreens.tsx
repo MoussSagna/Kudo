@@ -23,13 +23,14 @@ type Route =
 
 interface HomeProps {
   daily: DailyStatus;
+  streak: number;
   onOpenDaily: () => void;
   onPlayFree: () => void;
   onShowTutorial: () => void;
 }
 
 /** The home screen with what it reads when it opens: today's date and the best score. */
-function Home({ daily, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
+function Home({ daily, streak, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
   const [today] = useState(now);
   const { best } = useBestScore('free');
 
@@ -37,6 +38,7 @@ function Home({ daily, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
     <HomeScreen
       today={today}
       daily={daily}
+      streak={streak}
       freeBestScore={best}
       onOpenDaily={onOpenDaily}
       onPlayFree={onPlayFree}
@@ -145,6 +147,7 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
       return (
         <Home
           daily={actions.daily.status}
+          streak={actions.daily.streakToday}
           onOpenDaily={actions.onOpenDaily}
           onPlayFree={() => actions.startGame('free')}
           onShowTutorial={actions.onShowTutorial}
