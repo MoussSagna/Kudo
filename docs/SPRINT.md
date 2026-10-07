@@ -11,7 +11,7 @@
 
 ## Stories
 
-- [ ] **K-18 — Animations**
+- [x] **K-18 — Animations**
   - Pose : la pièce glisse de sa position sous le doigt jusqu'à ses cases (90 ms environ), puis ses blocs font un léger rebond d'échelle.
   - Effacement : les cases de la ligne ou de la colonne s'illuminent brièvement, puis rétrécissent jusqu'à disparaître, avec un court décalage de case en case. 250 à 300 ms au total.
   - Score : le nombre fait une petite pulsation quand il change, et le gain d'un effacement apparaît en « +N » près des cases effacées, monte et s'estompe.

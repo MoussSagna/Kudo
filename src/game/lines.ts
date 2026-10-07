@@ -5,6 +5,9 @@ export interface ClearResult {
   grid: Grid;
   /** Number of rows and columns emptied. */
   cleared: number;
+  /** Indexes of the emptied rows and columns, in increasing order. */
+  rows: readonly number[];
+  cols: readonly number[];
 }
 
 /**
@@ -12,28 +15,24 @@ export interface ClearResult {
  * cell at the crossing of a full row and a full column counts for both.
  */
 export function clearLines(grid: Grid): ClearResult {
-  const fullRows = new Set<number>();
-  const fullCols = new Set<number>();
-
-  grid.forEach((row, rowIndex) => {
-    if (row.every((cell) => cell !== null)) {
-      fullRows.add(rowIndex);
-    }
-  });
+  const rows = grid.flatMap((row, rowIndex) => (row.every((cell) => cell !== null) ? [rowIndex] : []));
+  const cols: number[] = [];
   for (let col = 0; col < GRID_SIZE; col++) {
     if (grid.every((row) => row[col] !== null)) {
-      fullCols.add(col);
+      cols.push(col);
     }
   }
 
-  const cleared = fullRows.size + fullCols.size;
+  const cleared = rows.length + cols.length;
   if (cleared === 0) {
-    return { grid, cleared };
+    return { grid, cleared, rows, cols };
   }
   return {
     grid: grid.map((row, rowIndex) =>
-      row.map((cell, col) => (fullRows.has(rowIndex) || fullCols.has(col) ? null : cell)),
+      row.map((cell, col) => (rows.includes(rowIndex) || cols.includes(col) ? null : cell)),
     ),
     cleared,
+    rows,
+    cols,
   };
 }

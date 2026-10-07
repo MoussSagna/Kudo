@@ -1,9 +1,13 @@
+import { useEffect } from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   measure,
+  ReduceMotion,
   useAnimatedRef,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
+  withDelay,
   withSpring,
   withTiming,
   type AnimatedRef,
@@ -13,13 +17,12 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import type { Piece } from '../game/pieces';
 import { targetCell } from '../game/targetCell';
+import { MOTION } from '../motion';
 import { GRID_PADDING } from './Grid';
 import { pieceSpan, PieceView } from './PieceView';
 
 /** How far above the finger the piece is held, so that the finger does not hide it. */
 const LIFT = 70;
-const PICK_UP_MS = 120;
-const RETURN_SPRING = { duration: 220, dampingRatio: 0.8 };
 const NONE = -1;
 
 interface DraggablePieceProps {
@@ -36,8 +39,11 @@ interface DraggablePieceProps {
   activeIndex: SharedValue<number>;
   /** Called when the cell aimed at changes; col and row are -1 when no cell is aimed at. */
   onTargetChange: (index: number, col: number, row: number) => void;
-  /** Called when the piece is released over a cell; returns false when it cannot be placed there. */
-  onDrop: (index: number, col: number, row: number) => boolean;
+  /**
+   * Called when the piece is released over a cell, with the position of its top-left corner in
+   * points from the first grid cell; returns false when it cannot be placed there.
+   */
+  onDrop: (index: number, col: number, row: number, left: number, top: number) => boolean;
 }
 
 /** A tray piece that follows the finger, at grid size, while it is dragged. */
@@ -63,6 +69,16 @@ export function DraggablePiece({
   const isMeasured = useSharedValue(false);
   const targetCol = useSharedValue(NONE);
   const targetRow = useSharedValue(NONE);
+  /** 0 when the piece has just been drawn, 1 once it has grown into place. */
+  const appeared = useSharedValue(0);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    appeared.value = withDelay(
+      index * MOTION.trayAppearStaggerMs,
+      withTiming(1, { duration: MOTION.trayAppearMs, reduceMotion: ReduceMotion.Never }),
+    );
+  }, [appeared, index]);
 
   const { columns, rows } = pieceSpan(piece);
   const pickedUpScale = gridCellSize / trayCellSize;
@@ -71,14 +87,14 @@ export function DraggablePiece({
 
   const returnToTray = () => {
     'worklet';
-    dragX.value = withSpring(0, RETURN_SPRING);
-    dragY.value = withSpring(0, RETURN_SPRING);
-    lift.value = withSpring(0, RETURN_SPRING);
-    scale.value = withSpring(1, RETURN_SPRING);
+    dragX.value = withSpring(0, MOTION.returnSpring);
+    dragY.value = withSpring(0, MOTION.returnSpring);
+    lift.value = withSpring(0, MOTION.returnSpring);
+    scale.value = withSpring(1, MOTION.returnSpring);
   };
 
-  const drop = (col: number, row: number) => {
-    if (!onDrop(index, col, row)) {
+  const drop = (col: number, row: number, left: number, top: number) => {
+    if (!onDrop(index, col, row, left, top)) {
       returnToTray();
     }
   };
@@ -104,8 +120,8 @@ export function DraggablePiece({
         startLeft.value = centerX - pickedUpWidth / 2 - (gridBox.pageX + GRID_PADDING);
         startTop.value = centerY - pickedUpHeight / 2 - LIFT - (gridBox.pageY + GRID_PADDING);
       }
-      lift.value = withTiming(LIFT, { duration: PICK_UP_MS });
-      scale.value = withTiming(pickedUpScale, { duration: PICK_UP_MS });
+      lift.value = withTiming(LIFT, { duration: MOTION.pickUpMs });
+      scale.value = withTiming(pickedUpScale, { duration: MOTION.pickUpMs });
     })
     .onUpdate((event) => {
       dragX.value = event.translationX;
@@ -128,9 +144,15 @@ export function DraggablePiece({
         scheduleOnRN(onTargetChange, index, col, row);
       }
     })
-    .onEnd((_event, success) => {
+    .onEnd((event, success) => {
       if (success && targetCol.value !== NONE) {
-        scheduleOnRN(drop, targetCol.value, targetRow.value);
+        scheduleOnRN(
+          drop,
+          targetCol.value,
+          targetRow.value,
+          startLeft.value + event.translationX,
+          startTop.value + event.translationY,
+        );
       } else {
         returnToTray();
       }
@@ -148,10 +170,11 @@ export function DraggablePiece({
 
   const dragStyle = useAnimatedStyle(() => ({
     zIndex: scale.value > 1 ? 1 : 0,
+    opacity: appeared.value,
     transform: [
       { translateX: dragX.value },
       { translateY: dragY.value - lift.value },
-      { scale: scale.value },
+      { scale: scale.value * (reducedMotion ? 1 : appeared.value) },
     ],
   }));
 

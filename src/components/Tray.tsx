@@ -13,20 +13,20 @@ const NO_PIECE = -1;
 interface TrayProps {
   tray: TrayState;
   /** Changes with every new tray, so that a slot starts fresh with its new piece. */
-  draws: number;
+  trayKey: string;
   /** False once the game is over: pieces can no longer be picked up. */
   enabled: boolean;
   cellSize: number;
   gridCellSize: number;
   gridRef: AnimatedRef<Animated.View>;
   onTargetChange: (index: number, col: number, row: number) => void;
-  onDrop: (index: number, col: number, row: number) => boolean;
+  onDrop: (index: number, col: number, row: number, left: number, top: number) => boolean;
 }
 
 /** The pieces offered to the player, one per slot; a played slot stays empty. */
 export function Tray({
   tray,
-  draws,
+  trayKey,
   enabled,
   cellSize,
   gridCellSize,
@@ -42,7 +42,7 @@ export function Tray({
         <View key={index} style={styles.slot}>
           {piece ? (
             <DraggablePiece
-              key={draws}
+              key={trayKey}
               piece={piece}
               index={index}
               enabled={enabled}

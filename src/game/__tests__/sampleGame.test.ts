@@ -1,6 +1,12 @@
 import { clearLines } from '../lines';
-import { applyMove, hasAnyMove } from '../moves';
-import { FINISHED_GAME, NEAR_END_GAME, SAMPLE_GAME } from '../sampleGame';
+import { applyMove, hasAnyMove, playMove, type MoveResult } from '../moves';
+import {
+  DEMO_GAME,
+  DEMO_MOVES,
+  FINISHED_GAME,
+  NEAR_END_GAME,
+  SAMPLE_GAME,
+} from '../sampleGame';
 
 describe('SAMPLE_GAME', () => {
   it('is a playable 8 × 8 game with no line left to clear', () => {
@@ -29,5 +35,23 @@ describe('FINISHED_GAME', () => {
   it('is over', () => {
     expect(FINISHED_GAME.isOver).toBe(true);
     expect(FINISHED_GAME.score).toBe(481);
+  });
+});
+
+describe('DEMO_GAME', () => {
+  it('plays a plain placement, a row, then a row and a column, and draws a new tray', () => {
+    const [first, second, third] = DEMO_MOVES.reduce<(MoveResult | null)[]>((results, move) => {
+      const previous = results.at(-1);
+      const state = previous ? previous.next : DEMO_GAME;
+      return [...results, playMove(state, move.trayIndex, move.col, move.row)];
+    }, []);
+
+    expect(first).toMatchObject({ clearedRows: [], clearedCols: [], clearPoints: 0 });
+    expect(second).toMatchObject({ clearedRows: [7], clearedCols: [], clearPoints: 10 });
+    expect(third).toMatchObject({ clearedRows: [6], clearedCols: [3], clearPoints: 80 });
+    expect(third?.next.score).toBe(97);
+    expect(third?.next.draws).toBe(2);
+    expect(third?.next.tray.every((piece) => piece !== null)).toBe(true);
+    expect(third?.next.isOver).toBe(false);
   });
 });
