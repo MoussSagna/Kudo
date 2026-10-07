@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { AppState } from 'react-native';
 
 import { now } from '../clock';
 import { dailyStatus, EMPTY_DAILY_DATA, recordDailyMove, type DailyData } from '../game/daily';
@@ -70,6 +71,19 @@ export function useDailyChallenge() {
     };
   }, [sample]);
 
+  /** Reads the clock again: the day may have changed while the app was open. */
+  const refreshToday = useCallback(() => setToday(dayKey(now())), []);
+
+  // The day may change while the app is in the background: read the clock when it comes back.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        refreshToday();
+      }
+    });
+    return () => subscription.remove();
+  }, [refreshToday]);
+
   /** Saves the challenge after one of its moves; the last one makes it the result of its day. */
   const recordMove = (game: GameState) => {
     const next = recordDailyMove(data ?? EMPTY_DAILY_DATA, game);
@@ -78,9 +92,6 @@ export function useDailyChallenge() {
       writeDailyData(next);
     }
   };
-
-  /** Reads the clock again: the day may have changed while the app was open. */
-  const refreshToday = useCallback(() => setToday(dayKey(now())), []);
 
   return {
     isLoaded: data !== null,

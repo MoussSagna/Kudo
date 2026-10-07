@@ -1,9 +1,9 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { now } from '../clock';
 import type { DailyStatus } from '../game/daily';
+import { dateFromDayKey, type DayKey } from '../game/days';
 import type { GameMode } from '../game/state';
 import { useBestScore } from '../hooks/useBestScore';
 import { OPENS_ON_TOMORROW_SCREEN, type DailyChallenge } from '../hooks/useDailyChallenge';
@@ -24,6 +24,7 @@ type Route =
   | { name: 'tutorial' };
 
 interface HomeProps {
+  today: DayKey;
   daily: DailyStatus;
   streak: number;
   onOpenDaily: () => void;
@@ -31,14 +32,13 @@ interface HomeProps {
   onShowTutorial: () => void;
 }
 
-/** The home screen with what it reads when it opens: today's date and the best score. */
-function Home({ daily, streak, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
-  const [today] = useState(now);
+/** The home screen with the best score it reads when it opens. */
+function Home({ today, daily, streak, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
   const { best } = useBestScore('free');
 
   return (
     <HomeScreen
-      today={today}
+      today={dateFromDayKey(today) ?? new Date()}
       daily={daily}
       streak={streak}
       freeBestScore={best}
@@ -84,6 +84,16 @@ export function MainScreens({
   );
 
   const goHome = () => navigate({ name: 'home' });
+
+  // When the day changes, the finished challenge is no longer today's: its screens give way to
+  // the home screen, where the new challenge is.
+  const showsFinishedDaily = route.name === 'tomorrow' || route.name === 'dailyResult';
+  const isDailyDone = daily.status.kind === 'done';
+  useEffect(() => {
+    if (showsFinishedDaily && !isDailyDone) {
+      navigate({ name: 'home' });
+    }
+  }, [isDailyDone, navigate, showsFinishedDaily]);
   const startGame = (mode: GameMode) =>
     navigate({ name: 'game', mode, gameId: route.name === 'game' ? route.gameId + 1 : 0 });
 
@@ -181,6 +191,7 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
     case 'home':
       return (
         <Home
+          today={actions.daily.today}
           daily={actions.daily.status}
           streak={actions.daily.streakToday}
           onOpenDaily={actions.onOpenDaily}

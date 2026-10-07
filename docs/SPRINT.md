@@ -35,7 +35,7 @@
   - Le bouton des réglages de la maquette reste absent pour l'instant.
   - Quand le compte à rebours atteint zéro, l'écran revient à l'accueil, où le nouveau défi est disponible.
 
-- [ ] **K-37 — Changement de jour pendant que l'app est ouverte**
+- [x] **K-37 — Changement de jour pendant que l'app est ouverte**
   - Au retour de l'app au premier plan, la date est relue. Si le jour a changé, l'accueil affiche le nouveau défi et la série est recalculée.
   - Un défi commencé avant minuit et encore ouvert après minuit peut être terminé : il compte pour son jour de départ.
 
