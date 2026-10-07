@@ -72,10 +72,12 @@ But : le jeu a un point d'entrée.
 
 ## Défi du jour et « Reviens demain »
 But : tout le monde joue la même partie, une fois par jour.
-- **K-20** Suite de pièces issue de la graine du jour.
-- **K-21** Sauvegarde et reprise de la partie du jour.
-- **K-22** Une seule tentative par jour, écran « Reviens demain » avec compte à rebours.
+- **K-20** Suite de pièces issue de la graine du jour (livrée avec K-25).
+- **K-21** Sauvegarde et reprise du défi du jour ; confirmation avant de quitter une partie libre.
+- **K-22** Une seule tentative par jour.
 - **K-23** Série de jours consécutifs.
+- **K-36** Écran « Reviens demain » avec compte à rebours.
+- **K-37** Changement de jour pendant que l'app est ouverte.
 
 ## Réglages
 But : le joueur règle le son et les vibrations.
