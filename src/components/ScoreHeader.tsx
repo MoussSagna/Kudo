@@ -11,7 +11,7 @@ import Animated, {
 
 import { MOTION } from '../motion';
 import { BLOCK_COLORS, FONTS, UI } from '../theme';
-import { formatScore } from './formatScore';
+import { formatScore } from '../game/formatScore';
 
 const REDUCED_MOTION_DIM = 0.5;
 /** The streak badge shows from this multiplier on. */

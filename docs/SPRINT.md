@@ -18,7 +18,7 @@
   - L'en-tête de l'écran de jeu affiche « Meilleur : N » et la pastille « Série ×N » quand la série vaut 2 ou plus, comme sur `docs/design/jeu.png`.
   - Si la partie bat le meilleur score, il est enregistré à la fin de la partie.
 
-- [ ] **K-15 — Écran de fin de partie**
+- [x] **K-15 — Écran de fin de partie**
   - Maquette : `docs/design/resultat.png`. Il remplace le bandeau provisoire.
   - Contenu : le titre « Partie terminée », le score en grand, la pastille « Nouveau record » seulement si le record est battu, la grille finale en miniature, les trois statistiques (pièces posées, lignes effacées, meilleure série).
   - Boutons : « Partager mon score » (principal) et « Rejouer » (secondaire).

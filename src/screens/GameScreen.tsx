@@ -4,7 +4,6 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GameOverBanner } from '../components/GameOverBanner';
 import { Grid, GRID_PADDING, type GridPreview } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
@@ -26,21 +25,33 @@ import { playHaptic } from '../haptics';
 import { useBestScore } from '../hooks/useBestScore';
 import { useGame } from '../hooks/useGame';
 import { useSounds } from '../hooks/useSounds';
+import { MOTION } from '../motion';
 import { GRID_SIZE, UI } from '../theme';
+import { ResultScreen } from './ResultScreen';
 
 /**
  * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
- * `end` (one move away from the end), `over` (a finished game), `demo` (a short scripted game
+ * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `demo` (a short scripted game
  * that plays by itself, to watch the animations) or `big` (the largest pieces in the tray).
  */
+interface GameResult {
+  isNewRecord: boolean;
+}
+
 const SAMPLE_GAME_NAME = __DEV__ ? process.env.EXPO_PUBLIC_SAMPLE_GAME : undefined;
 const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   '1': SAMPLE_GAME,
   end: NEAR_END_GAME,
   over: FINISHED_GAME,
+  record: FINISHED_GAME,
   demo: DEMO_GAME,
   big: BIG_PIECES_GAME,
 };
+/** The sample games that are already over open on their result screen. */
+const INITIAL_RESULT: GameResult | null =
+  SAMPLE_GAME_NAME === 'over' || SAMPLE_GAME_NAME === 'record'
+    ? { isNewRecord: SAMPLE_GAME_NAME === 'record' }
+    : null;
 const DEMO_SCRIPT = SAMPLE_GAME_NAME === 'demo' ? DEMO_MOVES : null;
 /** In the demo, a piece is released this fraction of a cell away from its target. */
 const DEMO_RELEASE_OFFSET = 0.45;
@@ -76,27 +87,35 @@ export function GameScreen() {
 
   const playSound = useSounds();
   const { best, submit: submitScore } = useBestScore();
+  /** Set once the game is over and its result screen is due. */
+  const [result, setResult] = useState<GameResult | null>(INITIAL_RESULT);
 
   /** The sound and the vibration of a move that was just played. */
-  const giveFeedback = (result: MoveResult) => {
-    const feedback = moveFeedback(result);
+  const giveFeedback = (move: MoveResult) => {
+    const feedback = moveFeedback(move);
     playSound(feedback);
     playHaptic(feedback === 'place' ? 'place' : 'clear');
-    if (result.next.isOver) {
-      submitScore(result.next.score);
+    if (move.next.isOver) {
+      const isNewRecord = submitScore(move.next.score);
       setTimeout(() => {
-        playSound('gameover');
+        playSound(isNewRecord ? 'highscore' : 'gameover');
         playHaptic('gameover');
       }, GAME_OVER_FEEDBACK_DELAY_MS);
+      setTimeout(() => setResult({ isNewRecord }), MOTION.resultDelayMs);
     }
   };
 
   const playAt = (index: number, col: number, row: number, left: number, top: number) => {
-    const result = place(index, col, row, { left, top });
-    if (result) {
-      giveFeedback(result);
+    const move = place(index, col, row, { left, top });
+    if (move) {
+      giveFeedback(move);
     }
-    return result !== null;
+    return move !== null;
+  };
+
+  const handleRestart = () => {
+    setResult(null);
+    restart();
   };
 
   const handlePickUp = () => {
@@ -159,12 +178,10 @@ export function GameScreen() {
             onReturn={handleReturn}
           />
         </View>
-        {game.isOver ? (
-          <View style={styles.gameOver}>
-            <GameOverBanner score={game.score} onRestart={restart} />
-          </View>
-        ) : null}
       </View>
+      {result ? (
+        <ResultScreen game={game} isNewRecord={result.isNewRecord} onRestart={handleRestart} />
+      ) : null}
     </LinearGradient>
   );
 }
@@ -182,15 +199,6 @@ const styles = StyleSheet.create({
   grid: {
     marginTop: 14,
     alignItems: 'center',
-  },
-  gameOver: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   tray: {
     flex: 1,

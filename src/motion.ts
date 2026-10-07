@@ -31,6 +31,10 @@ export const MOTION = {
   trayAppearMs: 220,
   trayAppearStaggerMs: 70,
 
+  /** At the end of a game, the grid stays visible, then the result screen fades in. */
+  resultDelayMs: 600,
+  resultFadeMs: 250,
+
   /** Development demo (EXPO_PUBLIC_SAMPLE_GAME=demo): delay before the first move, then between moves. */
   demoStartMs: 1500,
   demoStepMs: 1800,

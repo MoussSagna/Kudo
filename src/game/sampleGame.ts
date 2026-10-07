@@ -1,4 +1,3 @@
-import { applyMove } from './moves';
 import { gridFrom, pieceById } from './notation';
 import { createGame, INITIAL_STATS, type GameState } from './state';
 
@@ -47,8 +46,26 @@ export const NEAR_END_GAME: GameState = {
   stats: { piecesPlaced: 37, linesCleared: 21, bestStreak: 4 },
 };
 
-/** The same game once the dot is placed in the top-left corner: it is over. */
-export const FINISHED_GAME: GameState = applyMove(NEAR_END_GAME, 0, 0, 0);
+/** The finished game shown on the `docs/design/resultat.png` mockup. */
+export const FINISHED_GAME: GameState = {
+  seed: 0,
+  grid: gridFrom([
+    'pp.g.rr.',
+    'p.cg.r.y',
+    '.bc.oo.y',
+    'gb.yo.pp',
+    'g.ry.cc.',
+    '.or.gg.b',
+    'yo.pp.cb',
+    'y.bb.r.g',
+  ]),
+  tray: [pieceById('sq3'), pieceById('h5'), null],
+  score: 1780,
+  streak: 1,
+  draws: 13,
+  isOver: true,
+  stats: { piecesPlaced: 38, linesCleared: 21, bestStreak: 4 },
+};
 
 export interface DemoMove {
   trayIndex: number;

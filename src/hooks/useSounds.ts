@@ -4,9 +4,24 @@ import { useCallback, useEffect, useRef } from 'react';
 import { getPreferences } from '../storage/preferences';
 import { SOUNDS } from '../theme';
 
-export type SoundName = 'pick' | 'place' | 'invalid' | 'clear' | 'combo' | 'gameover';
+export type SoundName =
+  | 'pick'
+  | 'place'
+  | 'invalid'
+  | 'clear'
+  | 'combo'
+  | 'gameover'
+  | 'highscore';
 
-const SOUND_NAMES: readonly SoundName[] = ['pick', 'place', 'invalid', 'clear', 'combo', 'gameover'];
+const SOUND_NAMES: readonly SoundName[] = [
+  'pick',
+  'place',
+  'invalid',
+  'clear',
+  'combo',
+  'gameover',
+  'highscore',
+];
 
 /**
  * Loads the game sounds when the screen mounts and returns a function to play them. Sounds stay
