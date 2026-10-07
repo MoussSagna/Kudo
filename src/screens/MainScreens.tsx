@@ -8,24 +8,28 @@ import type { GameMode } from '../game/state';
 import { useBestScore } from '../hooks/useBestScore';
 import type { DailyChallenge } from '../hooks/useDailyChallenge';
 import { useScreenFade } from '../hooks/useScreenFade';
+import { shareGame } from '../share';
 import { GameScreen, OPENS_ON_SAMPLE_GAME } from './GameScreen';
 import { HomeScreen } from './HomeScreen';
+import { ResultScreen } from './ResultScreen';
 import { TutorialScreen, type TutorialEntry } from './TutorialScreen';
 
 /** `gameId` changes with every new game, so that its screen starts from scratch. */
 type Route =
   | { name: 'home' }
   | { name: 'game'; mode: GameMode; gameId: number }
+  | { name: 'dailyResult' }
   | { name: 'tutorial' };
 
 interface HomeProps {
   daily: DailyStatus;
-  onPlay: (mode: GameMode) => void;
+  onOpenDaily: () => void;
+  onPlayFree: () => void;
   onShowTutorial: () => void;
 }
 
 /** The home screen with what it reads when it opens: today's date and the best score. */
-function Home({ daily, onPlay, onShowTutorial }: HomeProps) {
+function Home({ daily, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
   const [today] = useState(now);
   const { best } = useBestScore('free');
 
@@ -34,8 +38,8 @@ function Home({ daily, onPlay, onShowTutorial }: HomeProps) {
       today={today}
       daily={daily}
       freeBestScore={best}
-      onPlayDaily={() => onPlay('daily')}
-      onPlayFree={() => onPlay('free')}
+      onOpenDaily={onOpenDaily}
+      onPlayFree={onPlayFree}
       onShowTutorial={onShowTutorial}
     />
   );
@@ -81,6 +85,9 @@ export function MainScreens({
           goHome();
         },
         onShowTutorial: () => navigate({ name: 'tutorial' }),
+        // Once today's challenge is finished, it can be looked at again, not replayed.
+        onOpenDaily: () =>
+          daily.status.kind === 'done' ? navigate({ name: 'dailyResult' }) : startGame('daily'),
         goHome,
         startGame,
       })}
@@ -93,6 +100,7 @@ interface RouteActions {
   tutorialEntry?: TutorialEntry;
   onTutorialDone: () => void;
   onShowTutorial: () => void;
+  onOpenDaily: () => void;
   goHome: () => void;
   startGame: (mode: GameMode) => void;
 }
@@ -118,11 +126,27 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
           onStartFreeGame={() => actions.startGame('free')}
         />
       );
+    case 'dailyResult': {
+      const { status } = actions.daily;
+      if (status.kind !== 'done') {
+        return null;
+      }
+      return (
+        <ResultScreen
+          game={status.game}
+          isNewRecord={false}
+          onShare={() => shareGame(status.game)}
+          onStartFreeGame={() => actions.startGame('free')}
+          onHome={actions.goHome}
+        />
+      );
+    }
     case 'home':
       return (
         <Home
           daily={actions.daily.status}
-          onPlay={actions.startGame}
+          onOpenDaily={actions.onOpenDaily}
+          onPlayFree={() => actions.startGame('free')}
           onShowTutorial={actions.onShowTutorial}
         />
       );

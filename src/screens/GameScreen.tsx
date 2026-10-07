@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { Alert, Share, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,7 +10,6 @@ import { Grid } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
 import type { MoveResult } from '../game/moves';
-import { buildShareText } from '../game/share';
 import {
   BIG_PIECES_GAME,
   FINISHED_FREE_GAME,
@@ -30,6 +29,7 @@ import { useFeedback } from '../hooks/useFeedback';
 import { useGame } from '../hooks/useGame';
 import { usePieceDrag } from '../hooks/usePieceDrag';
 import { MOTION } from '../motion';
+import { shareGame } from '../share';
 import { UI } from '../theme';
 import { ResultScreen } from './ResultScreen';
 
@@ -146,11 +146,6 @@ export function GameScreen({
     ]);
   };
 
-  /** Opens the system share sheet. Cancelling it, or a phone that cannot share, is not an error. */
-  const handleShare = () => {
-    Share.share({ message: buildShareText(game) }).catch(() => undefined);
-  };
-
   useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
     playAt(
       trayIndex,
@@ -201,7 +196,7 @@ export function GameScreen({
         <ResultScreen
           game={game}
           isNewRecord={result.isNewRecord}
-          onShare={handleShare}
+          onShare={() => shareGame(game)}
           onStartFreeGame={onStartFreeGame}
           onHome={onExit}
         />

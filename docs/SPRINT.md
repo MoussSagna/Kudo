@@ -18,7 +18,7 @@
   - Un défi en cours d'un jour passé est abandonné : il ne compte pas.
   - Partie libre : elle n'est pas sauvegardée. Si le score est supérieur à 0, le bouton retour demande une confirmation (« Quitter la partie ? Ta progression sera perdue. »).
 
-- [ ] **K-22 — Une seule tentative par jour**
+- [x] **K-22 — Une seule tentative par jour**
   - Quand le défi se termine, son résultat est enregistré : date, score, grille finale, statistiques.
   - Tant que la date n'a pas changé, le défi ne peut plus être rejoué. Sur l'accueil, la carte affiche « Défi terminé », le score, et un bouton « Voir » qui ouvre l'écran « Reviens demain ».
   - Sur l'écran de fin du défi, « Retour à l'accueil » reste disponible, et « Partager mon score » aussi.

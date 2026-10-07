@@ -11,6 +11,11 @@ import { formatScore } from '../game/formatScore';
 import { FONTS, UI } from '../theme';
 
 const MIN_TOUCH_SIZE = 44;
+const DAILY_BUTTON_LABELS: Readonly<Record<DailyStatus['kind'], string>> = {
+  new: 'Jouer',
+  inProgress: 'Reprendre',
+  done: 'Voir',
+};
 /** Room kept at the top for the streak badge and the settings button of the mockup. */
 const TOP_BAR_HEIGHT = 57;
 const MIN_BOTTOM_PADDING = 24;
@@ -21,7 +26,8 @@ interface HomeScreenProps {
   /** Where today's challenge stands. */
   daily: DailyStatus;
   freeBestScore: number;
-  onPlayDaily: () => void;
+  /** Plays or resumes today's challenge, or shows it again once it is finished. */
+  onOpenDaily: () => void;
   onPlayFree: () => void;
   onShowTutorial: () => void;
 }
@@ -31,7 +37,7 @@ export function HomeScreen({
   today,
   daily,
   freeBestScore,
-  onPlayDaily,
+  onOpenDaily,
   onPlayFree,
   onShowTutorial,
 }: HomeScreenProps) {
@@ -56,13 +62,16 @@ export function HomeScreen({
 
       <View style={styles.daily}>
         <Text style={styles.dailyLabel}>DÉFI DU JOUR</Text>
-        <Text style={styles.dailyDate}>{capitalize(formatWeekdayAndDate(today))}</Text>
-        <Text style={styles.dailyText}>Une seule tentative. Les mêmes pièces pour tout le monde.</Text>
+        <Text style={styles.dailyDate}>
+          {daily.kind === 'done' ? 'Défi terminé' : capitalize(formatWeekdayAndDate(today))}
+        </Text>
+        <Text style={styles.dailyText}>
+          {daily.kind === 'done'
+            ? `Ton score : ${formatScore(daily.game.score)} points. Reviens demain pour le prochain défi.`
+            : 'Une seule tentative. Les mêmes pièces pour tout le monde.'}
+        </Text>
         <View style={styles.dailyButton}>
-          <PrimaryButton
-            label={daily.kind === 'inProgress' ? 'Reprendre' : 'Jouer'}
-            onPress={onPlayDaily}
-          />
+          <PrimaryButton label={DAILY_BUTTON_LABELS[daily.kind]} onPress={onOpenDaily} />
         </View>
       </View>
 

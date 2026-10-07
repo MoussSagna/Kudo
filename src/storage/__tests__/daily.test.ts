@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { EMPTY_DAILY_DATA, recordDailyMove } from '../../game/daily';
-import { SAMPLE_GAME } from '../../game/sampleGame';
+import { FINISHED_GAME, SAMPLE_GAME } from '../../game/sampleGame';
 import { DAILY_KEY, readDailyData, writeDailyData } from '../daily';
 
 jest.mock('@react-native-async-storage/async-storage', () =>
@@ -25,6 +25,31 @@ describe('daily challenge storage', () => {
 
     await expect(readDailyData()).resolves.toEqual(withProgress);
     expect(withProgress.inProgress?.day).toBe('2026-10-06');
+  });
+
+  it('reads back the result of a finished challenge: day, score, grid and statistics', async () => {
+    const finished = recordDailyMove(withProgress, FINISHED_GAME);
+    await writeDailyData(finished);
+
+    const stored = await readDailyData();
+
+    expect(stored).toEqual(finished);
+    expect(stored.inProgress).toBeNull();
+    expect(stored.result?.day).toBe('2026-10-06');
+    expect(stored.result?.game.score).toBe(1780);
+    expect(stored.result?.game.grid).toEqual(FINISHED_GAME.grid);
+    expect(stored.result?.game.stats).toEqual(FINISHED_GAME.stats);
+  });
+
+  it('keeps a readable result when the game in progress is damaged', async () => {
+    await writeDailyData(recordDailyMove(EMPTY_DAILY_DATA, FINISHED_GAME));
+    const saved = JSON.parse((await AsyncStorage.getItem(DAILY_KEY)) ?? '{}');
+    await AsyncStorage.setItem(DAILY_KEY, JSON.stringify({ ...saved, inProgress: { day: 12 } }));
+
+    const stored = await readDailyData();
+
+    expect(stored.inProgress).toBeNull();
+    expect(stored.result?.game).toEqual(FINISHED_GAME);
   });
 
   it('uses a single versioned key', async () => {
@@ -53,7 +78,10 @@ describe('daily challenge storage', () => {
     await AsyncStorage.setItem(DAILY_KEY, JSON.stringify(saved));
     await expect(readDailyData()).resolves.toEqual(EMPTY_DAILY_DATA);
 
-    await writeDailyData({ inProgress: { day: '2026-10-06', game: { ...SAMPLE_GAME, mode: 'free' } } });
+    await writeDailyData({
+      inProgress: { day: '2026-10-06', game: { ...SAMPLE_GAME, mode: 'free' } },
+      result: null,
+    });
     await expect(readDailyData()).resolves.toEqual(EMPTY_DAILY_DATA);
   });
 

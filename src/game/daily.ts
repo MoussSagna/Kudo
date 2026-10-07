@@ -11,22 +11,37 @@ export interface DailyEntry {
 export interface DailyData {
   /** The challenge being played, if it was left before its end. */
   inProgress: DailyEntry | null;
+  /** The last challenge finished, in its final state: date, score, grid and statistics. */
+  result: DailyEntry | null;
 }
 
-export const EMPTY_DAILY_DATA: DailyData = { inProgress: null };
+export const EMPTY_DAILY_DATA: DailyData = { inProgress: null, result: null };
 
 /** Where today's challenge stands. */
-export type DailyStatus = { kind: 'new' } | { kind: 'inProgress'; game: GameState };
+export type DailyStatus =
+  | { kind: 'new' }
+  | { kind: 'inProgress'; game: GameState }
+  | { kind: 'done'; game: GameState };
 
-/** A challenge started on another day is abandoned: it does not count. */
+/**
+ * Today's challenge can be played once: when it is finished, it is done until the day changes.
+ * A challenge started on another day and never finished is abandoned: it does not count.
+ */
 export function dailyStatus(data: DailyData, today: DayKey): DailyStatus {
-  if (data.inProgress?.day === today && !data.inProgress.game.isOver) {
+  if (data.result?.day === today) {
+    return { kind: 'done', game: data.result.game };
+  }
+  if (data.inProgress?.day === today) {
     return { kind: 'inProgress', game: data.inProgress.game };
   }
   return { kind: 'new' };
 }
 
-/** The data after a move of a daily challenge; the challenge belongs to the day of its seed. */
+/**
+ * The data after a move of a daily challenge. The challenge belongs to the day of its seed, even
+ * when it is finished after midnight. Its last move turns it into the result of that day.
+ */
 export function recordDailyMove(data: DailyData, game: GameState): DailyData {
-  return { ...data, inProgress: game.isOver ? null : { day: dayOfSeed(game.seed), game } };
+  const entry = { day: dayOfSeed(game.seed), game };
+  return game.isOver ? { inProgress: null, result: entry } : { ...data, inProgress: entry };
 }

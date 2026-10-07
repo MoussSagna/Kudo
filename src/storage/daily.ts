@@ -27,8 +27,8 @@ export async function readDailyData(): Promise<DailyData> {
     if (typeof stored !== 'object' || stored === null) {
       return EMPTY_DAILY_DATA;
     }
-    const { inProgress } = stored as { inProgress?: unknown };
-    return { inProgress: deserializeEntry(inProgress) };
+    const { inProgress, result } = stored as { inProgress?: unknown; result?: unknown };
+    return { inProgress: deserializeEntry(inProgress), result: deserializeEntry(result) };
   } catch {
     return EMPTY_DAILY_DATA;
   }
@@ -39,7 +39,10 @@ export async function writeDailyData(data: DailyData): Promise<void> {
   try {
     await AsyncStorage.setItem(
       DAILY_KEY,
-      JSON.stringify({ inProgress: serializeEntry(data.inProgress) }),
+      JSON.stringify({
+        inProgress: serializeEntry(data.inProgress),
+        result: serializeEntry(data.result),
+      }),
     );
   } catch {
     // Nothing to do.
