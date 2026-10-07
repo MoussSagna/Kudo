@@ -49,8 +49,10 @@ But : le jeu est agréable à manipuler.
 
 ## Fin de partie
 But : la partie a une fin, un record et se partage.
-- **K-15** Écran de fin de partie avec score et bouton « Rejouer ».
+- **K-32** Correctif du plateau : une pièce de 5 blocs ne touche plus les bords.
+- **K-33** Statistiques de partie (pièces posées, lignes et colonnes effacées, meilleure série).
 - **K-19** Meilleur score sauvegardé et affiché, son de record.
+- **K-15** Écran de fin de partie avec score, statistiques, « Partager mon score » et « Rejouer ».
 - **K-26** Partage du résultat en emojis.
 
 ## Tutoriel interactif
