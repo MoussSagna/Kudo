@@ -15,7 +15,7 @@
   - « Comment jouer ? » rejoue le tutoriel, puis revient à l'accueil.
   - Enchaînement au lancement : écran de lancement, tutoriel au premier lancement, puis accueil. L'app ne s'ouvre plus directement sur une partie.
 
-- [ ] **K-25 — Deux modes de jeu**
+- [x] **K-25 — Deux modes de jeu**
   - « Jouer » lance une partie avec la graine du jour ; « Partie libre » lance une partie avec une graine aléatoire.
   - Le mode fait partie de l'état de la partie. Chaque mode a son propre meilleur score, stocké séparément. Le meilleur score déjà enregistré devient celui de la partie libre.
   - L'en-tête de l'écran de jeu affiche, comme sur `docs/design/jeu.png`, le bouton retour et, au centre, « Défi du jour » avec la date, ou « Partie libre ».

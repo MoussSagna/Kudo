@@ -1,9 +1,13 @@
 import { gridFrom, pieceById } from './notation';
 import { createGame, INITIAL_STATS, type GameState } from './state';
 
+/** The day shown on the mockups: Tuesday, October 6th, 2026. */
+const MOCKUP_DAY_SEED = 20261006;
+
 /** The game shown on the `docs/design/jeu.png` mockup, to compare the screen with it. */
 export const SAMPLE_GAME: GameState = {
-  seed: 0,
+  mode: 'daily',
+  seed: MOCKUP_DAY_SEED,
   grid: gridFrom([
     '........',
     '........',
@@ -27,6 +31,7 @@ export const SAMPLE_GAME: GameState = {
  * nothing and leaves no room for the two other pieces, which ends the game.
  */
 export const NEAR_END_GAME: GameState = {
+  mode: 'free',
   seed: 0,
   grid: gridFrom([
     '.r.rrrrr',
@@ -48,7 +53,8 @@ export const NEAR_END_GAME: GameState = {
 
 /** The finished game shown on the `docs/design/resultat.png` mockup. */
 export const FINISHED_GAME: GameState = {
-  seed: 0,
+  mode: 'daily',
+  seed: MOCKUP_DAY_SEED,
   grid: gridFrom([
     'pp.g.rr.',
     'p.cg.r.y',
@@ -78,6 +84,7 @@ export interface DemoMove {
  * a cleared row, a row and a column cleared together, then a new tray.
  */
 export const DEMO_GAME: GameState = {
+  mode: 'free',
   seed: 1,
   grid: gridFrom([
     '...g....',
@@ -108,3 +115,6 @@ export const BIG_PIECES_GAME: GameState = {
   ...createGame(2),
   tray: [pieceById('v5'), pieceById('h5'), pieceById('sq3')],
 };
+
+/** The same finished game, played as a free game. */
+export const FINISHED_FREE_GAME: GameState = { ...FINISHED_GAME, mode: 'free', seed: 0 };

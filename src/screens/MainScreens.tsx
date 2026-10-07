@@ -1,28 +1,33 @@
 import { useState } from 'react';
 
+import type { GameMode } from '../game/state';
 import { useBestScore } from '../hooks/useBestScore';
 import { GameScreen, OPENS_ON_SAMPLE_GAME } from './GameScreen';
 import { HomeScreen } from './HomeScreen';
 import { TutorialScreen, type TutorialEntry } from './TutorialScreen';
 
-type Route = { name: 'home' } | { name: 'game' } | { name: 'tutorial' };
+/** `gameId` changes with every new game, so that its screen starts from scratch. */
+type Route =
+  | { name: 'home' }
+  | { name: 'game'; mode: GameMode; gameId: number }
+  | { name: 'tutorial' };
 
 interface HomeProps {
-  onPlay: () => void;
+  onPlay: (mode: GameMode) => void;
   onShowTutorial: () => void;
 }
 
 /** The home screen with what it reads when it opens: today's date and the best score. */
 function Home({ onPlay, onShowTutorial }: HomeProps) {
   const [today] = useState(() => new Date());
-  const { best } = useBestScore();
+  const { best } = useBestScore('free');
 
   return (
     <HomeScreen
       today={today}
       freeBestScore={best}
-      onPlayDaily={onPlay}
-      onPlayFree={onPlay}
+      onPlayDaily={() => onPlay('daily')}
+      onPlayFree={() => onPlay('free')}
       onShowTutorial={onShowTutorial}
     />
   );
@@ -43,13 +48,19 @@ interface MainScreensProps {
  */
 export function MainScreens({ startsWithTutorial, tutorialEntry, onTutorialDone }: MainScreensProps) {
   const [route, setRoute] = useState<Route>(() => {
-    if (startsWithTutorial) {
-      return { name: 'tutorial' };
+    if (OPENS_ON_SAMPLE_GAME) {
+      return { name: 'game', mode: 'free', gameId: 0 };
     }
-    return OPENS_ON_SAMPLE_GAME ? { name: 'game' } : { name: 'home' };
+    return startsWithTutorial ? { name: 'tutorial' } : { name: 'home' };
   });
 
   const goHome = () => setRoute({ name: 'home' });
+  const startGame = (mode: GameMode) =>
+    setRoute((current) => ({
+      name: 'game',
+      mode,
+      gameId: current.name === 'game' ? current.gameId + 1 : 0,
+    }));
 
   switch (route.name) {
     case 'tutorial':
@@ -63,11 +74,18 @@ export function MainScreens({ startsWithTutorial, tutorialEntry, onTutorialDone 
         />
       );
     case 'game':
-      return <GameScreen />;
+      return (
+        <GameScreen
+          key={route.gameId}
+          mode={route.mode}
+          onExit={goHome}
+          onStartFreeGame={() => startGame('free')}
+        />
+      );
     case 'home':
       return (
         <Home
-          onPlay={() => setRoute({ name: 'game' })}
+          onPlay={startGame}
           onShowTutorial={() => setRoute({ name: 'tutorial' })}
         />
       );

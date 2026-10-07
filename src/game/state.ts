@@ -1,5 +1,5 @@
 import { GRID_SIZE, type BlockColor } from '../theme';
-import { createRng, nextPieces, type Piece } from './pieces';
+import { createRng, dailySeed, nextPieces, type Piece } from './pieces';
 
 export const TRAY_SIZE = 3;
 
@@ -23,7 +23,11 @@ export interface GameStats {
 
 export const INITIAL_STATS: GameStats = { piecesPlaced: 0, linesCleared: 0, bestStreak: 1 };
 
+/** The daily challenge, the same for everyone that day, or a free game with random pieces. */
+export type GameMode = 'daily' | 'free';
+
 export interface GameState {
+  readonly mode: GameMode;
   /** Seed of the piece sequence: same seed, same game. */
   readonly seed: number;
   readonly grid: Grid;
@@ -50,8 +54,9 @@ export function drawTray(seed: number, drawIndex: number): Tray {
   return nextPieces(rng, TRAY_SIZE);
 }
 
-export function createGame(seed: number): GameState {
+export function createGame(seed: number, mode: GameMode = 'free'): GameState {
   return {
+    mode,
     seed,
     grid: createEmptyGrid(),
     tray: drawTray(seed, 0),
@@ -61,4 +66,12 @@ export function createGame(seed: number): GameState {
     isOver: false,
     stats: INITIAL_STATS,
   };
+}
+
+/**
+ * A new game of the given mode, started at `now`: the daily challenge is seeded by the local date,
+ * so that everyone gets the same pieces that day; a free game is seeded by the clock.
+ */
+export function startGame(mode: GameMode, now: Date): GameState {
+  return createGame(mode === 'daily' ? dailySeed(now) : now.getTime(), mode);
 }

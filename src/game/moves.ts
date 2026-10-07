@@ -82,6 +82,7 @@ export function playMove(
 
   return {
     next: {
+      mode: state.mode,
       seed: state.seed,
       grid,
       tray,
