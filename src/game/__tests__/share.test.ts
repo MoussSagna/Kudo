@@ -1,4 +1,4 @@
-import { FINISHED_GAME } from '../sampleGame';
+import { FINISHED_FREE_GAME, FINISHED_GAME } from '../sampleGame';
 import { buildShareText } from '../share';
 import { createGame } from '../state';
 
@@ -6,7 +6,7 @@ describe('buildShareText', () => {
   it('builds the score, the grid in emojis and the statistics', () => {
     expect(buildShareText(FINISHED_GAME)).toBe(
       [
-        'Kubo — 1 780 points',
+        'Kubo — défi du 6 octobre — 1 780 points',
         '🟪🟪⬛🟩⬛🟥🟥⬛',
         '🟪⬛🟦🟩⬛🟥⬛🟨',
         '⬛🟦🟦⬛🟧🟧⬛🟨',
@@ -37,7 +37,7 @@ describe('buildShareText', () => {
     };
     const lines = buildShareText(game).split('\n');
 
-    expect(lines[0]).toBe('Kubo — 1 point');
+    expect(lines[0]).toBe('Kubo — partie libre — 1 point');
     expect(lines[1]).toBe('⬛⬛⬛⬛⬛⬛⬛⬛');
     expect(lines[9]).toBe('1 pièce posée · 1 ligne effacée · meilleure série ×1');
   });
@@ -45,7 +45,25 @@ describe('buildShareText', () => {
   it('uses the singular for zero', () => {
     const lines = buildShareText(createGame(1)).split('\n');
 
-    expect(lines[0]).toBe('Kubo — 0 point');
+    expect(lines[0]).toBe('Kubo — partie libre — 0 point');
     expect(lines[9]).toBe('0 pièce posée · 0 ligne effacée · meilleure série ×1');
+  });
+
+  it('tells the mode: the day of the daily challenge, or the free game', () => {
+    expect(buildShareText(FINISHED_GAME).split('\n')[0]).toBe(
+      'Kubo — défi du 6 octobre — 1 780 points',
+    );
+    expect(buildShareText(FINISHED_FREE_GAME).split('\n')[0]).toBe(
+      'Kubo — partie libre — 1 780 points',
+    );
+    expect(buildShareText({ ...createGame(20270301, 'daily'), score: 12 }).split('\n')[0]).toBe(
+      'Kubo — défi du 1er mars — 12 points',
+    );
+  });
+
+  it('shares the same grid and statistics in both modes', () => {
+    expect(buildShareText(FINISHED_FREE_GAME).split('\n').slice(1)).toEqual(
+      buildShareText(FINISHED_GAME).split('\n').slice(1),
+    );
   });
 });

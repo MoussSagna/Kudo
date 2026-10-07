@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -26,10 +25,11 @@ export interface BlockEnter {
 
 interface LogoBlockProps {
   color: BlockColor | null;
+  size?: number;
   enter?: BlockEnter;
 }
 
-export function LogoBlock({ color, enter }: LogoBlockProps) {
+export function LogoBlock({ color, size = LOGO_BLOCK_SIZE, enter }: LogoBlockProps) {
   const opacity = useSharedValue(enter ? 0 : 1);
   const translateY = useSharedValue(enter ? -enter.dropDistance : 0);
 
@@ -57,14 +57,7 @@ export function LogoBlock({ color, enter }: LogoBlockProps) {
   return (
     <Animated.Image
       source={color ? BLOCK_IMAGES[color] : CELL_EMPTY_IMAGE}
-      style={[styles.block, enterStyle]}
+      style={[{ width: size, height: size }, enterStyle]}
     />
   );
 }
-
-const styles = StyleSheet.create({
-  block: {
-    width: LOGO_BLOCK_SIZE,
-    height: LOGO_BLOCK_SIZE,
-  },
-});

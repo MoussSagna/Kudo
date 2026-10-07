@@ -19,9 +19,9 @@ import Animated, {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { GameScreen } from './src/screens/GameScreen';
 import { LaunchScreen, NEXT_SCREEN_FADE_IN_MS } from './src/screens/LaunchScreen';
-import { TutorialScreen, type TutorialEntry } from './src/screens/TutorialScreen';
+import { MainScreens } from './src/screens/MainScreens';
+import type { TutorialEntry } from './src/screens/TutorialScreen';
 import { hasSeenTutorial, markTutorialSeen } from './src/storage/tutorial';
 import { UI } from './src/theme';
 
@@ -29,11 +29,13 @@ SplashScreen.preventAutoHideAsync();
 
 /**
  * Development only: EXPO_PUBLIC_TUTORIAL=1 replays the tutorial from its start even if it was
- * already seen; `1a`, `1b`, `2a`, `2b` or `3` opens it directly in that state.
+ * already seen; `1a`, `1b`, `2a`, `2b` or `3` opens it directly in that state; `0` skips it
+ * even if it was never seen.
  */
 const TUTORIAL_ENTRIES: readonly string[] = ['1a', '1b', '2a', '2b', '3'] satisfies TutorialEntry[];
 const DEV_TUTORIAL = __DEV__ ? process.env.EXPO_PUBLIC_TUTORIAL : undefined;
 const IS_TUTORIAL_FORCED = DEV_TUTORIAL === '1' || TUTORIAL_ENTRIES.includes(DEV_TUTORIAL ?? '');
+const IS_TUTORIAL_SKIPPED = DEV_TUTORIAL === '0';
 const DEV_TUTORIAL_ENTRY = TUTORIAL_ENTRIES.includes(DEV_TUTORIAL ?? '')
   ? (DEV_TUTORIAL as TutorialEntry)
   : undefined;
@@ -48,9 +50,12 @@ export default function App() {
   const [launchDone, setLaunchDone] = useState(false);
   const [launchRemoved, setLaunchRemoved] = useState(false);
   /** Null until the storage has been read, which happens during the launch animation. */
-  const [tutorialSeen, setTutorialSeen] = useState<boolean | null>(
-    IS_TUTORIAL_FORCED ? false : null,
-  );
+  const [tutorialSeen, setTutorialSeen] = useState<boolean | null>(() => {
+    if (IS_TUTORIAL_SKIPPED) {
+      return true;
+    }
+    return IS_TUTORIAL_FORCED ? false : null;
+  });
   const nextScreenOpacity = useSharedValue(0);
   const fontsReady = fontsLoaded || fontsError !== null;
 
@@ -61,13 +66,9 @@ export default function App() {
   }, [fontsReady]);
 
   const handleLaunchDone = useCallback(() => setLaunchDone(true), []);
-  const handleTutorialDone = useCallback(() => {
-    markTutorialSeen();
-    setTutorialSeen(true);
-  }, []);
 
   useEffect(() => {
-    if (IS_TUTORIAL_FORCED) {
+    if (IS_TUTORIAL_FORCED || IS_TUTORIAL_SKIPPED) {
       return;
     }
     let cancelled = false;
@@ -112,11 +113,11 @@ export default function App() {
           {launchRemoved ? null : <LaunchScreen onDone={handleLaunchDone} />}
           {isNextScreenReady ? (
             <Animated.View style={[StyleSheet.absoluteFill, nextScreenStyle]}>
-              {tutorialSeen ? (
-                <GameScreen />
-              ) : (
-                <TutorialScreen entry={DEV_TUTORIAL_ENTRY} onDone={handleTutorialDone} />
-              )}
+              <MainScreens
+                startsWithTutorial={!tutorialSeen}
+                tutorialEntry={DEV_TUTORIAL_ENTRY}
+                onTutorialDone={markTutorialSeen}
+              />
             </Animated.View>
           ) : null}
         </View>

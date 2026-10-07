@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 import { playMove, type MoveResult } from '../game/moves';
-import { createGame, type GameState } from '../game/state';
+import type { GameState } from '../game/state';
 
 /** The last move played, for the interface to animate it. */
 export interface MoveEvent extends MoveResult {
@@ -37,10 +37,5 @@ export function useGame(createInitialGame: () => GameState) {
     return result;
   };
 
-  const restart = () => {
-    setGame(createGame(Date.now()));
-    setLastMove(null);
-  };
-
-  return { game, lastMove, place, restart };
+  return { game, lastMove, place };
 }

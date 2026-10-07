@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import type { GameMode } from '../game/state';
 import { readBestScore, saveBestScore } from '../storage/bestScore';
 
 /**
- * The best score saved on this phone, 0 until it is loaded. `submit` records a finished game and
+ * The best score of a mode saved on this phone, 0 until it is loaded. `submit` records a finished game and
  * tells whether it beat the record.
  */
-export function useBestScore() {
+export function useBestScore(mode: GameMode) {
   const [best, setBest] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    readBestScore().then((stored) => {
+    readBestScore(mode).then((stored) => {
       if (!cancelled) {
         setBest((current) => Math.max(current, stored));
       }
@@ -19,7 +20,7 @@ export function useBestScore() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [mode]);
 
   const submit = useCallback(
     (score: number): boolean => {
@@ -27,10 +28,10 @@ export function useBestScore() {
         return false;
       }
       setBest(score);
-      saveBestScore(score);
+      saveBestScore(mode, score);
       return true;
     },
-    [best],
+    [best, mode],
   );
 
   return { best, submit };

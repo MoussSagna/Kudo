@@ -1,5 +1,7 @@
 import { createRng, nextPieces } from '../pieces';
-import { createEmptyGrid, createGame, drawTray, TRAY_SIZE } from '../state';
+import { applyMove } from '../moves';
+import { pieceById } from '../notation';
+import { createEmptyGrid, createGame, drawTray, startGame, TRAY_SIZE } from '../state';
 
 describe('createEmptyGrid', () => {
   it('returns an 8 × 8 grid of empty cells', () => {
@@ -58,5 +60,43 @@ describe('createGame', () => {
 
   it('returns a different tray for a different seed', () => {
     expect(createGame(1).tray).not.toEqual(createGame(2).tray);
+  });
+});
+
+describe('game modes', () => {
+  it('creates a free game unless told otherwise', () => {
+    expect(createGame(42).mode).toBe('free');
+    expect(createGame(42, 'daily').mode).toBe('daily');
+  });
+
+  it('seeds the daily challenge with the local date, so that it is the same all day', () => {
+    const morning = startGame('daily', new Date(2026, 9, 7, 8, 0));
+    const evening = startGame('daily', new Date(2026, 9, 7, 22, 30));
+
+    expect(morning.mode).toBe('daily');
+    expect(morning.seed).toBe(20261007);
+    expect(evening).toEqual(morning);
+  });
+
+  it('changes the daily challenge the next day', () => {
+    const today = startGame('daily', new Date(2026, 9, 7, 12, 0));
+    const tomorrow = startGame('daily', new Date(2026, 9, 8, 12, 0));
+
+    expect(tomorrow.seed).toBe(20261008);
+    expect(tomorrow.tray).not.toEqual(today.tray);
+  });
+
+  it('seeds a free game with the clock', () => {
+    const now = new Date(2026, 9, 7, 12, 0, 0, 123);
+    const game = startGame('free', now);
+
+    expect(game.mode).toBe('free');
+    expect(game.seed).toBe(now.getTime());
+  });
+
+  it('keeps the mode from one move to the next', () => {
+    const game = createGame(20261007, 'daily');
+
+    expect(applyMove({ ...game, tray: [pieceById('dot'), null, null] }, 0, 0, 0).mode).toBe('daily');
   });
 });

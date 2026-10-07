@@ -55,9 +55,9 @@ export function createRng(seed: number): () => number {
   };
 }
 
-/** Graine du défi du jour, basée sur la date UTC (AAAAMMJJ). */
+/** Graine du défi du jour, basée sur la date locale de l'appareil (AAAAMMJJ). */
 export function dailySeed(date: Date = new Date()): number {
-  return date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
+  return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
 }
 
 export function nextPieces(rng: () => number, count = 3): Piece[] {

@@ -1,0 +1,169 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Chevron } from '../components/Chevron';
+import { Logo } from '../components/Logo';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { capitalize, formatWeekdayAndDate } from '../game/dates';
+import { formatScore } from '../game/formatScore';
+import { FONTS, UI } from '../theme';
+
+const MIN_TOUCH_SIZE = 44;
+/** Room kept at the top for the streak badge and the settings button of the mockup. */
+const TOP_BAR_HEIGHT = 57;
+const MIN_BOTTOM_PADDING = 24;
+
+interface HomeScreenProps {
+  /** The day of the daily challenge. */
+  today: Date;
+  freeBestScore: number;
+  onPlayDaily: () => void;
+  onPlayFree: () => void;
+  onShowTutorial: () => void;
+}
+
+/** Where the app opens: the daily challenge, the free game, and the way back to the tutorial. */
+export function HomeScreen({
+  today,
+  freeBestScore,
+  onPlayDaily,
+  onPlayFree,
+  onShowTutorial,
+}: HomeScreenProps) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <LinearGradient
+      colors={[UI.backgroundTop, UI.background]}
+      style={[
+        styles.screen,
+        {
+          paddingTop: insets.top + TOP_BAR_HEIGHT,
+          paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
+        },
+      ]}
+    >
+      <View style={styles.brand}>
+        <Logo blockSize={40} gap={4} />
+        <Text style={styles.name}>Kubo</Text>
+        <Text style={styles.tagline}>Un puzzle par jour.</Text>
+      </View>
+
+      <View style={styles.daily}>
+        <Text style={styles.dailyLabel}>DÉFI DU JOUR</Text>
+        <Text style={styles.dailyDate}>{capitalize(formatWeekdayAndDate(today))}</Text>
+        <Text style={styles.dailyText}>Une seule tentative. Les mêmes pièces pour tout le monde.</Text>
+        <View style={styles.dailyButton}>
+          <PrimaryButton label="Jouer" onPress={onPlayDaily} />
+        </View>
+      </View>
+
+      <Pressable accessibilityRole="button" onPress={onPlayFree} style={styles.free}>
+        <View>
+          <Text style={styles.freeTitle}>Partie libre</Text>
+          <Text style={styles.freeBest}>Meilleur score : {formatScore(freeBestScore)}</Text>
+        </View>
+        <Chevron direction="right" color={UI.textSoft} size={11} />
+      </Pressable>
+
+      <Pressable accessibilityRole="button" onPress={onShowTutorial} style={styles.help}>
+        <Text style={styles.helpLabel}>Comment jouer ?</Text>
+      </Pressable>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  brand: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 10,
+  },
+  name: {
+    marginTop: 8,
+    color: UI.text,
+    fontFamily: FONTS.title,
+    fontSize: 76,
+    lineHeight: 88,
+  },
+  tagline: {
+    marginTop: 7,
+    color: UI.textSoft,
+    fontFamily: FONTS.body,
+    fontSize: 17,
+  },
+  daily: {
+    paddingHorizontal: 23,
+    paddingTop: 22,
+    paddingBottom: 18,
+    borderRadius: 34,
+    borderWidth: 1,
+    borderColor: UI.cellEdge,
+    backgroundColor: UI.cell,
+  },
+  dailyLabel: {
+    color: UI.accent,
+    fontFamily: FONTS.bodyBold,
+    fontSize: 13,
+    letterSpacing: 1.6,
+  },
+  dailyDate: {
+    marginTop: 7,
+    color: UI.text,
+    fontFamily: FONTS.title,
+    fontSize: 30,
+    lineHeight: 36,
+  },
+  dailyText: {
+    marginTop: 8,
+    color: UI.textSoft,
+    fontFamily: FONTS.body,
+    fontSize: 15,
+    lineHeight: 21.5,
+  },
+  dailyButton: {
+    marginTop: 18,
+  },
+  free: {
+    height: 78,
+    marginTop: 14,
+    paddingLeft: 21,
+    paddingRight: 28,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: UI.cellEdge,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: UI.tray,
+  },
+  freeTitle: {
+    color: UI.text,
+    fontFamily: FONTS.title,
+    fontSize: 18.5,
+  },
+  freeBest: {
+    marginTop: 2,
+    color: UI.textSoft,
+    fontFamily: FONTS.body,
+    fontSize: 15,
+  },
+  help: {
+    alignSelf: 'center',
+    height: MIN_TOUCH_SIZE,
+    marginTop: 14,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  helpLabel: {
+    color: UI.textSoft,
+    fontFamily: FONTS.bodyMedium,
+    fontSize: 16.5,
+  },
+});

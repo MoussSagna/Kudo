@@ -17,6 +17,7 @@ export interface TutorialStep {
 
 function tutorialGame(rows: readonly string[], pieceId: string): GameState {
   return {
+    mode: 'free',
     seed: 0,
     grid: gridFrom(rows),
     tray: [null, pieceById(pieceId), null],

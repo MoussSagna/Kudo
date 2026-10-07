@@ -35,6 +35,9 @@ export const MOTION = {
   resultDelayMs: 600,
   resultFadeMs: 250,
 
+  /** Going from one screen to another: the screen fades out, then the next one fades in. */
+  screenFadeMs: 160,
+
   /** Tutorial: the suggested cells blink, and the arrow above the piece bobs up and down. */
   tutorialBlinkMs: 700,
   tutorialArrowMs: 650,

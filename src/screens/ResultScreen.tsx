@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Grid } from '../components/Grid';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { ShareIcon } from '../components/ShareIcon';
+import { dateFromDailySeed, formatWeekdayAndDate } from '../game/dates';
 import { formatScore } from '../game/formatScore';
 import type { GameState } from '../game/state';
 import { MOTION } from '../motion';
@@ -23,11 +24,22 @@ interface ResultScreenProps {
   game: GameState;
   isNewRecord: boolean;
   onShare: () => void;
-  onRestart: () => void;
+  /** Starts a new free game: « Rejouer » after a free game, « Partie libre » after the daily one. */
+  onStartFreeGame: () => void;
+  onHome: () => void;
 }
 
-/** The end of a game: score, final grid, statistics, and ways to share it or play again. */
-export function ResultScreen({ game, isNewRecord, onShare, onRestart }: ResultScreenProps) {
+/**
+ * The end of a game: score, final grid, statistics, and ways to share it, play a free game or go
+ * back to the home screen. The daily challenge also shows its day.
+ */
+export function ResultScreen({
+  game,
+  isNewRecord,
+  onShare,
+  onStartFreeGame,
+  onHome,
+}: ResultScreenProps) {
   const insets = useSafeAreaInsets();
   const opacity = useSharedValue(0);
 
@@ -40,6 +52,8 @@ export function ResultScreen({ game, isNewRecord, onShare, onRestart }: ResultSc
 
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
+  const isDaily = game.mode === 'daily';
+
   const stats = [
     { value: String(game.stats.piecesPlaced), label: 'pièces posées' },
     { value: String(game.stats.linesCleared), label: 'lignes effacées' },
@@ -50,8 +64,13 @@ export function ResultScreen({ game, isNewRecord, onShare, onRestart }: ResultSc
     <Animated.View style={[StyleSheet.absoluteFill, fadeStyle]}>
       <LinearGradient
         colors={[UI.backgroundTop, UI.background]}
-        style={[styles.screen, { paddingTop: insets.top + 49, paddingBottom: insets.bottom }]}
+        style={[styles.screen, { paddingTop: insets.top + 24, paddingBottom: insets.bottom }]}
       >
+        <Text style={styles.day}>
+          {isDaily
+            ? `Défi du ${formatWeekdayAndDate(dateFromDailySeed(game.seed))}`.toUpperCase()
+            : ''}
+        </Text>
         <Text style={styles.title}>Partie terminée</Text>
         <Text style={styles.score}>{formatScore(game.score)}</Text>
         <View style={styles.recordSlot}>
@@ -79,8 +98,15 @@ export function ResultScreen({ game, isNewRecord, onShare, onRestart }: ResultSc
             icon={<ShareIcon color={UI.background} />}
           />
         </View>
-        <Pressable accessibilityRole="button" onPress={onRestart} style={styles.secondaryButton}>
-          <Text style={styles.secondaryLabel}>Rejouer</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={onStartFreeGame}
+          style={styles.secondaryButton}
+        >
+          <Text style={styles.secondaryLabel}>{isDaily ? 'Partie libre' : 'Rejouer'}</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={onHome} style={styles.home}>
+          <Text style={styles.homeLabel}>Retour à l&apos;accueil</Text>
         </Pressable>
       </LinearGradient>
     </Animated.View>
@@ -93,7 +119,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
   },
+  day: {
+    height: 18,
+    color: UI.textSoft,
+    fontFamily: FONTS.bodyBold,
+    fontSize: 13,
+    lineHeight: 18,
+    letterSpacing: 1.6,
+  },
   title: {
+    marginTop: 7,
     color: UI.text,
     fontFamily: FONTS.title,
     fontSize: 30,
@@ -169,5 +204,16 @@ const styles = StyleSheet.create({
     color: UI.text,
     fontFamily: FONTS.title,
     fontSize: 18,
+  },
+  home: {
+    height: 44,
+    marginTop: 14,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  homeLabel: {
+    color: UI.textSoft,
+    fontFamily: FONTS.bodyMedium,
+    fontSize: 16.5,
   },
 });

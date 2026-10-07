@@ -4,6 +4,7 @@ import { Share, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { GameHeader } from '../components/GameHeader';
 import { Grid } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
@@ -11,6 +12,7 @@ import type { MoveResult } from '../game/moves';
 import { buildShareText } from '../game/share';
 import {
   BIG_PIECES_GAME,
+  FINISHED_FREE_GAME,
   DEMO_GAME,
   DEMO_MOVES,
   FINISHED_GAME,
@@ -18,7 +20,7 @@ import {
   SAMPLE_GAME,
   type DemoMove,
 } from '../game/sampleGame';
-import { createGame, type GameState } from '../game/state';
+import { startGame, type GameMode, type GameState } from '../game/state';
 import { useDemoMoves } from '../hooks/useDemoMoves';
 import { playHaptic } from '../haptics';
 import { useBestScore } from '../hooks/useBestScore';
@@ -32,7 +34,8 @@ import { ResultScreen } from './ResultScreen';
 
 /**
  * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
- * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `demo` (a short scripted game
+ * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `overfree` (the
+ * same, as a free game), `demo` (a short scripted game
  * that plays by itself, to watch the animations) or `big` (the largest pieces in the tray).
  */
 interface GameResult {
@@ -45,14 +48,18 @@ const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   end: NEAR_END_GAME,
   over: FINISHED_GAME,
   record: FINISHED_GAME,
+  overfree: FINISHED_FREE_GAME,
   demo: DEMO_GAME,
   big: BIG_PIECES_GAME,
 };
 /** The sample games that are already over open on their result screen. */
 const INITIAL_RESULT: GameResult | null =
-  SAMPLE_GAME_NAME === 'over' || SAMPLE_GAME_NAME === 'record'
+  SAMPLE_GAME_NAME === 'over' || SAMPLE_GAME_NAME === 'record' || SAMPLE_GAME_NAME === 'overfree'
     ? { isNewRecord: SAMPLE_GAME_NAME === 'record' }
     : null;
+/** Development only: true when a sample game is asked for, to open the app directly on it. */
+export const OPENS_ON_SAMPLE_GAME =
+  SAMPLE_GAME_NAME !== undefined && SAMPLE_GAMES[SAMPLE_GAME_NAME] !== undefined;
 const DEMO_SCRIPT = SAMPLE_GAME_NAME === 'demo' ? DEMO_MOVES : null;
 /** In the demo, a piece is released this fraction of a cell away from its target. */
 const DEMO_RELEASE_OFFSET = 0.45;
@@ -60,24 +67,31 @@ const DEMO_RELEASE_OFFSET = 0.45;
 const GAME_OVER_FEEDBACK_DELAY_MS = 450;
 
 const SCORE_MARGIN = 24;
-/** Room kept above the score for the header (back, title, pause) of the mockup. */
-const HEADER_HEIGHT = 77;
+/** Space above the header, and between the header and the score. */
+const HEADER_TOP = 13;
+const HEADER_BOTTOM = 20;
 const MIN_BOTTOM_PADDING = 34;
 /** Height of the tray compared to a grid cell. */
 const TRAY_HEIGHT_RATIO = 3.45;
 
-function createInitialGame() {
-  return (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || createGame(Date.now());
+interface GameScreenProps {
+  mode: GameMode;
+  /** Back to the home screen; the game in progress is lost. */
+  onExit: () => void;
+  /** Starts a new free game. */
+  onStartFreeGame: () => void;
 }
 
-export function GameScreen() {
+export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
   const insets = useSafeAreaInsets();
   const { cellSize, trayWidth } = useBoardLayout();
-  const { game, lastMove, place, restart } = useGame(createInitialGame);
+  const { game, lastMove, place } = useGame(
+    () => (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || startGame(mode, new Date()),
+  );
   const { gridRef, preview, onTargetChange } = usePieceDrag(game);
   const feedback = useFeedback();
   const trayHeight = Math.round(cellSize * TRAY_HEIGHT_RATIO);
-  const { best, submit: submitScore } = useBestScore();
+  const { best, submit: submitScore } = useBestScore(game.mode);
   /** Set once the game is over and its result screen is due. */
   const [result, setResult] = useState<GameResult | null>(INITIAL_RESULT);
 
@@ -107,11 +121,6 @@ export function GameScreen() {
     Share.share({ message: buildShareText(game) }).catch(() => undefined);
   };
 
-  const handleRestart = () => {
-    setResult(null);
-    restart();
-  };
-
   useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
     playAt(
       trayIndex,
@@ -128,11 +137,12 @@ export function GameScreen() {
         style={[
           styles.content,
           {
-            paddingTop: insets.top + HEADER_HEIGHT,
+            paddingTop: insets.top + HEADER_TOP,
             paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
           },
         ]}
       >
+        <GameHeader mode={game.mode} seed={game.seed} onBack={onExit} />
         <View style={styles.score}>
           <ScoreHeader score={game.score} best={best} streak={game.streak} />
         </View>
@@ -162,7 +172,8 @@ export function GameScreen() {
           game={game}
           isNewRecord={result.isNewRecord}
           onShare={handleShare}
-          onRestart={handleRestart}
+          onStartFreeGame={onStartFreeGame}
+          onHome={onExit}
         />
       ) : null}
     </LinearGradient>
@@ -177,6 +188,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   score: {
+    marginTop: HEADER_BOTTOM,
     paddingHorizontal: SCORE_MARGIN,
   },
   grid: {

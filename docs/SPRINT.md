@@ -1,49 +1,41 @@
-# Sprint en cours : Tutoriel interactif
+# Sprint en cours : Accueil
 
-**But** : au premier lancement, le joueur apprend en faisant lui-même les deux gestes du jeu, puis arrive sur l'écran de jeu.
-**Hors périmètre** : accueil, défi du jour, réglages.
-**Branche** : `sprint/tutorial-interactive`
+**But** : l'app s'ouvre sur un écran d'accueil d'où l'on lance le défi du jour ou une partie libre, et l'on peut y revenir.
+**Hors périmètre** : la tentative unique par jour, la sauvegarde et la reprise d'une partie, la série de jours, l'écran « Reviens demain », les réglages. Ils viennent au sprint suivant.
+**Branche** : `sprint/home`
 
-**Règles communes**
-- Le tutoriel réutilise la grille, le plateau, le glisser-déposer, les animations, les sons et les vibrations du jeu. Aucun composant de jeu dupliqué.
-- Les coups passent par `applyMove`. Les restrictions propres au tutoriel sont dans une fonction pure et testée.
-- Le tutoriel ne touche ni au meilleur score ni aux statistiques.
+**Décision inscrite dans `docs/SPEC.md`** : le défi du jour change à minuit, heure locale de l'appareil. La graine est calculée à partir de la date locale (AAAAMMJJ), plus à partir de la date UTC. `dailySeed` et ses tests sont adaptés.
 
 ## Stories
 
-- [x] **K-27a — Mémoriser que le tutoriel a été vu**
-  - Reprendre le commit K-27a de la branche `sprint/tutorial` (`git cherry-pick`), l'adapter au module de stockage actuel, garder ses tests. Ne rien reprendre d'autre. Signaler tout conflit au lieu de le résoudre à l'aveugle.
+- [x] **K-24 — Écran d'accueil**
+  - Maquette : `docs/design/accueil.png`.
+  - Contenu : le logo et « Kubo », l'accroche, la carte « Défi du jour » avec la date du jour en français (par exemple « Mercredi 7 octobre ») et le bouton « Jouer », la ligne « Partie libre » avec son meilleur score, le lien « Comment jouer ? ».
+  - Volontairement absents pour l'instant : la pastille « Série » et le bouton des réglages. Pas de bouton inactif.
+  - « Comment jouer ? » rejoue le tutoriel, puis revient à l'accueil.
+  - Enchaînement au lancement : écran de lancement, tutoriel au premier lancement, puis accueil. L'app ne s'ouvre plus directement sur une partie.
 
-- [x] **K-27d — Étape 1 : poser une pièce**
-  - Maquettes : `docs/design/tuto-1a.png` (consigne) et `tuto-1b.png` (réussite).
-  - Grille de départ, ligne par ligne (mêmes lettres que l'état d'exemple) : `........ / ........ / ........ / ........ / ........ / ........ / r......y / rr.gg.yy`
-  - Plateau : une seule pièce, `L_d`, au centre. Une flèche animée au-dessus d'elle invite à la glisser vers le haut.
-  - Son emplacement suggéré clignote sur la grille : cases (colonne, ligne) (3,3), (4,3), (5,3), (5,4), en comptant depuis 0.
-  - Toute pose valide est acceptée, pas seulement l'emplacement suggéré.
-  - Après la pose : « Bien joué ! », le texte « Chaque case posée rapporte 1 point. Les pièces ne tournent pas. », la pastille « +4 », et le bouton « Suivant » à la place du plateau.
+- [x] **K-25 — Deux modes de jeu**
+  - « Jouer » lance une partie avec la graine du jour ; « Partie libre » lance une partie avec une graine aléatoire.
+  - Le mode fait partie de l'état de la partie. Chaque mode a son propre meilleur score, stocké séparément. Le meilleur score déjà enregistré devient celui de la partie libre.
+  - L'en-tête de l'écran de jeu affiche, comme sur `docs/design/jeu.png`, le bouton retour et, au centre, « Défi du jour » avec la date, ou « Partie libre ».
+  - Le bouton pause de la maquette est abandonné : le jeu n'a pas de minuterie.
+  - Le bouton retour ramène à l'accueil. La partie en cours est alors perdue ; c'est accepté pour ce sprint, la sauvegarde arrive au suivant.
 
-- [x] **K-27e — Étape 2 : compléter une ligne**
-  - Maquettes : `tuto-2a.png` et `tuto-2b.png`.
-  - Grille de départ : `........ / ........ / ........ / ........ / ........ / ...p.... / oyy...cr / b.rr.pp.`
-  - Plateau : la pièce `h3`. La ligne 6 est encadrée en jaune et ses trois cases vides clignotent.
-  - Seule la pose qui complète la ligne est acceptée. Toute autre pose renvoie la pièce au plateau, comme une pose invalide, et fait apparaître l'aide « Vise les trois cases vides de la ligne ».
-  - Après la pose : l'effacement se joue normalement, puis « Ligne effacée ! », le texte « Les colonnes comptent aussi. Plusieurs d'un coup rapportent beaucoup plus. », et le bouton « Suivant ».
+- [x] **K-34 — Écran de fin selon le mode**
+  - Défi du jour : la ligne « Défi du mercredi 7 octobre » au-dessus du titre ; boutons « Partager mon score », « Partie libre », « Retour à l'accueil ».
+  - Partie libre : pas de ligne de date ; boutons « Partager mon score », « Rejouer », « Retour à l'accueil ».
+  - Le texte partagé indique le mode : « Kubo — défi du 7 octobre — N points » ou « Kubo — partie libre — N points ». Mettre à jour la fonction et ses tests.
 
-- [x] **K-27f — Étape 3 et enchaînement**
-  - Maquette : `tuto-3.png`. Écran d'explication sans geste, bouton « C'est parti ». La semaine affichée est une illustration fixe.
-  - En haut de chaque étape : « 1 / 3 », « 2 / 3 », « 3 / 3 » à gauche, « Passer » à droite ; en bas, les trois points de progression.
-  - « Passer » et « C'est parti » marquent le tutoriel comme vu et mènent à l'écran de jeu avec une partie neuve.
-  - Au lancement : écran de lancement, puis tutoriel s'il n'a jamais été vu, sinon écran de jeu. La lecture du stockage se fait pendant l'animation de lancement.
-  - Si l'app est fermée en cours de tutoriel, il reprend au début au prochain lancement.
-  - « Réduire les animations » : la flèche et le clignotement deviennent fixes.
-
-## Outils de développement
-- `EXPO_PUBLIC_TUTORIAL=1a`, `1b`, `2a`, `2b` ou `3` ouvre directement cet état ; `EXPO_PUBLIC_TUTORIAL=1` rejoue le tutoriel depuis le début même s'il a été vu.
+- [x] **K-35 — Transitions**
+  - Fondu court entre les écrans : accueil, jeu, fin de partie, tutoriel. Durée dans l'objet `MOTION`. Respect de « réduire les animations ».
+  - Toujours sans librairie de navigation.
 
 ## Vérification
 - `npm run check` après chaque story.
-- Boucle « Intégration des écrans » sur les cinq états, 3 passages maximum chacun. Les couleurs des pièces viennent de `pieces.ts` : un écart de couleur avec la maquette n'est pas un défaut.
-- L'agent ne peut pas faire les gestes. Il fournit une liste de contrôle à dérouler à la main : chaque étape réussie, la mauvaise pose à l'étape 2, « Passer » à chaque étape, premier lancement puis second lancement, fermeture en cours de tutoriel.
+- Boucle « Intégration des écrans » sur l'accueil, 3 passages maximum. Les éléments volontairement absents ne sont pas des écarts.
+- Une capture de l'écran de jeu et des deux variantes de l'écran de fin, comparées à leurs maquettes.
+- Liste de contrôle à dérouler à la main : chaque bouton de l'accueil, retour depuis le jeu, fin de partie dans chaque mode et ses trois boutons, records séparés, même suite de pièces en relançant le défi du jour deux fois, « Comment jouer ? ».
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
@@ -52,70 +44,70 @@ _L'agent note ici ce qui le bloque._
 _À remplir par l'agent à la fin, puis attendre la validation._
 
 ### Branche
-`sprint/tutorial-interactive`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
+`sprint/home`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
 
 ### Ce qui a été livré
-- **Correctif K-32** `src/components/trayCellSize.ts` : toutes les pièces du plateau ont la même taille de bloc, la plus grande qui laisse au moins 8 pt de marge à `h5` et `v5` (20 pt sur un écran de 390 pt de large, 21 pt sur le simulateur). La hauteur du plateau ne dépend plus de la taille des blocs.
-- **K-27a** `src/storage/tutorial.ts` : repris de `sprint/tutorial` par `git cherry-pick`, avec ses tests ; l'écriture ignore désormais une erreur, comme le meilleur score.
-- **K-27d** étape 1 : grille préparée, pièce `L_d` seule au centre du plateau, flèche qui monte et descend, cases suggérées qui clignotent ; toute pose valide est acceptée ; puis « Bien joué ! », le texte, la pastille « +4 » et « Suivant ».
-- **K-27e** étape 2 : pièce `h3`, ligne 6 encadrée en jaune, trois cases qui clignotent ; seule la pose qui complète la ligne est acceptée, les autres renvoient la pièce au plateau et affichent « Vise les trois cases vides de la ligne » ; puis l'effacement se joue, et « Ligne effacée ! », le texte, la pastille « +10 » et « Suivant ».
-- **K-27f** étape 3 (carte « Défi du jour », bouton « C'est parti ») et enchaînement : écran de lancement, puis tutoriel s'il n'a jamais été vu, sinon écran de jeu. « Passer » et « C'est parti » marquent le tutoriel comme vu.
-- **Règles du tutoriel** `src/game/tutorial.ts` : les deux étapes (`PLACE_STEP`, `CLEAR_STEP`) et la fonction pure `isTutorialMoveAccepted`, testées. Les coups passent par `playMove` / `applyMove`.
-- **Réutilisation** : le tutoriel emploie `Grid`, `Tray`, `DraggablePiece`, `MoveEffects`, les sons et les vibrations du jeu. Pour cela, trois hooks ont été extraits de l'écran de jeu : `usePieceDrag`, `useFeedback`, `useBoardLayout`. Aucun composant de jeu n'est dupliqué.
-- Le tutoriel a son propre état de partie : il ne lit ni n'écrit le meilleur score, et ses statistiques ne sortent pas de l'étape.
+- **Décision heure locale** : `dailySeed` utilise la date locale de l'appareil ; `docs/SPEC.md` est à jour et la question est retirée des « Décisions à confirmer » (commit `fix(dailySeed)`).
+- **K-24** `src/screens/HomeScreen.tsx` : logo et « Kubo », accroche, carte « Défi du jour » avec la date du jour en français et « Jouer », ligne « Partie libre » avec son meilleur score, lien « Comment jouer ? » qui rejoue le tutoriel puis revient à l'accueil. Au lancement : écran de lancement, tutoriel au premier lancement, puis accueil.
+- **K-25** deux modes : `GameState.mode` vaut `daily` ou `free` ; `startGame(mode, maintenant)` crée la partie avec la graine du jour ou une graine tirée de l'horloge. Un meilleur score par mode (`kubo:bestScore:v1` pour la partie libre, donc le record existant est conservé ; `kubo:bestScore:daily:v1` pour le défi). En-tête de l'écran de jeu (`GameHeader`) : bouton retour, « DÉFI DU JOUR » avec la date, ou « PARTIE LIBRE ».
+- **K-34** écran de fin selon le mode : ligne « DÉFI DU MARDI 6 OCTOBRE » et bouton « Partie libre » pour le défi ; bouton « Rejouer » pour la partie libre ; « Retour à l'accueil » dans les deux cas. Le texte partagé commence par « Kubo — défi du 7 octobre — N points » ou « Kubo — partie libre — N points ».
+- **K-35** fondu entre les écrans (`useScreenFade`, 160 ms à la sortie puis 160 ms à l'entrée, réglable par `MOTION.screenFadeMs`). Toujours sans librairie de navigation : `src/screens/MainScreens.tsx` garde une seule route dans un état.
+- Dates en français : `src/game/dates.ts` (« mercredi 7 octobre », « 1er mars »), testé.
 
 ### Comment le vérifier
-- `npm run check` : sans erreur ni avertissement, 120 tests réussis.
-- Outils de développement (arrêter d'abord tout serveur Expo en cours) : `EXPO_PUBLIC_TUTORIAL=1a`, `1b`, `2a`, `2b` ou `3` ouvre directement cet état ; `EXPO_PUBLIC_TUTORIAL=1` rejoue le tutoriel depuis le début même s'il a déjà été vu.
-- **Vérifié par l'agent** : `npm run check`, `expo-doctor`, l'affichage des cinq états sur le simulateur iOS, et le premier lancement sans aucun réglage (le tutoriel s'ouvre après l'écran de lancement).
-- **Non vérifié par l'agent** : tous les gestes (poser la pièce aux étapes 1 et 2, la mauvaise pose et son aide), les boutons « Suivant », « Passer » et « C'est parti », le passage à l'écran de jeu, l'absence du tutoriel au second lancement, la reprise au début après une fermeture, et le mode « réduire les animations » du tutoriel. Seules les règles et le stockage sont couverts par des tests.
+- `npm run check` : sans erreur ni avertissement, 138 tests réussis.
+- `npx expo start --ios` : écran de lancement, puis accueil (ou tutoriel au tout premier lancement).
+- Outils de développement : `EXPO_PUBLIC_TUTORIAL=0` saute le tutoriel même s'il n'a jamais été vu ; `EXPO_PUBLIC_SAMPLE_GAME=1`, `over`, `record`, `overfree`, `end`, `demo`, `big` ouvrent directement une partie d'exemple.
+- **Vérifié par l'agent** : `npm run check`, `expo-doctor`, et sur le simulateur iOS l'affichage de l'accueil, de l'en-tête de l'écran de jeu et des deux variantes de l'écran de fin.
+- **Non vérifié par l'agent** : tout ce qui demande de toucher l'écran — chaque bouton de l'accueil, le bouton retour, les trois boutons de l'écran de fin, « Comment jouer ? », et donc **les fondus entre les écrans, qu'aucune capture n'a pu montrer**. Les records séparés et la graine du jour ne sont vérifiés que par les tests.
 
 ### Liste de contrôle à dérouler à la main
-Pour repartir d'un « premier lancement » : désinstaller Expo Go ou effacer ses données, ou lancer avec `EXPO_PUBLIC_TUTORIAL=1`.
-
 | # | Action | Ce que tu dois observer |
 |---|---|---|
-| 1 | Premier lancement | Écran de lancement, puis étape « 1 / 3 » : la flèche bouge, quatre cases clignotent sur la grille |
-| 2 | Étape 1 : poser la pièce sur les cases qui clignotent | Aperçu, pose, son et vibration du jeu ; puis « Bien joué ! », pastille « +4 », bouton « Suivant » à la place du plateau |
-| 3 | Étape 1 (en la rejouant) : poser la pièce ailleurs, à un endroit libre | Acceptée aussi, même suite |
-| 4 | Étape 1 : relâcher la pièce sur des cases occupées | Retour au plateau, son de refus ; l'étape continue |
-| 5 | Toucher « Suivant » | Étape « 2 / 3 » : ligne encadrée en jaune, trois cases qui clignotent, deuxième point de progression allumé |
-| 6 | Étape 2 : poser la barre ailleurs que dans la ligne (par exemple en haut de la grille) | Retour au plateau comme une pose invalide ; l'aide « Vise les trois cases vides de la ligne » apparaît au-dessus du plateau |
-| 7 | Étape 2 : poser la barre dans les trois cases vides | La ligne s'illumine et s'efface, « +10 » monte ; puis « Ligne effacée ! », bande claire sur la ligne, pastille « +10 », bouton « Suivant » |
-| 8 | Toucher « Suivant » | Étape « 3 / 3 » : carte « Défi du jour », bouton « C'est parti » |
-| 9 | Toucher « C'est parti » | Écran de jeu, partie neuve : score 0, grille vide, « Meilleur » inchangé |
-| 10 | Fermer complètement l'app, la rouvrir | Écran de lancement, puis directement l'écran de jeu : plus de tutoriel |
-| 11 | Rejouer le tutoriel (`EXPO_PUBLIC_TUTORIAL=1`), toucher « Passer » à l'étape 1 | Écran de jeu avec une partie neuve |
-| 12 | Même chose en touchant « Passer » à l'étape 2, puis à l'étape 3 | Écran de jeu à chaque fois |
-| 13 | Sur un premier lancement réel, faire l'étape 1, fermer l'app à l'étape 2, la rouvrir | Le tutoriel reprend à l'étape « 1 / 3 » |
-| 14 | Après le tutoriel, battre un record dans une partie | Le tutoriel n'a laissé aucun score : « Meilleur » ne reflète que les vraies parties |
-| 15 | Activer « Réduire les animations » dans les réglages du téléphone, relancer le tutoriel | La flèche ne bouge pas, les cases suggérées restent affichées sans clignoter |
+| 1 | Lancer l'app | Écran de lancement, puis accueil : logo, « Kubo », carte « Défi du jour » avec la date d'aujourd'hui, « Partie libre » avec ton meilleur score actuel, « Comment jouer ? » |
+| 2 | Toucher « Jouer » | Fondu vers l'écran de jeu ; en-tête « DÉFI DU JOUR » et la date ; « Meilleur : 0 » (record du défi, distinct) |
+| 3 | Noter les trois pièces, toucher le bouton retour, puis « Jouer » de nouveau | Retour à l'accueil en fondu ; la nouvelle partie propose exactement les mêmes trois pièces, puis les mêmes tirages |
+| 4 | Toucher « Partie libre » | Écran de jeu, en-tête « PARTIE LIBRE » sans date ; « Meilleur » affiche ton ancien record ; les pièces changent d'une partie à l'autre |
+| 5 | En pleine partie, toucher le bouton retour | Retour à l'accueil ; la partie est perdue (accepté pour ce sprint) |
+| 6 | Finir un défi du jour | Écran de fin avec « DÉFI DU … » au-dessus du titre, boutons « Partager mon score », « Partie libre », « Retour à l'accueil » |
+| 7 | Toucher « Partager mon score » après un défi | Le texte commence par « Kubo — défi du 7 octobre — N points » |
+| 8 | Toucher « Partie libre » sur cet écran | Une partie libre neuve démarre |
+| 9 | Finir une partie libre | Écran de fin sans ligne de date, boutons « Partager mon score », « Rejouer », « Retour à l'accueil » ; le texte partagé commence par « Kubo — partie libre — N points » |
+| 10 | Toucher « Rejouer » | Nouvelle partie libre, score 0 |
+| 11 | Toucher « Retour à l'accueil » sur l'écran de fin | Accueil ; « Meilleur score » de la partie libre est à jour si tu viens de le battre |
+| 12 | Battre le record du défi, puis ouvrir une partie libre | Les deux « Meilleur » sont différents : chacun son mode. Après fermeture et réouverture de l'app, les deux sont conservés |
+| 13 | Toucher « Comment jouer ? » | Le tutoriel se rejoue depuis l'étape 1 ; « Passer » ou « C'est parti » ramène à l'accueil, pas à une partie |
+| 14 | Regarder chaque changement d'écran | Fondu court, sans écran blanc ni saut ; avec « Réduire les animations », le fondu reste (il n'a pas de mouvement) |
+| 15 | Changer la date du téléphone au lendemain, relancer | La carte affiche la nouvelle date et « Jouer » propose d'autres pièces |
 
 ### Dépendances ajoutées et pourquoi
 - Aucune.
 
 ### Écarts par rapport au plan
-- **Conflit du `cherry-pick` de K-27a** : un seul, dans `docs/SPRINT.md` (l'ancien commit cochait une case de l'ancien fichier de sprint). Le fichier actuel a été gardé et K-27a y a été cochée. Le code et les tests se sont appliqués sans conflit. `markTutorialSeen` a ensuite été modifiée pour ignorer une erreur d'écriture, avec un test en plus.
-- **Taille des pièces dans le plateau du tutoriel** : 21 pt par bloc, contre 30 pt sur les maquettes, conséquence de l'échelle unique décidée pour K-32.
-- **Couleurs** : `L_d` est orange (maquette : bleue), d'où des cases suggérées orange à l'étape 1 ; écart accepté d'avance.
-- **Aide de l'étape 2** : elle s'affiche au-dessus du plateau, en jaune ; les maquettes ne montrent pas cet état. Elle apparaît quand la pièce est relâchée sur une case de la grille qui ne convient pas, pas quand elle est relâchée hors de la grille.
-- **Message de réussite** : il attend la fin des animations du coup (environ 0,2 s à l'étape 1, 0,5 s à l'étape 2), puis apparaît en fondu. Le « +10 » animé du jeu et la pastille fixe « +10 » se suivent.
-- **Icônes** : la coche, l'horloge, les personnages et l'icône de partage sont dessinés avec des vues, faute de librairie d'icônes ; ils sont plus simples que sur les maquettes.
-- **Étape 3** : son bouton est 5 pt plus haut que sur la maquette, pour rester hors de la zone de l'indicateur d'accueil.
-- **Passage du tutoriel au jeu** : l'écran de jeu remplace le tutoriel sans transition.
-- **Branche `sprint/tutorial`** : rien d'autre n'en a été repris ; les composants de l'étape 3 ont été réécrits.
-- **Captures** : le bouton bleu d'Expo Go masque « Passer » sur les captures du simulateur ; ce n'est pas un défaut de l'app.
+- **Bouton pause** : il ne figurait pas dans le backlog, rien à retirer ; il est mentionné comme abandonné dans la story K-25.
+- **Bouton « Jouer » en K-24** : dans le commit de K-24, « Jouer » et « Partie libre » lançaient tous deux une partie ordinaire ; les deux modes arrivent avec le commit de K-25.
+- **Défi rejouable** : on peut rejouer le défi du jour autant de fois qu'on veut, avec les mêmes pièces ; la tentative unique est au sprint suivant. Le texte de la carte dit déjà « Une seule tentative ».
+- **Record du défi** : il se compare à tous les défis passés, pas seulement à celui du jour. La pastille de l'écran de fin dit « ★ Nouveau record ».
+- **Fondus et « réduire les animations »** : les fondus sont conservés tels quels dans ce mode, puisqu'ils n'ont ni mouvement ni changement d'échelle.
+- **Écran de fin** : il s'ouvre toujours avec son propre fondu, par-dessus la grille ; le fondu de K-35 s'applique quand on le quitte.
+- **Icônes** : les chevrons (retour, « Partie libre ») sont dessinés avec des vues.
+- **Exemples de développement** : avec `EXPO_PUBLIC_SAMPLE_GAME`, l'app s'ouvre directement sur la partie d'exemple, sans tutoriel ni accueil. Ajout de l'état `overfree` et de `EXPO_PUBLIC_TUTORIAL=0`.
+- **Incident** : un script de modification s'est arrêté à mi-chemin pendant K-34 (une chaîne ne correspondait pas à cause d'une espace insécable). Les captures prises à ce moment-là montraient l'ancien écran ; elles ont été refaites après correction. Une capture a aussi mis vingt minutes à aboutir, le serveur de développement ayant tardé à démarrer.
 - **Android** : rien n'a été testé.
 
 ### Passages de la boucle d'intégration et écarts restants, par écran
-- **Étape 1a : 2 passages** (`tuto-1a-1.png`, `tuto-1a-2.png`). Passage 1 : grille 3 pt trop bas, sous-titre 8 pt trop large. Passage 2 : corrigés. Écarts restants : aucun notable, hors taille et couleur de la pièce.
-- **Étape 1b : 2 passages** (`tuto-1b-1.png`, `tuto-1b-2.png`). Passage 1 : coche trop fine, pastille « +4 » 5 pt trop étroite. Passage 2 : corrigés. Écarts restants : aucun notable.
-- **Étape 2a : 1 passage** (`tuto-2a-1.png`). Conforme : titre, texte sur deux lignes, cadre jaune, cases suggérées, plateau, flèche, points de progression.
-- **Étape 2b : 1 passage** (`tuto-2b-1.png`). Conforme : coche, titre, bande claire, pastille « +10 », bouton.
-- **Étape 3 : 1 passage** (`tuto-3-1.png`). Conforme : carte (308 × 266 pt pour 310 × 270), semaine, trois lignes, titre, texte, points, bouton. Écart restant : icônes simplifiées.
-- **Écran de jeu : 1 capture** (`jeu-echelle-unique.png`) après le correctif K-32 : `v5`, `h5` et `sq3` ont la même taille de bloc et tiennent avec une marge.
+- **Accueil : 2 passages** (`accueil-1.png`, `accueil-2.png`).
+  - Passage 1 : accroche 7 pt trop haute, date de la carte trop petite, texte de la carte un peu large. Corrigés.
+  - Passage 2 : logo (125 pt de large), « Kubo » (167 pt pour 164), carte (232 pt de haut pour 233), ligne « Partie libre » (77 pt) et lien conformes.
+  - Écarts restants : l'accroche est encore environ 4 pt plus haute que sur la maquette ; le bas de l'écran est 10 pt plus haut, pour rester hors de la zone de l'indicateur d'accueil.
+  - Volontairement absents : la pastille « Série » et le bouton des réglages.
+- **Écran de jeu : 1 capture** (`jeu-modes-1.png`) comparée à `jeu.png` : bouton retour et titre « DÉFI DU JOUR / Mardi 6 octobre » en place ; le score et la grille n'ont pas bougé. Le titre était légèrement trop large (104 pt pour 95) : espacement et taille réduits après la capture, **sans nouvelle capture**.
+- **Écran de fin, défi du jour : 1 capture** (`resultat-defi-1.png`) comparée à `resultat.png` : ligne de date à 80 pt du haut (maquette 80), « Partie libre », « Retour à l'accueil » centré à 788,5 pt (maquette 788,5).
+- **Écran de fin, partie libre : 1 capture** (`resultat-libre-1.png`) : même mise en page sans ligne de date, bouton « Rejouer ».
 
-### Proposition de stories détaillées pour le sprint suivant (Accueil)
-- **K-24 — Écran d'accueil** : maquette `docs/design/accueil.png` ; défi du jour, partie libre, série, meilleur score.
-- **K-25 — Partie libre** : lancée depuis l'accueil ; l'en-tête de l'écran de jeu reçoit enfin son bouton retour, et l'écran de résultat ses boutons « Partie libre » et « Retour à l'accueil ».
-- Points à trancher : l'accueil sans le défi du jour (prévu au sprint suivant) affiche-t-il déjà sa carte, ou seulement la partie libre ? Faut-il une petite navigation entre accueil, jeu et résultat, toujours sans librairie ?
+### Proposition de stories détaillées pour le sprint suivant (Défi du jour et « Reviens demain »)
+- **K-20 — Suite de pièces du jour** : déjà en place avec `startGame('daily', …)` ; reste à la figer au moment où la partie commence, si minuit passe en cours de partie.
+- **K-21 — Sauvegarde et reprise** : l'état du défi du jour est sauvegardé à chaque coup et repris tel quel ; le bouton retour ne fait plus perdre la partie.
+- **K-22 — Tentative unique** : une fois le défi terminé, « Jouer » laisse place à l'écran « Reviens demain » (`docs/design/demain.png`) avec un compte à rebours jusqu'à minuit, heure locale.
+- **K-23 — Série de jours** : compteur de jours consécutifs joués, avec la pastille « Série » de l'accueil.
+- Points à trancher : la partie libre doit-elle aussi être sauvegardée et reprise ? Le record du défi doit-il être par jour (« Nouveau record du jour » de la maquette) ou global comme aujourd'hui ?

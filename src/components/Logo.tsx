@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import type { BlockColor } from '../theme';
-import { LogoBlock, type BlockEnter } from './LogoBlock';
+import { LOGO_BLOCK_SIZE, LogoBlock, type BlockEnter } from './LogoBlock';
 
 const LOGO_GAP = 6;
 
@@ -63,9 +63,12 @@ function buildBlockEnters(motion: LogoMotion): BlockEnter[][] {
 
 interface LogoProps {
   motion?: LogoMotion;
+  /** Size of a block and space between two blocks; the launch screen sizes by default. */
+  blockSize?: number;
+  gap?: number;
 }
 
-export function Logo({ motion }: LogoProps) {
+export function Logo({ motion, blockSize = LOGO_BLOCK_SIZE, gap = LOGO_GAP }: LogoProps) {
   const scale = useSharedValue(1);
   const enters = useMemo(() => (motion ? buildBlockEnters(motion) : undefined), [motion]);
 
@@ -83,11 +86,16 @@ export function Logo({ motion }: LogoProps) {
   const pulseStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
-    <Animated.View style={[styles.grid, pulseStyle]}>
+    <Animated.View style={[{ gap }, pulseStyle]}>
       {LOGO_ROWS.map((row, rowIndex) => (
-        <View key={rowIndex} style={styles.row}>
+        <View key={rowIndex} style={[styles.row, { gap }]}>
           {row.map((color, columnIndex) => (
-            <LogoBlock key={columnIndex} color={color} enter={enters?.[rowIndex][columnIndex]} />
+            <LogoBlock
+              key={columnIndex}
+              color={color}
+              size={blockSize}
+              enter={enters?.[rowIndex][columnIndex]}
+            />
           ))}
         </View>
       ))}
@@ -96,11 +104,7 @@ export function Logo({ motion }: LogoProps) {
 }
 
 const styles = StyleSheet.create({
-  grid: {
-    gap: LOGO_GAP,
-  },
   row: {
     flexDirection: 'row',
-    gap: LOGO_GAP,
   },
 });
