@@ -22,7 +22,7 @@
   - Le bouton pause de la maquette est abandonné : le jeu n'a pas de minuterie.
   - Le bouton retour ramène à l'accueil. La partie en cours est alors perdue ; c'est accepté pour ce sprint, la sauvegarde arrive au suivant.
 
-- [ ] **K-34 — Écran de fin selon le mode**
+- [x] **K-34 — Écran de fin selon le mode**
   - Défi du jour : la ligne « Défi du mercredi 7 octobre » au-dessus du titre ; boutons « Partager mon score », « Partie libre », « Retour à l'accueil ».
   - Partie libre : pas de ligne de date ; boutons « Partager mon score », « Rejouer », « Retour à l'accueil ».
   - Le texte partagé indique le mode : « Kubo — défi du 7 octobre — N points » ou « Kubo — partie libre — N points ». Mettre à jour la fonction et ses tests.

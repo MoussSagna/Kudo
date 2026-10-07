@@ -12,6 +12,7 @@ import type { MoveResult } from '../game/moves';
 import { buildShareText } from '../game/share';
 import {
   BIG_PIECES_GAME,
+  FINISHED_FREE_GAME,
   DEMO_GAME,
   DEMO_MOVES,
   FINISHED_GAME,
@@ -33,7 +34,8 @@ import { ResultScreen } from './ResultScreen';
 
 /**
  * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
- * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `demo` (a short scripted game
+ * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `overfree` (the
+ * same, as a free game), `demo` (a short scripted game
  * that plays by itself, to watch the animations) or `big` (the largest pieces in the tray).
  */
 interface GameResult {
@@ -46,12 +48,13 @@ const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   end: NEAR_END_GAME,
   over: FINISHED_GAME,
   record: FINISHED_GAME,
+  overfree: FINISHED_FREE_GAME,
   demo: DEMO_GAME,
   big: BIG_PIECES_GAME,
 };
 /** The sample games that are already over open on their result screen. */
 const INITIAL_RESULT: GameResult | null =
-  SAMPLE_GAME_NAME === 'over' || SAMPLE_GAME_NAME === 'record'
+  SAMPLE_GAME_NAME === 'over' || SAMPLE_GAME_NAME === 'record' || SAMPLE_GAME_NAME === 'overfree'
     ? { isNewRecord: SAMPLE_GAME_NAME === 'record' }
     : null;
 /** Development only: true when a sample game is asked for, to open the app directly on it. */
@@ -169,7 +172,8 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
           game={game}
           isNewRecord={result.isNewRecord}
           onShare={handleShare}
-          onRestart={onStartFreeGame}
+          onStartFreeGame={onStartFreeGame}
+          onHome={onExit}
         />
       ) : null}
     </LinearGradient>
