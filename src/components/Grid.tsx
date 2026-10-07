@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
 import type { Piece } from '../game/pieces';
@@ -23,13 +24,15 @@ interface GridProps {
   preview?: GridPreview | null;
   /** The last move played, animated over the cells. */
   lastMove?: MoveEvent | null;
+  /** Decorations drawn over the cells, positioned in points from the first cell. */
+  children?: ReactNode;
 }
 
 /**
  * The board: one block image per occupied cell, an empty-cell image elsewhere, the translucent
  * cells of the piece being dragged when it can be placed, and the animations of the last move.
  */
-export function Grid({ grid, cellSize, preview, lastMove }: GridProps) {
+export function Grid({ grid, cellSize, preview, lastMove, children }: GridProps) {
   const cellStyle = { width: cellSize, height: cellSize };
   /** The blocks of the last piece placed are drawn by its animation, not by the grid. */
   const isDrawnByEffects = (col: number, row: number) =>
@@ -65,6 +68,7 @@ export function Grid({ grid, cellSize, preview, lastMove }: GridProps) {
           />
         ))}
         {lastMove ? <MoveEffects key={lastMove.id} move={lastMove} cellSize={cellSize} /> : null}
+        {children}
       </View>
     </View>
   );

@@ -58,6 +58,10 @@ But : la partie a une fin, un record et se partage.
 ## Tutoriel interactif
 But : au premier lancement, le joueur apprend en jouant.
 - **K-27** Tutoriel au premier lancement. Utilise le moteur et le glisser-déposer du jeu. Maquettes : `tuto-1a`, `tuto-1b`, `tuto-2a`, `tuto-2b`, `tuto-3`.
+  - **K-27a** Mémoriser que le tutoriel a été vu.
+  - **K-27d** Étape 1 : poser une pièce.
+  - **K-27e** Étape 2 : compléter une ligne.
+  - **K-27f** Étape 3 et enchaînement.
 
 ## Accueil
 But : le jeu a un point d'entrée.
