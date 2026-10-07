@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Share, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,6 +10,7 @@ import { Tray } from '../components/Tray';
 import { moveFeedback } from '../game/feedback';
 import type { MoveResult } from '../game/moves';
 import { canPlace } from '../game/placement';
+import { buildShareText } from '../game/share';
 import {
   BIG_PIECES_GAME,
   DEMO_GAME,
@@ -113,6 +114,11 @@ export function GameScreen() {
     return move !== null;
   };
 
+  /** Opens the system share sheet. Cancelling it, or a phone that cannot share, is not an error. */
+  const handleShare = () => {
+    Share.share({ message: buildShareText(game) }).catch(() => undefined);
+  };
+
   const handleRestart = () => {
     setResult(null);
     restart();
@@ -180,7 +186,12 @@ export function GameScreen() {
         </View>
       </View>
       {result ? (
-        <ResultScreen game={game} isNewRecord={result.isNewRecord} onRestart={handleRestart} />
+        <ResultScreen
+          game={game}
+          isNewRecord={result.isNewRecord}
+          onShare={handleShare}
+          onRestart={handleRestart}
+        />
       ) : null}
     </LinearGradient>
   );

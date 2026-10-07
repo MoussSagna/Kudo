@@ -10,6 +10,8 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Grid } from '../components/Grid';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { ShareIcon } from '../components/ShareIcon';
 import { formatScore } from '../game/formatScore';
 import type { GameState } from '../game/state';
 import { MOTION } from '../motion';
@@ -20,11 +22,12 @@ const MINI_CELL_SIZE = 22.5;
 interface ResultScreenProps {
   game: GameState;
   isNewRecord: boolean;
+  onShare: () => void;
   onRestart: () => void;
 }
 
-/** The end of a game: score, final grid, statistics, and a way to play again. */
-export function ResultScreen({ game, isNewRecord, onRestart }: ResultScreenProps) {
+/** The end of a game: score, final grid, statistics, and ways to share it or play again. */
+export function ResultScreen({ game, isNewRecord, onShare, onRestart }: ResultScreenProps) {
   const insets = useSafeAreaInsets();
   const opacity = useSharedValue(0);
 
@@ -68,6 +71,13 @@ export function ResultScreen({ game, isNewRecord, onRestart }: ResultScreenProps
               <Text style={styles.statLabel}>{label}</Text>
             </View>
           ))}
+        </View>
+        <View style={styles.share}>
+          <PrimaryButton
+            label="Partager mon score"
+            onPress={onShare}
+            icon={<ShareIcon color={UI.background} />}
+          />
         </View>
         <Pressable accessibilityRole="button" onPress={onRestart} style={styles.secondaryButton}>
           <Text style={styles.secondaryLabel}>Rejouer</Text>
@@ -140,10 +150,14 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.body,
     fontSize: 13,
   },
+  share: {
+    alignSelf: 'stretch',
+    marginTop: 29,
+  },
   secondaryButton: {
     alignSelf: 'stretch',
     height: 56,
-    marginTop: 29,
+    marginTop: 9,
     borderRadius: 24,
     borderWidth: 1,
     borderColor: UI.cellEdge,
