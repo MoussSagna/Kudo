@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProgressDots } from '../components/ProgressDots';
+import { TutorialDailyStep } from '../components/TutorialDailyStep';
 import { TutorialHeader } from '../components/TutorialHeader';
 import { TutorialPlayStep } from '../components/TutorialPlayStep';
 import { ClearedRowBand, RowOutline } from '../components/TutorialRowMarks';
@@ -15,9 +16,15 @@ const MIN_BOTTOM_PADDING = 34;
 const CLEAR_STEP_ROW = CLEAR_STEP.suggestion.row;
 
 /** A state of the tutorial that development tools can open directly. */
-export type TutorialEntry = '1a' | '1b' | '2a' | '2b';
+export type TutorialEntry = '1a' | '1b' | '2a' | '2b' | '3';
 
-const ENTRY_STEP: Readonly<Record<TutorialEntry, number>> = { '1a': 0, '1b': 0, '2a': 1, '2b': 1 };
+const ENTRY_STEP: Readonly<Record<TutorialEntry, number>> = {
+  '1a': 0,
+  '1b': 0,
+  '2a': 1,
+  '2b': 1,
+  '3': 2,
+};
 
 interface TutorialScreenProps {
   /** Development only: the state to open; the tutorial normally starts at its first step. */
@@ -57,7 +64,8 @@ export function TutorialScreen({ entry = '1a', onDone }: TutorialScreenProps) {
             badge={{ label: '+4', col: 6.7, row: 2.6 }}
             onNext={() => setStepIndex(1)}
           />
-        ) : (
+        ) : null}
+        {stepIndex === 1 ? (
           <TutorialPlayStep
             key="clear"
             step={CLEAR_STEP}
@@ -72,10 +80,14 @@ export function TutorialScreen({ entry = '1a', onDone }: TutorialScreenProps) {
             renderSolvedMark={(cellSize) => (
               <ClearedRowBand row={CLEAR_STEP_ROW} cellSize={cellSize} />
             )}
-            onNext={onDone}
+            onNext={() => setStepIndex(2)}
           />
+        ) : null}
+        {stepIndex === 2 ? (
+          <TutorialDailyStep stepIndex={stepIndex} stepCount={STEP_COUNT} onDone={onDone} />
+        ) : (
+          <ProgressDots count={STEP_COUNT} activeIndex={stepIndex} />
         )}
-        <ProgressDots count={STEP_COUNT} activeIndex={stepIndex} />
       </View>
     </LinearGradient>
   );

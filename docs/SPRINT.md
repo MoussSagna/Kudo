@@ -29,7 +29,7 @@
   - Seule la pose qui complète la ligne est acceptée. Toute autre pose renvoie la pièce au plateau, comme une pose invalide, et fait apparaître l'aide « Vise les trois cases vides de la ligne ».
   - Après la pose : l'effacement se joue normalement, puis « Ligne effacée ! », le texte « Les colonnes comptent aussi. Plusieurs d'un coup rapportent beaucoup plus. », et le bouton « Suivant ».
 
-- [ ] **K-27f — Étape 3 et enchaînement**
+- [x] **K-27f — Étape 3 et enchaînement**
   - Maquette : `tuto-3.png`. Écran d'explication sans geste, bouton « C'est parti ». La semaine affichée est une illustration fixe.
   - En haut de chaque étape : « 1 / 3 », « 2 / 3 », « 3 / 3 » à gauche, « Passer » à droite ; en bas, les trois points de progression.
   - « Passer » et « C'est parti » marquent le tutoriel comme vu et mènent à l'écran de jeu avec une partie neuve.
@@ -50,11 +50,72 @@ _L'agent note ici ce qui le bloque._
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._
-- Branche :
-- Ce qui a été livré :
-- Comment le vérifier (commandes, ce qu'on doit voir à l'écran) :
-- Liste de contrôle à dérouler à la main :
-- Dépendances ajoutées et pourquoi :
-- Écarts par rapport au plan :
-- Passages de la boucle d'intégration et écarts restants, par écran :
-- Proposition de stories détaillées pour le sprint suivant :
+
+### Branche
+`sprint/tutorial-interactive`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
+
+### Ce qui a été livré
+- **Correctif K-32** `src/components/trayCellSize.ts` : toutes les pièces du plateau ont la même taille de bloc, la plus grande qui laisse au moins 8 pt de marge à `h5` et `v5` (20 pt sur un écran de 390 pt de large, 21 pt sur le simulateur). La hauteur du plateau ne dépend plus de la taille des blocs.
+- **K-27a** `src/storage/tutorial.ts` : repris de `sprint/tutorial` par `git cherry-pick`, avec ses tests ; l'écriture ignore désormais une erreur, comme le meilleur score.
+- **K-27d** étape 1 : grille préparée, pièce `L_d` seule au centre du plateau, flèche qui monte et descend, cases suggérées qui clignotent ; toute pose valide est acceptée ; puis « Bien joué ! », le texte, la pastille « +4 » et « Suivant ».
+- **K-27e** étape 2 : pièce `h3`, ligne 6 encadrée en jaune, trois cases qui clignotent ; seule la pose qui complète la ligne est acceptée, les autres renvoient la pièce au plateau et affichent « Vise les trois cases vides de la ligne » ; puis l'effacement se joue, et « Ligne effacée ! », le texte, la pastille « +10 » et « Suivant ».
+- **K-27f** étape 3 (carte « Défi du jour », bouton « C'est parti ») et enchaînement : écran de lancement, puis tutoriel s'il n'a jamais été vu, sinon écran de jeu. « Passer » et « C'est parti » marquent le tutoriel comme vu.
+- **Règles du tutoriel** `src/game/tutorial.ts` : les deux étapes (`PLACE_STEP`, `CLEAR_STEP`) et la fonction pure `isTutorialMoveAccepted`, testées. Les coups passent par `playMove` / `applyMove`.
+- **Réutilisation** : le tutoriel emploie `Grid`, `Tray`, `DraggablePiece`, `MoveEffects`, les sons et les vibrations du jeu. Pour cela, trois hooks ont été extraits de l'écran de jeu : `usePieceDrag`, `useFeedback`, `useBoardLayout`. Aucun composant de jeu n'est dupliqué.
+- Le tutoriel a son propre état de partie : il ne lit ni n'écrit le meilleur score, et ses statistiques ne sortent pas de l'étape.
+
+### Comment le vérifier
+- `npm run check` : sans erreur ni avertissement, 120 tests réussis.
+- Outils de développement (arrêter d'abord tout serveur Expo en cours) : `EXPO_PUBLIC_TUTORIAL=1a`, `1b`, `2a`, `2b` ou `3` ouvre directement cet état ; `EXPO_PUBLIC_TUTORIAL=1` rejoue le tutoriel depuis le début même s'il a déjà été vu.
+- **Vérifié par l'agent** : `npm run check`, `expo-doctor`, l'affichage des cinq états sur le simulateur iOS, et le premier lancement sans aucun réglage (le tutoriel s'ouvre après l'écran de lancement).
+- **Non vérifié par l'agent** : tous les gestes (poser la pièce aux étapes 1 et 2, la mauvaise pose et son aide), les boutons « Suivant », « Passer » et « C'est parti », le passage à l'écran de jeu, l'absence du tutoriel au second lancement, la reprise au début après une fermeture, et le mode « réduire les animations » du tutoriel. Seules les règles et le stockage sont couverts par des tests.
+
+### Liste de contrôle à dérouler à la main
+Pour repartir d'un « premier lancement » : désinstaller Expo Go ou effacer ses données, ou lancer avec `EXPO_PUBLIC_TUTORIAL=1`.
+
+| # | Action | Ce que tu dois observer |
+|---|---|---|
+| 1 | Premier lancement | Écran de lancement, puis étape « 1 / 3 » : la flèche bouge, quatre cases clignotent sur la grille |
+| 2 | Étape 1 : poser la pièce sur les cases qui clignotent | Aperçu, pose, son et vibration du jeu ; puis « Bien joué ! », pastille « +4 », bouton « Suivant » à la place du plateau |
+| 3 | Étape 1 (en la rejouant) : poser la pièce ailleurs, à un endroit libre | Acceptée aussi, même suite |
+| 4 | Étape 1 : relâcher la pièce sur des cases occupées | Retour au plateau, son de refus ; l'étape continue |
+| 5 | Toucher « Suivant » | Étape « 2 / 3 » : ligne encadrée en jaune, trois cases qui clignotent, deuxième point de progression allumé |
+| 6 | Étape 2 : poser la barre ailleurs que dans la ligne (par exemple en haut de la grille) | Retour au plateau comme une pose invalide ; l'aide « Vise les trois cases vides de la ligne » apparaît au-dessus du plateau |
+| 7 | Étape 2 : poser la barre dans les trois cases vides | La ligne s'illumine et s'efface, « +10 » monte ; puis « Ligne effacée ! », bande claire sur la ligne, pastille « +10 », bouton « Suivant » |
+| 8 | Toucher « Suivant » | Étape « 3 / 3 » : carte « Défi du jour », bouton « C'est parti » |
+| 9 | Toucher « C'est parti » | Écran de jeu, partie neuve : score 0, grille vide, « Meilleur » inchangé |
+| 10 | Fermer complètement l'app, la rouvrir | Écran de lancement, puis directement l'écran de jeu : plus de tutoriel |
+| 11 | Rejouer le tutoriel (`EXPO_PUBLIC_TUTORIAL=1`), toucher « Passer » à l'étape 1 | Écran de jeu avec une partie neuve |
+| 12 | Même chose en touchant « Passer » à l'étape 2, puis à l'étape 3 | Écran de jeu à chaque fois |
+| 13 | Sur un premier lancement réel, faire l'étape 1, fermer l'app à l'étape 2, la rouvrir | Le tutoriel reprend à l'étape « 1 / 3 » |
+| 14 | Après le tutoriel, battre un record dans une partie | Le tutoriel n'a laissé aucun score : « Meilleur » ne reflète que les vraies parties |
+| 15 | Activer « Réduire les animations » dans les réglages du téléphone, relancer le tutoriel | La flèche ne bouge pas, les cases suggérées restent affichées sans clignoter |
+
+### Dépendances ajoutées et pourquoi
+- Aucune.
+
+### Écarts par rapport au plan
+- **Conflit du `cherry-pick` de K-27a** : un seul, dans `docs/SPRINT.md` (l'ancien commit cochait une case de l'ancien fichier de sprint). Le fichier actuel a été gardé et K-27a y a été cochée. Le code et les tests se sont appliqués sans conflit. `markTutorialSeen` a ensuite été modifiée pour ignorer une erreur d'écriture, avec un test en plus.
+- **Taille des pièces dans le plateau du tutoriel** : 21 pt par bloc, contre 30 pt sur les maquettes, conséquence de l'échelle unique décidée pour K-32.
+- **Couleurs** : `L_d` est orange (maquette : bleue), d'où des cases suggérées orange à l'étape 1 ; écart accepté d'avance.
+- **Aide de l'étape 2** : elle s'affiche au-dessus du plateau, en jaune ; les maquettes ne montrent pas cet état. Elle apparaît quand la pièce est relâchée sur une case de la grille qui ne convient pas, pas quand elle est relâchée hors de la grille.
+- **Message de réussite** : il attend la fin des animations du coup (environ 0,2 s à l'étape 1, 0,5 s à l'étape 2), puis apparaît en fondu. Le « +10 » animé du jeu et la pastille fixe « +10 » se suivent.
+- **Icônes** : la coche, l'horloge, les personnages et l'icône de partage sont dessinés avec des vues, faute de librairie d'icônes ; ils sont plus simples que sur les maquettes.
+- **Étape 3** : son bouton est 5 pt plus haut que sur la maquette, pour rester hors de la zone de l'indicateur d'accueil.
+- **Passage du tutoriel au jeu** : l'écran de jeu remplace le tutoriel sans transition.
+- **Branche `sprint/tutorial`** : rien d'autre n'en a été repris ; les composants de l'étape 3 ont été réécrits.
+- **Captures** : le bouton bleu d'Expo Go masque « Passer » sur les captures du simulateur ; ce n'est pas un défaut de l'app.
+- **Android** : rien n'a été testé.
+
+### Passages de la boucle d'intégration et écarts restants, par écran
+- **Étape 1a : 2 passages** (`tuto-1a-1.png`, `tuto-1a-2.png`). Passage 1 : grille 3 pt trop bas, sous-titre 8 pt trop large. Passage 2 : corrigés. Écarts restants : aucun notable, hors taille et couleur de la pièce.
+- **Étape 1b : 2 passages** (`tuto-1b-1.png`, `tuto-1b-2.png`). Passage 1 : coche trop fine, pastille « +4 » 5 pt trop étroite. Passage 2 : corrigés. Écarts restants : aucun notable.
+- **Étape 2a : 1 passage** (`tuto-2a-1.png`). Conforme : titre, texte sur deux lignes, cadre jaune, cases suggérées, plateau, flèche, points de progression.
+- **Étape 2b : 1 passage** (`tuto-2b-1.png`). Conforme : coche, titre, bande claire, pastille « +10 », bouton.
+- **Étape 3 : 1 passage** (`tuto-3-1.png`). Conforme : carte (308 × 266 pt pour 310 × 270), semaine, trois lignes, titre, texte, points, bouton. Écart restant : icônes simplifiées.
+- **Écran de jeu : 1 capture** (`jeu-echelle-unique.png`) après le correctif K-32 : `v5`, `h5` et `sq3` ont la même taille de bloc et tiennent avec une marge.
+
+### Proposition de stories détaillées pour le sprint suivant (Accueil)
+- **K-24 — Écran d'accueil** : maquette `docs/design/accueil.png` ; défi du jour, partie libre, série, meilleur score.
+- **K-25 — Partie libre** : lancée depuis l'accueil ; l'en-tête de l'écran de jeu reçoit enfin son bouton retour, et l'écran de résultat ses boutons « Partie libre » et « Retour à l'accueil ».
+- Points à trancher : l'accueil sans le défi du jour (prévu au sprint suivant) affiche-t-il déjà sa carte, ou seulement la partie libre ? Faut-il une petite navigation entre accueil, jeu et résultat, toujours sans librairie ?
