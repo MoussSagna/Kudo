@@ -9,7 +9,7 @@
 - [x] **K-32 — Correctif du plateau**
   - Une pièce de 5 blocs de haut ou de large ne doit plus toucher les bords du plateau : réduire l'échelle des pièces dans le plateau pour que la plus grande tienne avec une marge. Vérifier avec `v5`, `h5` et `sq3`.
 
-- [ ] **K-33 — Statistiques de partie**
+- [x] **K-33 — Statistiques de partie**
   - L'état du jeu compte, en fonctions pures et testées : le nombre de pièces posées, le nombre de lignes et colonnes effacées, et la meilleure série atteinte.
 
 - [ ] **K-19 — Meilleur score**

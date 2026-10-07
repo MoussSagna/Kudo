@@ -12,6 +12,17 @@ export type Grid = readonly (readonly GridCell[])[];
 /** The pieces offered to the player; a slot is null once its piece has been placed. */
 export type Tray = readonly (Piece | null)[];
 
+/** What the player did during the game, shown on the result screen. */
+export interface GameStats {
+  readonly piecesPlaced: number;
+  /** Rows and columns cleared, counted together. */
+  readonly linesCleared: number;
+  /** Highest multiplier applied to a clear so far; 1 until two moves in a row clear lines. */
+  readonly bestStreak: number;
+}
+
+export const INITIAL_STATS: GameStats = { piecesPlaced: 0, linesCleared: 0, bestStreak: 1 };
+
 export interface GameState {
   /** Seed of the piece sequence: same seed, same game. */
   readonly seed: number;
@@ -23,6 +34,7 @@ export interface GameState {
   /** Number of trays drawn so far, the first one included. */
   readonly draws: number;
   readonly isOver: boolean;
+  readonly stats: GameStats;
 }
 
 export function createEmptyGrid(): Grid {
@@ -47,5 +59,6 @@ export function createGame(seed: number): GameState {
     streak: 1,
     draws: 1,
     isOver: false,
+    stats: INITIAL_STATS,
   };
 }

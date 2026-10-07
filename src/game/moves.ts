@@ -2,7 +2,7 @@ import { GRID_SIZE } from '../theme';
 import { clearLines } from './lines';
 import type { Piece } from './pieces';
 import { canPlace, placePiece } from './placement';
-import { drawTray, type GameState, type Grid, type Tray } from './state';
+import { drawTray, type GameState, type GameStats, type Grid, type Tray } from './state';
 
 const POINTS_PER_CELL = 1;
 const CLEAR_BASE_POINTS = 10;
@@ -27,6 +27,15 @@ export function hasAnyMove(grid: Grid, tray: Tray): boolean {
 /** Points for emptying `cleared` rows and columns with one move, at the given streak level. */
 export function clearPoints(cleared: number, streak: number): number {
   return CLEAR_BASE_POINTS * cleared * cleared * streak;
+}
+
+/** The statistics after a move that cleared `cleared` lines at the given streak level. */
+export function updateStats(stats: GameStats, cleared: number, streak: number): GameStats {
+  return {
+    piecesPlaced: stats.piecesPlaced + 1,
+    linesCleared: stats.linesCleared + cleared,
+    bestStreak: cleared > 0 ? Math.max(stats.bestStreak, streak) : stats.bestStreak,
+  };
 }
 
 /** Everything a move changed, for the interface to show it. */
@@ -80,6 +89,7 @@ export function playMove(
       streak: hasCleared ? state.streak + 1 : 1,
       draws: isTrayEmpty ? state.draws + 1 : state.draws,
       isOver: !hasAnyMove(grid, tray),
+      stats: updateStats(state.stats, cleared, state.streak),
     },
     piece,
     col,

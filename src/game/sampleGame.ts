@@ -1,6 +1,6 @@
 import { applyMove } from './moves';
 import { gridFrom, pieceById } from './notation';
-import { createGame, type GameState } from './state';
+import { createGame, INITIAL_STATS, type GameState } from './state';
 
 /** The game shown on the `docs/design/jeu.png` mockup, to compare the screen with it. */
 export const SAMPLE_GAME: GameState = {
@@ -20,6 +20,7 @@ export const SAMPLE_GAME: GameState = {
   streak: 2,
   draws: 1,
   isOver: false,
+  stats: { piecesPlaced: 27, linesCleared: 14, bestStreak: 3 },
 };
 
 /**
@@ -43,6 +44,7 @@ export const NEAR_END_GAME: GameState = {
   streak: 1,
   draws: 1,
   isOver: false,
+  stats: { piecesPlaced: 37, linesCleared: 21, bestStreak: 4 },
 };
 
 /** The same game once the dot is placed in the top-left corner: it is over. */
@@ -75,6 +77,7 @@ export const DEMO_GAME: GameState = {
   streak: 1,
   draws: 1,
   isOver: false,
+  stats: INITIAL_STATS,
 };
 
 export const DEMO_MOVES: readonly DemoMove[] = [

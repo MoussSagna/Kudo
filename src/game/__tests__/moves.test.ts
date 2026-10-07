@@ -1,6 +1,6 @@
-import { applyMove, clearPoints, playMove } from '../moves';
+import { applyMove, clearPoints, playMove, updateStats } from '../moves';
 import { gridFrom, pieceById } from '../notation';
-import { createGame, drawTray, type GameState } from '../state';
+import { createGame, drawTray, INITIAL_STATS, type GameState } from '../state';
 
 const dot = pieceById('dot');
 const h3 = pieceById('h3');
@@ -250,5 +250,90 @@ describe('playMove', () => {
     expect(result?.placedGrid[2]).toEqual(gridFrom(['rrryrrrr'])[0]);
     expect(result?.next.grid[2].every((cell) => cell === null)).toBe(true);
     expect(result?.next.score).toBe(state.score + 81);
+  });
+});
+
+describe('updateStats', () => {
+  it('counts one more piece and nothing else for a move that clears nothing', () => {
+    expect(updateStats(INITIAL_STATS, 0, 3)).toEqual({
+      piecesPlaced: 1,
+      linesCleared: 0,
+      bestStreak: 1,
+    });
+  });
+
+  it('adds the cleared rows and columns together', () => {
+    const stats = { piecesPlaced: 4, linesCleared: 3, bestStreak: 1 };
+
+    expect(updateStats(stats, 2, 1)).toEqual({ piecesPlaced: 5, linesCleared: 5, bestStreak: 1 });
+  });
+
+  it('keeps the highest multiplier applied to a clear', () => {
+    const stats = { piecesPlaced: 4, linesCleared: 3, bestStreak: 2 };
+
+    expect(updateStats(stats, 1, 3).bestStreak).toBe(3);
+    expect(updateStats(stats, 1, 1).bestStreak).toBe(2);
+  });
+});
+
+describe('applyMove — statistics', () => {
+  it('starts a game with empty statistics', () => {
+    expect(createGame(7).stats).toEqual({ piecesPlaced: 0, linesCleared: 0, bestStreak: 1 });
+  });
+
+  it('follows a streak of three clears, then a plain placement', () => {
+    const state = gameWith({
+      grid: gridFrom([
+        'rrrrrrr.',
+        'bbbbbbb.',
+        'ggggggg.',
+        '........',
+        '........',
+        '........',
+        '........',
+        '........',
+      ]),
+      tray: [dot, dot, dot],
+    });
+
+    const first = applyMove(state, 0, 7, 0);
+    expect(first.stats).toEqual({ piecesPlaced: 1, linesCleared: 1, bestStreak: 1 });
+
+    const second = applyMove(first, 1, 7, 1);
+    expect(second.stats).toEqual({ piecesPlaced: 2, linesCleared: 2, bestStreak: 2 });
+
+    const third = applyMove(second, 2, 7, 2);
+    expect(third.stats).toEqual({ piecesPlaced: 3, linesCleared: 3, bestStreak: 3 });
+
+    const fourth = applyMove({ ...third, tray: [dot, null, null] }, 0, 0, 5);
+    expect(fourth.stats).toEqual({ piecesPlaced: 4, linesCleared: 3, bestStreak: 3 });
+  });
+
+  it('counts a row and a column cleared together as two lines', () => {
+    const state = gameWith({
+      grid: gridFrom([
+        '...g....',
+        '...g....',
+        'rrr.rrrr',
+        '...g....',
+        '...g....',
+        '...g....',
+        '...g....',
+        '...g....',
+      ]),
+      tray: [dot, h3, sq2],
+    });
+
+    expect(applyMove(state, 0, 3, 2).stats).toEqual({
+      piecesPlaced: 1,
+      linesCleared: 2,
+      bestStreak: 1,
+    });
+  });
+
+  it('does not count an invalid move', () => {
+    const state = gameWith({ tray: [h3, sq2, dot] });
+
+    expect(applyMove(state, 0, 6, 0).stats).toBe(state.stats);
   });
 });

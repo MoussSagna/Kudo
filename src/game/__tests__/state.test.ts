@@ -45,6 +45,7 @@ describe('createGame', () => {
     expect(game.streak).toBe(1);
     expect(game.draws).toBe(1);
     expect(game.isOver).toBe(false);
+    expect(game.stats).toEqual({ piecesPlaced: 0, linesCleared: 0, bestStreak: 1 });
   });
 
   it('draws its tray with createRng(seed)', () => {
