@@ -14,6 +14,8 @@ interface TrayProps {
   tray: TrayState;
   /** Changes with every new tray, so that a slot starts fresh with its new piece. */
   draws: number;
+  /** False once the game is over: pieces can no longer be picked up. */
+  enabled: boolean;
   cellSize: number;
   gridCellSize: number;
   gridRef: AnimatedRef<Animated.View>;
@@ -25,6 +27,7 @@ interface TrayProps {
 export function Tray({
   tray,
   draws,
+  enabled,
   cellSize,
   gridCellSize,
   gridRef,
@@ -42,6 +45,7 @@ export function Tray({
               key={draws}
               piece={piece}
               index={index}
+              enabled={enabled}
               trayCellSize={cellSize}
               gridCellSize={gridCellSize}
               gridRef={gridRef}

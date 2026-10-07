@@ -25,6 +25,8 @@ const NONE = -1;
 interface DraggablePieceProps {
   piece: Piece;
   index: number;
+  /** False once the game is over: the piece can no longer be picked up. */
+  enabled: boolean;
   /** Size of a block in the tray, and on the grid once the piece is picked up. */
   trayCellSize: number;
   gridCellSize: number;
@@ -42,6 +44,7 @@ interface DraggablePieceProps {
 export function DraggablePiece({
   piece,
   index,
+  enabled,
   trayCellSize,
   gridCellSize,
   gridRef,
@@ -81,6 +84,7 @@ export function DraggablePiece({
   };
 
   const pan = Gesture.Pan()
+    .enabled(enabled)
     .maxPointers(1)
     .onTouchesDown((_event, manager) => {
       if (activeIndex.get() !== NONE && activeIndex.get() !== index) {
