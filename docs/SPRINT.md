@@ -14,7 +14,7 @@
 - [x] **K-27a — Mémoriser que le tutoriel a été vu**
   - Reprendre le commit K-27a de la branche `sprint/tutorial` (`git cherry-pick`), l'adapter au module de stockage actuel, garder ses tests. Ne rien reprendre d'autre. Signaler tout conflit au lieu de le résoudre à l'aveugle.
 
-- [ ] **K-27d — Étape 1 : poser une pièce**
+- [x] **K-27d — Étape 1 : poser une pièce**
   - Maquettes : `docs/design/tuto-1a.png` (consigne) et `tuto-1b.png` (réussite).
   - Grille de départ, ligne par ligne (mêmes lettres que l'état d'exemple) : `........ / ........ / ........ / ........ / ........ / ........ / r......y / rr.gg.yy`
   - Plateau : une seule pièce, `L_d`, au centre. Une flèche animée au-dessus d'elle invite à la glisser vers le haut.

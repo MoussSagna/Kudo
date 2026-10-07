@@ -22,11 +22,13 @@ export const UI = {
   textSoft: '#A9B0DA',
   accent: '#FFD23F',
   accentEdge: '#C29708',
+  dotInactive: '#4B5586',
 } as const;
 
 export const FONTS = {
   title: 'Fredoka_700Bold',
   body: 'DMSans_400Regular',
+  bodyMedium: 'DMSans_500Medium',
   bodyBold: 'DMSans_700Bold',
 } as const;
 

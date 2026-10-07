@@ -35,6 +35,13 @@ export const MOTION = {
   resultDelayMs: 600,
   resultFadeMs: 250,
 
+  /** Tutorial: the suggested cells blink, and the arrow above the piece bobs up and down. */
+  tutorialBlinkMs: 700,
+  tutorialArrowMs: 650,
+  tutorialArrowRise: 6,
+  /** Tutorial: the success message and its button fade in. */
+  tutorialSuccessFadeMs: 220,
+
   /** Development demo (EXPO_PUBLIC_SAMPLE_GAME=demo): delay before the first move, then between moves. */
   demoStartMs: 1500,
   demoStepMs: 1800,
