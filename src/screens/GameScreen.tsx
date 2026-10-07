@@ -21,6 +21,7 @@ import {
 } from '../game/sampleGame';
 import { createGame, type GameState } from '../game/state';
 import { useDemoMoves } from '../hooks/useDemoMoves';
+import { playHaptic } from '../haptics';
 import { useGame } from '../hooks/useGame';
 import { useSounds } from '../hooks/useSounds';
 import { GRID_SIZE, UI } from '../theme';
@@ -72,11 +73,16 @@ export function GameScreen() {
 
   const playSound = useSounds();
 
-  /** The sound of a move that was just played. */
+  /** The sound and the vibration of a move that was just played. */
   const giveFeedback = (result: MoveResult) => {
-    playSound(moveFeedback(result));
+    const feedback = moveFeedback(result);
+    playSound(feedback);
+    playHaptic(feedback === 'place' ? 'place' : 'clear');
     if (result.next.isOver) {
-      setTimeout(() => playSound('gameover'), GAME_OVER_FEEDBACK_DELAY_MS);
+      setTimeout(() => {
+        playSound('gameover');
+        playHaptic('gameover');
+      }, GAME_OVER_FEEDBACK_DELAY_MS);
     }
   };
 
@@ -88,8 +94,14 @@ export function GameScreen() {
     return result !== null;
   };
 
-  const handlePickUp = () => playSound('pick');
-  const handleReturn = () => playSound('invalid');
+  const handlePickUp = () => {
+    playSound('pick');
+    playHaptic('pick');
+  };
+  const handleReturn = () => {
+    playSound('invalid');
+    playHaptic('invalid');
+  };
 
   useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
     playAt(
