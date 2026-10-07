@@ -8,7 +8,7 @@
 
 ## Stories
 
-- [ ] **K-24 — Écran d'accueil**
+- [x] **K-24 — Écran d'accueil**
   - Maquette : `docs/design/accueil.png`.
   - Contenu : le logo et « Kubo », l'accroche, la carte « Défi du jour » avec la date du jour en français (par exemple « Mercredi 7 octobre ») et le bouton « Jouer », la ligne « Partie libre » avec son meilleur score, le lien « Comment jouer ? ».
   - Volontairement absents pour l'instant : la pastille « Série » et le bouton des réglages. Pas de bouton inactif.

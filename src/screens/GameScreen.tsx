@@ -53,6 +53,9 @@ const INITIAL_RESULT: GameResult | null =
   SAMPLE_GAME_NAME === 'over' || SAMPLE_GAME_NAME === 'record'
     ? { isNewRecord: SAMPLE_GAME_NAME === 'record' }
     : null;
+/** Development only: true when a sample game is asked for, to open the app directly on it. */
+export const OPENS_ON_SAMPLE_GAME =
+  SAMPLE_GAME_NAME !== undefined && SAMPLE_GAMES[SAMPLE_GAME_NAME] !== undefined;
 const DEMO_SCRIPT = SAMPLE_GAME_NAME === 'demo' ? DEMO_MOVES : null;
 /** In the demo, a piece is released this fraction of a cell away from its target. */
 const DEMO_RELEASE_OFFSET = 0.45;
