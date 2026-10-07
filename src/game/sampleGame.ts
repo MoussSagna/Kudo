@@ -1,6 +1,5 @@
-import { applyMove } from './moves';
 import { gridFrom, pieceById } from './notation';
-import type { GameState } from './state';
+import { createGame, INITIAL_STATS, type GameState } from './state';
 
 /** The game shown on the `docs/design/jeu.png` mockup, to compare the screen with it. */
 export const SAMPLE_GAME: GameState = {
@@ -20,6 +19,7 @@ export const SAMPLE_GAME: GameState = {
   streak: 2,
   draws: 1,
   isOver: false,
+  stats: { piecesPlaced: 27, linesCleared: 14, bestStreak: 3 },
 };
 
 /**
@@ -43,10 +43,29 @@ export const NEAR_END_GAME: GameState = {
   streak: 1,
   draws: 1,
   isOver: false,
+  stats: { piecesPlaced: 37, linesCleared: 21, bestStreak: 4 },
 };
 
-/** The same game once the dot is placed in the top-left corner: it is over. */
-export const FINISHED_GAME: GameState = applyMove(NEAR_END_GAME, 0, 0, 0);
+/** The finished game shown on the `docs/design/resultat.png` mockup. */
+export const FINISHED_GAME: GameState = {
+  seed: 0,
+  grid: gridFrom([
+    'pp.g.rr.',
+    'p.cg.r.y',
+    '.bc.oo.y',
+    'gb.yo.pp',
+    'g.ry.cc.',
+    '.or.gg.b',
+    'yo.pp.cb',
+    'y.bb.r.g',
+  ]),
+  tray: [pieceById('sq3'), pieceById('h5'), null],
+  score: 1780,
+  streak: 1,
+  draws: 13,
+  isOver: true,
+  stats: { piecesPlaced: 38, linesCleared: 21, bestStreak: 4 },
+};
 
 export interface DemoMove {
   trayIndex: number;
@@ -75,6 +94,7 @@ export const DEMO_GAME: GameState = {
   streak: 1,
   draws: 1,
   isOver: false,
+  stats: INITIAL_STATS,
 };
 
 export const DEMO_MOVES: readonly DemoMove[] = [
@@ -82,3 +102,9 @@ export const DEMO_MOVES: readonly DemoMove[] = [
   { trayIndex: 1, col: 7, row: 7 },
   { trayIndex: 2, col: 3, row: 6 },
 ];
+
+/** A new game whose tray holds the largest pieces, to check that they fit in their slots. */
+export const BIG_PIECES_GAME: GameState = {
+  ...createGame(2),
+  tray: [pieceById('v5'), pieceById('h5'), pieceById('sq3')],
+};

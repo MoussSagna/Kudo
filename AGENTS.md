@@ -63,7 +63,7 @@ Règles de la boucle :
 - Expo (dernière version stable du SDK), TypeScript en mode `strict`.
 - `react-native-gesture-handler` + `react-native-reanimated` pour le glisser-déposer et les animations.
 - `@react-native-async-storage/async-storage` pour la sauvegarde.
-- `expo-audio` pour les sons, `expo-haptics` pour les vibrations.
+- `expo-audio` pour les sons (avec `expo-asset`, qu'il exige), `expo-haptics` pour les vibrations.
 - `expo-linear-gradient` pour les fonds en dégradé, `react-native-safe-area-context` pour les zones sûres.
 - `expo-splash-screen` pour le splash natif, `expo-font` pour charger les polices.
 - `@expo-google-fonts/fredoka` (titres, Fredoka Bold) et `@expo-google-fonts/dm-sans` (textes, DM Sans).

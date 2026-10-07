@@ -1,123 +1,122 @@
-# Sprint en cours : Écran de jeu, partie 3 — sensations
+# Sprint en cours : Fin de partie
 
-**But** : chaque action du joueur a une réponse visuelle, sonore et tactile.
-**Hors périmètre** : meilleur score, sauvegarde, écran de fin définitif, en-tête, écran de réglages.
-**Branche** : `sprint/game-screen-3`
-
-**Règles communes**
-- Les règles du jeu ne changent pas et restent dans `src/game/`. Si l'interface a besoin de savoir quelles lignes et colonnes viennent d'être effacées, exposer cette information par une fonction pure et testée, sans dupliquer la logique.
-- Aucun effet ne bloque le jeu : on peut saisir la pièce suivante pendant une animation.
-- Un module de préférences avec deux valeurs, sons et vibrations, à vrai par défaut. Tous les effets le consultent. L'écran de réglages les branchera plus tard.
+**But** : une partie se termine sur un vrai écran de résultat, avec le meilleur score mémorisé et un score partageable.
+**Hors périmètre** : accueil, défi du jour, « Reviens demain », réglages, tutoriel.
+**Branche** : `sprint/end-screen`
 
 ## Stories
 
-- [x] **K-18 — Animations**
-  - Pose : la pièce glisse de sa position sous le doigt jusqu'à ses cases (90 ms environ), puis ses blocs font un léger rebond d'échelle.
-  - Effacement : les cases de la ligne ou de la colonne s'illuminent brièvement, puis rétrécissent jusqu'à disparaître, avec un court décalage de case en case. 250 à 300 ms au total.
-  - Score : le nombre fait une petite pulsation quand il change, et le gain d'un effacement apparaît en « +N » près des cases effacées, monte et s'estompe.
-  - Nouveau tirage : les trois pièces apparaissent en grossissant, légèrement décalées.
-  - Toutes les durées dans un objet de constantes unique.
-  - « Réduire les animations » : pas de mouvement ni d'échelle, de simples fondus.
+- [x] **K-32 — Correctif du plateau**
+  - Une pièce de 5 blocs de haut ou de large ne doit plus toucher les bords du plateau : réduire l'échelle des pièces dans le plateau pour que la plus grande tienne avec une marge. Vérifier avec `v5`, `h5` et `sq3`.
 
-- [x] **K-16 — Sons**
-  - `expo-audio`, sons du pack préchargés au démarrage de l'écran.
-  - Saisie : pick. Pose valide : place. Retour au plateau : invalid. Effacement simple : clear. Effacement de 2 lignes ou plus, ou en série : combo. Fin de partie : gameover.
-  - Une pose qui efface joue clear ou combo, pas place en plus.
-  - Les sons respectent le mode silencieux de l'iPhone et ne coupent pas la musique de l'utilisateur.
-  - Un échec de lecture ne doit jamais faire planter le jeu.
+- [x] **K-33 — Statistiques de partie**
+  - L'état du jeu compte, en fonctions pures et testées : le nombre de pièces posées, le nombre de lignes et colonnes effacées, et la meilleure série atteinte.
 
-- [x] **K-17 — Vibrations**
-  - `expo-haptics`. Saisie : légère. Pose valide : moyenne. Effacement : retour de type succès. Retour au plateau : avertissement. Fin de partie : forte.
+- [x] **K-19 — Meilleur score**
+  - Installer `@react-native-async-storage/async-storage` avec `npx expo install`.
+  - Dans `src/storage/`, lecture et écriture du meilleur score, clé versionnée. Une erreur de lecture donne 0, une erreur d'écriture est ignorée sans planter. Tests avec le mock officiel.
+  - L'en-tête de l'écran de jeu affiche « Meilleur : N » et la pastille « Série ×N » quand la série vaut 2 ou plus, comme sur `docs/design/jeu.png`.
+  - Si la partie bat le meilleur score, il est enregistré à la fin de la partie.
+
+- [x] **K-15 — Écran de fin de partie**
+  - Maquette : `docs/design/resultat.png`. Il remplace le bandeau provisoire.
+  - Contenu : le titre « Partie terminée », le score en grand, la pastille « Nouveau record » seulement si le record est battu, la grille finale en miniature, les trois statistiques (pièces posées, lignes effacées, meilleure série).
+  - Boutons : « Partager mon score » (principal) et « Rejouer » (secondaire).
+  - Volontairement absents pour l'instant : la ligne « Défi du mardi 6 octobre », « Partie libre » et « Retour à l'accueil ». Ils arriveront avec l'accueil et le défi du jour. Pas de bouton inactif.
+  - Enchaînement : à la fin de la partie, la grille reste visible environ 600 ms, puis l'écran de résultat apparaît en fondu. Le son `highscore` remplace `gameover` quand le record est battu.
+
+- [x] **K-26 — Partage**
+  - Une fonction pure et testée construit le texte : « Kubo — N points », la grille finale en 8 lignes d'emojis (`SHARE_EMOJI` de `src/theme.ts`), puis une ligne de statistiques.
+  - Le bouton ouvre la feuille de partage du système avec `Share` de React Native, sans nouvelle dépendance. Un partage annulé ne produit aucune erreur.
 
 ## Vérification
 - `npm run check` après chaque story.
-- L'agent ne peut ni faire de geste, ni entendre, ni sentir une vibration : il ne déclare aucun de ces effets vérifié.
-- Pour les animations : un mode de démonstration réservé au développement (`EXPO_PUBLIC_SAMPLE_GAME=demo`) rejoue automatiquement une courte suite de coups : une pose simple, un effacement de ligne, un effacement ligne + colonne, un nouveau tirage. Vidéo dans `docs/design/captures/game-demo.mov`, avec les instants de chaque coup. Quelques images extraites pour confirmer que les animations se déclenchent, sans juger leur qualité.
-- Dans la revue : une liste de contrôle à dérouler à la main sur un vrai téléphone, avec pour chaque action le son et la vibration attendus.
+- K-15 : boucle « Intégration des écrans » sur le simulateur iOS à partir de l'état `over`, 3 passages maximum. Les éléments volontairement absents ne sont pas des écarts. Vérifier les deux variantes, avec et sans « Nouveau record ».
+- K-32 et K-19 : une capture de l'écran de jeu comparée à `docs/design/jeu.png`.
+- L'agent ne peut pas ouvrir la feuille de partage ni vérifier la persistance après un redémarrage réel. Il fournit une liste de contrôle : battre le record, fermer et rouvrir l'app, partager vers Notes ou Messages, annuler un partage.
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
+- **K-32 — échelle des pièces du plateau** : la story demande de « réduire l'échelle des pièces pour que la plus grande tienne ». Réduire toutes les pièces à la même échelle les ferait passer de 30 pt à 20 pt par bloc, loin de la maquette `jeu.png`. Le choix retenu : seules les pièces trop longues sont réduites (barres de 5 à 20 pt par bloc, barres de 4 à 25 pt), les autres gardent la taille de la maquette. Si Moussa préfère une échelle unique pour toutes les pièces, c'est une seule constante à changer.
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._
 
 ### Branche
-`sprint/game-screen-3`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
+`sprint/end-screen`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
 
 ### Ce qui a été livré
-- **K-18 — Animations** (`src/components/MoveEffects.tsx`, `ScoreHeader.tsx`, `DraggablePiece.tsx`) :
-  - pose : la pièce glisse de l'endroit où elle a été relâchée jusqu'à ses cases (90 ms), puis ses blocs rebondissent (échelle 1,1) ;
-  - effacement : les cases s'illuminent en blanc (90 ms), puis rétrécissent et s'effacent (150 ms), avec 8 ms de décalage de case en case, soit 300 ms au plus ;
-  - score : pulsation à chaque changement ; le gain de l'effacement (« +10 », « +80 ») monte depuis la pièce posée et s'estompe ;
-  - nouveau tirage : les trois pièces grossissent l'une après l'autre ;
-  - toutes les valeurs sont dans l'objet `MOTION` de `src/motion.ts` ;
-  - « réduire les animations » : aucune translation ni échelle, seulement des fondus.
-- **Logique** : `playMove` (`src/game/moves.ts`) décrit un coup — lignes et colonnes effacées, grille avant effacement, points de pose et d'effacement. `applyMove` s'appuie dessus, sans logique dupliquée. `clearLines` renvoie aussi les index effacés.
-- **K-16 — Sons** (`src/hooks/useSounds.ts`) : les six sons sont chargés au montage de l'écran. Saisie : pick ; pose : place ; retour au plateau : invalid ; effacement simple : clear ; 2 lignes ou plus, ou série : combo ; fin de partie : gameover. Le choix place / clear / combo est fait par la fonction pure `moveFeedback` (`src/game/feedback.ts`), testée.
-- **K-17 — Vibrations** (`src/haptics.ts`) : saisie légère, pose moyenne, effacement « succès », retour au plateau « avertissement », fin de partie forte.
-- **Préférences** (`src/storage/preferences.ts`) : `sounds` et `haptics`, à vrai par défaut, consultées avant chaque son et chaque vibration. Pas encore sauvegardées.
-- **Mode démonstration** : `EXPO_PUBLIC_SAMPLE_GAME=demo` rejoue seul trois coups (`DEMO_GAME`, `DEMO_MOVES`, hook `useDemoMoves`).
+- **K-32** `src/components/fitTrayCellSize.ts` : les pièces trop longues sont dessinées plus petites dans le plateau (barres de 5 : 20 pt par bloc ; barres de 4 : 25 pt), couchées ou debout à la même taille. Les autres pièces gardent la taille de la maquette. Testé sur les 31 pièces.
+- **K-33** `GameState.stats` : pièces posées, lignes et colonnes effacées, meilleure série ; mis à jour par la fonction pure `updateStats`, appelée par `playMove`.
+- **K-19** `src/storage/bestScore.ts` (clé `kubo:bestScore:v1`), hook `useBestScore`. L'en-tête affiche « Meilleur : N » et la pastille verte « Série ×N » dès que la série vaut 2. Le record est enregistré à la fin de la partie.
+- **K-15** `src/screens/ResultScreen.tsx` remplace le bandeau provisoire : titre, score, pastille « ★ Nouveau record » si le record est battu, grille finale en miniature, trois statistiques, « Partager mon score » et « Rejouer ». Il apparaît en fondu 600 ms après le dernier coup. Le son `highscore` remplace `gameover` quand le record est battu.
+- **K-26** `src/game/share.ts` : `buildShareText` construit « Kubo — N points », 8 lignes d'emojis, puis les statistiques. Le bouton ouvre la feuille de partage avec `Share` de React Native.
+
+Exemple de texte partagé :
+
+```
+Kubo — 1 780 points
+🟪🟪⬛🟩⬛🟥🟥⬛
+🟪⬛🟦🟩⬛🟥⬛🟨
+⬛🟦🟦⬛🟧🟧⬛🟨
+🟩🟦⬛🟨🟧⬛🟪🟪
+🟩⬛🟥🟨⬛🟦🟦⬛
+⬛🟧🟥⬛🟩🟩⬛🟦
+🟨🟧⬛🟪🟪⬛🟦🟦
+🟨⬛🟦🟦⬛🟥⬛🟩
+38 pièces posées · 21 lignes effacées · meilleure série ×4
+```
 
 ### Comment le vérifier
-- `npm run check` : sans erreur ni avertissement, 80 tests réussis.
-- Animations : `EXPO_PUBLIC_SAMPLE_GAME=demo npx expo start --ios` (arrêter d'abord tout serveur Expo en cours).
-- Sons et vibrations : sur un vrai téléphone, avec la liste de contrôle ci-dessous.
-- **Vérifié par l'agent** : `npm run check`, `expo-doctor` (21/21), et le déclenchement des animations sur le simulateur iOS à partir d'images extraites de la vidéo, en mode normal et avec « réduire les animations » (réglage remis à sa valeur d'origine). La démonstration se joue jusqu'au bout sans erreur avec les sons et les vibrations branchés.
-- **Non vérifié par l'agent** : la qualité des animations ; tous les sons ; toutes les vibrations ; le mode silencieux ; la cohabitation avec la musique de l'utilisateur ; les effets déclenchés par un geste (saisie, retour au plateau). L'agent ne peut ni faire de geste, ni entendre, ni sentir une vibration.
+- `npm run check` : sans erreur ni avertissement, 101 tests réussis.
+- États d'exemple (développement, arrêter d'abord tout serveur Expo en cours) : `EXPO_PUBLIC_SAMPLE_GAME=over` ouvre l'écran de résultat de la maquette sans record, `=record` avec la pastille « Nouveau record », `=big` met les trois plus grandes pièces dans le plateau, `=1` montre l'en-tête avec « Série ×2 », `=end` permet de finir une partie en un coup.
+- **Vérifié par l'agent** : `npm run check`, `expo-doctor` (21/21), et sur le simulateur iOS l'affichage du plateau avec `v5`, `h5` et `sq3`, de l'en-tête, et de l'écran de résultat dans ses deux variantes.
+- **Non vérifié par l'agent** : la fin de partie déclenchée en jouant (attente de 600 ms, fondu, sons `gameover` et `highscore`), la feuille de partage, « Rejouer » depuis l'écran de résultat, l'enregistrement réel du record et sa relecture après un redémarrage. Aucun de ces points ne peut être exécuté sans geste ; seules les fonctions sous-jacentes sont testées.
 
-### Vidéo de démonstration et instants de chaque coup
-`docs/design/captures/game-demo.mov` (dossier ignoré par Git, présent uniquement sur ce Mac).
+### Liste de contrôle à dérouler à la main
+Sur un vrai téléphone de préférence (Expo Go suffit).
 
-| Instant | Ce qui se passe | Images extraites : ce qu'elles montrent |
+| # | Action | Ce que tu dois observer |
 |---|---|---|
-| 12,85 s | l'app apparaît, écran de lancement | — |
-| 16,2 s | l'écran de jeu apparaît ; les trois pièces du plateau grossissent | — |
-| 17,70 s | coup 1 : carré orange posé en haut à gauche, sans effacement | carré décalé d'une demi-case, puis sur ses cases, puis légèrement agrandi ; score 0 → 4 |
-| 19,58 s | coup 2 : point jaune, la ligne du bas s'efface | cases blanchies de gauche à droite, puis réduites, puis vides ; « +10 » qui monte ; score 4 → 15, chiffres agrandis de 128 à 142 px puis revenus à 128 |
-| 21,52 s | coup 3 : barre de deux, une ligne et une colonne s'effacent ensemble | ligne et colonne blanchies, puis réduites ; « +80 » qui monte ; score 15 → 97 |
-| 21,6 à 22,1 s | nouveau tirage | les trois nouvelles pièces grossissent l'une après l'autre, de gauche à droite |
+| 1 | Lancer une partie normale | « Meilleur : 0 » au premier lancement, pas de pastille « Série » |
+| 2 | Effacer une ligne | La pastille « Série ×2 » apparaît ; elle disparaît après une pose sans effacement |
+| 3 | Terminer une partie avec un score supérieur à 0 (`EXPO_PUBLIC_SAMPLE_GAME=end`, point jaune en haut à gauche) | La grille reste visible environ une demi-seconde, puis l'écran de résultat arrive en fondu ; pastille « ★ Nouveau record » ; son de record au lieu du son de fin |
+| 4 | Lire l'écran de résultat | Score, grille finale en miniature identique à la grille de fin, statistiques cohérentes avec la partie |
+| 5 | Toucher « Rejouer » | Retour à l'écran de jeu, grille vide, score 0, « Meilleur » affiche le record qui vient d'être établi |
+| 6 | Terminer une partie avec un score inférieur au record | Écran de résultat sans pastille ; son de fin normal ; « Meilleur » inchangé |
+| 7 | Fermer complètement l'app (la balayer hors du sélecteur d'apps), puis la rouvrir | « Meilleur » affiche toujours le record |
+| 8 | Toucher « Partager mon score », choisir Notes ou Messages | La feuille de partage s'ouvre ; le texte contient « Kubo — N points », 8 lignes de 8 emojis reproduisant la grille, puis la ligne de statistiques |
+| 9 | Toucher « Partager mon score », puis fermer la feuille sans rien choisir | Retour à l'écran de résultat, sans message d'erreur ni blocage |
+| 10 | Jouer jusqu'à obtenir une barre de 5 dans le plateau | Elle est plus petite que les autres pièces et ne touche pas les bords ; saisie, elle grossit bien à la taille des cases |
 
-Ces images confirment que chaque animation se déclenche. **Leur rythme et leur rendu sont à juger par Moussa.**
-
-### Liste de contrôle sons et vibrations, à dérouler à la main sur un vrai téléphone
-Expo Go suffit. Monter le volume, désactiver le mode silencieux, vérifier que les vibrations système sont activées.
-
-| # | Action | Son attendu | Vibration attendue |
-|---|---|---|---|
-| 1 | Saisir une pièce | pick | légère |
-| 2 | La poser sur des cases vides, sans rien effacer | place | moyenne |
-| 3 | La relâcher sur des cases occupées ou hors de la grille | invalid | avertissement (deux impulsions) |
-| 4 | Compléter une ligne seule, sans effacement au coup précédent | clear, et pas place | succès |
-| 5 | Compléter une colonne seule, sans effacement au coup précédent | clear | succès |
-| 6 | Compléter une ligne et une colonne (ou deux lignes) avec la même pièce | combo | succès |
-| 7 | Effacer une ligne juste après un coup qui avait déjà effacé | combo | succès |
-| 8 | Poser sans effacer, puis effacer une ligne | clear (la série est retombée) | succès |
-| 9 | Fin de partie (`EXPO_PUBLIC_SAMPLE_GAME=end`, point jaune en haut à gauche) | place, puis gameover une demi-seconde après | moyenne, puis forte |
-| 10 | Toucher « Rejouer » | aucun | aucune |
-| 11 | Activer le mode silencieux de l'iPhone, puis refaire 1 et 2 | aucun son | vibrations inchangées |
-| 12 | Lancer de la musique (Musique, Spotify), puis jouer | les sons du jeu s'entendent par-dessus | la musique ne s'arrête pas et ne baisse pas |
-| 13 | Enchaîner très vite saisie et pose | chaque son repart du début, sans blocage ni retard croissant | — |
-
-À observer aussi pendant le jeu : on peut saisir la pièce suivante pendant qu'une ligne s'efface, sans attendre la fin de l'animation.
+Attention pour les points 3 et 6 avec `=end` : la partie d'exemple se termine toujours à 481 points. Elle bat le record la première fois, plus les suivantes.
 
 ### Dépendances ajoutées et pourquoi
-- `expo-audio` ~57.0.5 : les sons (dans la « Stack imposée »).
-- `expo-haptics` ~57.0.3 : les vibrations (dans la « Stack imposée »).
-- `expo-asset` ~57.0.19 : **non prévu**. `expo-audio` l'exige en dépendance directe ; sans lui, `expo-doctor` échoue et prévient que l'app peut planter hors d'Expo Go. À ajouter à la « Stack imposée » si Moussa confirme.
+- `@react-native-async-storage/async-storage` 2.2.0 : sauvegarde du meilleur score (dans la « Stack imposée »).
 
 ### Écarts par rapport au plan
-- **`app.json`** : `npx expo install` a ajouté le plugin `expo-audio`. Il est configuré avec `microphonePermission: false`, `recordAudioAndroid: false` et `enableBackgroundPlayback: false`, pour que l'app ne demande ni micro ni lecture en arrière-plan.
-- **Fin de partie** : le son et la vibration de fin arrivent 450 ms après ceux du dernier coup, pour ne pas se superposer.
-- **Vibration d'un combo** : identique à celle d'un effacement simple (« succès »), la story ne distinguant pas les deux.
-- **« +N »** : il affiche le gain de l'effacement seul (multiplicateur de série compris), sans les points de pose, et part du centre de la pièce posée.
-- **Blocs de la dernière pièce posée** : ils sont dessinés par la couche d'animation jusqu'au coup suivant, à la même position et avec la même image que la grille.
-- **Préférences** : en mémoire seulement ; la sauvegarde viendra avec l'écran de réglages (K-28).
-- **Son `highscore`** : non utilisé (meilleur score hors périmètre).
-- **Défaut d'affichage constaté, non corrigé** : une pièce de 5 blocs de haut (`v5`) occupe toute la hauteur du plateau et touche ses bords. Ce défaut date de K-10 et n'a pas été traité, car il sort du périmètre de ce sprint.
-- **Android** : rien n'a été testé sur Android.
+- **K-32** : seules les pièces trop longues sont réduites, pas toutes (voir « Questions ouvertes »).
+- **Ordre K-15 / K-26** : le commit de K-15 contient l'écran avec « Rejouer » seul ; le bouton « Partager mon score » arrive avec le commit de K-26, pour ne pas livrer un bouton inactif. Les passages 2 et 3 de la boucle ont donc été faits après K-26.
+- **Meilleure série** : c'est le plus grand multiplicateur appliqué à un effacement. Elle vaut ×1 tant que deux coups de suite n'ont pas effacé, y compris pour une partie sans aucun effacement.
+- **Texte de partage** : accord au singulier (« 1 point », « 0 pièce posée »). Les emojis `cyan` et `blue` sont identiques (🟦), comme noté dans « Idées » du backlog.
+- **Pastille** : « ★ Nouveau record » et non « Nouveau record du jour » comme sur la maquette, conformément à la story. L'étoile est un caractère de texte ; l'icône de partage est dessinée avec des vues, faute de librairie d'icônes.
+- **État d'exemple `over`** : c'est désormais la partie de la maquette `resultat.png` (1 780 points) et non plus la partie à 481 points. Un état `record` et un état `big` ont été ajoutés.
+- **`formatScore`** : déplacé de `src/components/` vers `src/game/`, pour que la fonction de partage puisse l'utiliser.
+- **`src/theme.ts`** : ajout de `UI.accentEdge` (tranche du bouton jaune).
+- **Android** : rien n'a été testé.
 
-### Proposition de stories détaillées pour le sprint suivant (Fin de partie)
-- **K-15 — Écran de fin de partie** : maquette `docs/design/resultat.png` ; remplace le bandeau provisoire ; score, bouton « Rejouer ».
-- **K-19 — Meilleur score** : sauvegardé avec AsyncStorage, affiché sur l'écran de jeu (« Meilleur ») et sur l'écran de fin ; son `highscore` quand il est battu.
-- **K-26 — Partage** : texte avec le nom du jeu, la date, le score et la grille finale en emojis.
-- Points à trancher : corriger la pièce `v5` qui touche les bords du plateau dans ce sprint ou en K-29 ? Les emojis `cyan` et `blue` sont identiques dans `SHARE_EMOJI` (noté dans « Idées » du backlog).
+### Passages de la boucle d'intégration et écarts restants, par écran
+- **Écran de résultat : 3 passages** (`resultat-1.png`, `resultat-2.png`, `resultat-3.png`).
+  - Passage 1 (variante record, sans le bouton de partage) : titre trop petit, grille miniature trop petite, chiffres des statistiques trop petits, libellés un peu grands. Corrigés.
+  - Passage 2 (variante record, écran complet) : titre, score, pastille, grille, cartes et boutons à 1 pt près des positions de la maquette ; libellé « Partager mon score » 9 pt trop étroit. Corrigé.
+  - Passage 3 (variante sans record) : même mise en page, l'emplacement de la pastille reste vide ; libellé du bouton de partage à 187 pt de large, comme la maquette.
+  - Écarts restants : aucun notable. La pastille est plus courte que sur la maquette (texte plus court). Tout l'écran est environ 15 pt plus bas que sur la maquette, à cause de la zone sûre plus haute du simulateur.
+  - Volontairement absents : « Défi du mardi 6 octobre », « Partie libre », « Retour à l'accueil ».
+- **Écran de jeu : 2 captures** comparées à `jeu.png` (`jeu-entete-1.png`, `jeu-entete-2.png`) : la pastille « Série ×2 » et « Meilleur » ont été descendues de 2 à 3 pt après la première ; elles sont à leur place sur la seconde. Le reste de l'écran n'a pas bougé.
+- **Plateau avec les grandes pièces : 1 capture** (`jeu-grandes-pieces.png`) : `v5`, `h5` et `sq3` tiennent dans leur emplacement avec une marge.
+
+### Proposition de stories détaillées pour le sprint suivant (Tutoriel interactif)
+- **K-27a — Stockage « tutoriel vu »** : reprendre le commit de la branche `sprint/tutorial`.
+- **K-27b — Étapes guidées** : maquettes `tuto-1a` à `tuto-3` ; une grille réduite et une pièce imposée par étape, avec le moteur et le glisser-déposer du jeu.
+- **K-27c — Enchaînement** : écran de lancement, puis tutoriel au premier lancement, sinon écran de jeu ; « Passer » marque le tutoriel comme vu.
+- Points à trancher : le moteur suppose aujourd'hui une grille 8 × 8 ; un tutoriel sur une grille plus petite demande de le rendre paramétrable, ou de garder la grille 8 × 8 avec des cases préremplies.

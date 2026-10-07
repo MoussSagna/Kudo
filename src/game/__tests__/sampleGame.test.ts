@@ -32,9 +32,10 @@ describe('NEAR_END_GAME', () => {
 });
 
 describe('FINISHED_GAME', () => {
-  it('is over', () => {
+  it('is over, with no line left to clear and no room for its remaining pieces', () => {
     expect(FINISHED_GAME.isOver).toBe(true);
-    expect(FINISHED_GAME.score).toBe(481);
+    expect(clearLines(FINISHED_GAME.grid).cleared).toBe(0);
+    expect(hasAnyMove(FINISHED_GAME.grid, FINISHED_GAME.tray)).toBe(false);
   });
 });
 

@@ -21,6 +21,7 @@ export const UI = {
   textMuted: '#8F97C4',
   textSoft: '#A9B0DA',
   accent: '#FFD23F',
+  accentEdge: '#C29708',
 } as const;
 
 export const FONTS = {
