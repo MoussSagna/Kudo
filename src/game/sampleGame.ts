@@ -1,6 +1,6 @@
 import { applyMove } from './moves';
 import { gridFrom, pieceById } from './notation';
-import type { GameState } from './state';
+import { createGame, type GameState } from './state';
 
 /** The game shown on the `docs/design/jeu.png` mockup, to compare the screen with it. */
 export const SAMPLE_GAME: GameState = {
@@ -82,3 +82,9 @@ export const DEMO_MOVES: readonly DemoMove[] = [
   { trayIndex: 1, col: 7, row: 7 },
   { trayIndex: 2, col: 3, row: 6 },
 ];
+
+/** A new game whose tray holds the largest pieces, to check that they fit in their slots. */
+export const BIG_PIECES_GAME: GameState = {
+  ...createGame(2),
+  tray: [pieceById('v5'), pieceById('h5'), pieceById('sq3')],
+};

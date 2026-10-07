@@ -12,6 +12,7 @@ import { moveFeedback } from '../game/feedback';
 import type { MoveResult } from '../game/moves';
 import { canPlace } from '../game/placement';
 import {
+  BIG_PIECES_GAME,
   DEMO_GAME,
   DEMO_MOVES,
   FINISHED_GAME,
@@ -28,8 +29,8 @@ import { GRID_SIZE, UI } from '../theme';
 
 /**
  * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
- * `end` (one move away from the end), `over` (a finished game) or `demo` (a short scripted game
- * that plays by itself, to watch the animations).
+ * `end` (one move away from the end), `over` (a finished game), `demo` (a short scripted game
+ * that plays by itself, to watch the animations) or `big` (the largest pieces in the tray).
  */
 const SAMPLE_GAME_NAME = __DEV__ ? process.env.EXPO_PUBLIC_SAMPLE_GAME : undefined;
 const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
@@ -37,6 +38,7 @@ const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   end: NEAR_END_GAME,
   over: FINISHED_GAME,
   demo: DEMO_GAME,
+  big: BIG_PIECES_GAME,
 };
 const DEMO_SCRIPT = SAMPLE_GAME_NAME === 'demo' ? DEMO_MOVES : null;
 /** In the demo, a piece is released this fraction of a cell away from its target. */
@@ -145,6 +147,7 @@ export function GameScreen() {
             trayKey={`${game.seed}-${game.draws}`}
             enabled={!game.isOver}
             cellSize={trayCellSize}
+            width={width - 2 * TRAY_MARGIN}
             gridCellSize={cellSize}
             gridRef={gridRef}
             onTargetChange={handleTargetChange}

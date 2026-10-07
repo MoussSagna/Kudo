@@ -6,7 +6,7 @@
 
 ## Stories
 
-- [ ] **K-32 — Correctif du plateau**
+- [x] **K-32 — Correctif du plateau**
   - Une pièce de 5 blocs de haut ou de large ne doit plus toucher les bords du plateau : réduire l'échelle des pièces dans le plateau pour que la plus grande tienne avec une marge. Vérifier avec `v5`, `h5` et `sq3`.
 
 - [ ] **K-33 — Statistiques de partie**
@@ -37,6 +37,7 @@
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
+- **K-32 — échelle des pièces du plateau** : la story demande de « réduire l'échelle des pièces pour que la plus grande tienne ». Réduire toutes les pièces à la même échelle les ferait passer de 30 pt à 20 pt par bloc, loin de la maquette `jeu.png`. Le choix retenu : seules les pièces trop longues sont réduites (barres de 5 à 20 pt par bloc, barres de 4 à 25 pt), les autres gardent la taille de la maquette. Si Moussa préfère une échelle unique pour toutes les pièces, c'est une seule constante à changer.
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._
