@@ -28,7 +28,7 @@
   - Cas à tester : premier défi, lendemain, jour manqué, deux lancements le même jour, changement de mois et d'année.
   - Sur l'accueil, la pastille « Série : N jours » apparaît quand N vaut 1 ou plus (« 1 jour » au singulier), comme sur `docs/design/accueil.png`.
 
-- [ ] **K-36 — Écran « Reviens demain »**
+- [x] **K-36 — Écran « Reviens demain »**
   - Maquette : `docs/design/demain.png`.
   - Contenu : « Défi du jour terminé », le score, le compte à rebours jusqu'à minuit heure locale (heures, minutes, secondes), la série avec son record, la semaine du lundi au dimanche avec les jours joués remplis, et la phrase « Reviens demain pour la prolonger. ».
   - Boutons : « Partie libre » et « Revoir mon résultat », qui rouvre l'écran de fin du défi du jour avec ses vraies données.

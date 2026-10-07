@@ -6,18 +6,20 @@ import { now } from '../clock';
 import type { DailyStatus } from '../game/daily';
 import type { GameMode } from '../game/state';
 import { useBestScore } from '../hooks/useBestScore';
-import type { DailyChallenge } from '../hooks/useDailyChallenge';
+import { OPENS_ON_TOMORROW_SCREEN, type DailyChallenge } from '../hooks/useDailyChallenge';
 import { useScreenFade } from '../hooks/useScreenFade';
 import { shareGame } from '../share';
 import { GameScreen, OPENS_ON_SAMPLE_GAME } from './GameScreen';
 import { HomeScreen } from './HomeScreen';
 import { ResultScreen } from './ResultScreen';
+import { TomorrowScreen } from './TomorrowScreen';
 import { TutorialScreen, type TutorialEntry } from './TutorialScreen';
 
 /** `gameId` changes with every new game, so that its screen starts from scratch. */
 type Route =
   | { name: 'home' }
   | { name: 'game'; mode: GameMode; gameId: number }
+  | { name: 'tomorrow' }
   | { name: 'dailyResult' }
   | { name: 'tutorial' };
 
@@ -57,6 +59,16 @@ interface MainScreensProps {
   onTutorialDone: () => void;
 }
 
+function initialRoute(startsWithTutorial: boolean): Route {
+  if (OPENS_ON_SAMPLE_GAME) {
+    return { name: 'game', mode: 'free', gameId: 0 };
+  }
+  if (OPENS_ON_TOMORROW_SCREEN) {
+    return { name: 'tomorrow' };
+  }
+  return { name: startsWithTutorial ? 'tutorial' : 'home' };
+}
+
 /**
  * Everything after the launch screen, without a navigation library: one route at a time, kept in
  * a state, with a short fade from one screen to the next.
@@ -68,9 +80,7 @@ export function MainScreens({
   onTutorialDone,
 }: MainScreensProps) {
   const { route, navigate, fadeStyle } = useScreenFade<Route>(
-    OPENS_ON_SAMPLE_GAME
-      ? { name: 'game', mode: 'free', gameId: 0 }
-      : { name: startsWithTutorial ? 'tutorial' : 'home' },
+    initialRoute(startsWithTutorial),
   );
 
   const goHome = () => navigate({ name: 'home' });
@@ -87,9 +97,14 @@ export function MainScreens({
           goHome();
         },
         onShowTutorial: () => navigate({ name: 'tutorial' }),
-        // Once today's challenge is finished, it can be looked at again, not replayed.
+        // Once today's challenge is finished, it cannot be replayed: the player waits for tomorrow.
         onOpenDaily: () =>
-          daily.status.kind === 'done' ? navigate({ name: 'dailyResult' }) : startGame('daily'),
+          daily.status.kind === 'done' ? navigate({ name: 'tomorrow' }) : startGame('daily'),
+        onShowDailyResult: () => navigate({ name: 'dailyResult' }),
+        onDayOver: () => {
+          daily.refreshToday();
+          goHome();
+        },
         goHome,
         startGame,
       })}
@@ -103,6 +118,8 @@ interface RouteActions {
   onTutorialDone: () => void;
   onShowTutorial: () => void;
   onOpenDaily: () => void;
+  onShowDailyResult: () => void;
+  onDayOver: () => void;
   goHome: () => void;
   startGame: (mode: GameMode) => void;
 }
@@ -128,6 +145,24 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
           onStartFreeGame={() => actions.startGame('free')}
         />
       );
+    case 'tomorrow': {
+      const { status, today, streak, streakToday } = actions.daily;
+      if (status.kind !== 'done') {
+        return null;
+      }
+      return (
+        <TomorrowScreen
+          today={today}
+          score={status.game.score}
+          streak={streak}
+          streakToday={streakToday}
+          onBack={actions.goHome}
+          onPlayFree={() => actions.startGame('free')}
+          onShowResult={actions.onShowDailyResult}
+          onDayOver={actions.onDayOver}
+        />
+      );
+    }
     case 'dailyResult': {
       const { status } = actions.daily;
       if (status.kind !== 'done') {
