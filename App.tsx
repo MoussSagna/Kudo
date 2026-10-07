@@ -27,7 +27,7 @@ import { UI } from './src/theme';
 SplashScreen.preventAutoHideAsync();
 
 /** Development only: EXPO_PUBLIC_TUTORIAL opens the tutorial directly in one of its states. */
-const TUTORIAL_ENTRIES: readonly string[] = ['1a', '1b'] satisfies TutorialEntry[];
+const TUTORIAL_ENTRIES: readonly string[] = ['1a', '1b', '2a', '2b'] satisfies TutorialEntry[];
 const DEV_TUTORIAL = __DEV__ ? process.env.EXPO_PUBLIC_TUTORIAL : undefined;
 const DEV_TUTORIAL_ENTRY =
   DEV_TUTORIAL && TUTORIAL_ENTRIES.includes(DEV_TUTORIAL) ? (DEV_TUTORIAL as TutorialEntry) : undefined;

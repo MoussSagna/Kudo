@@ -22,7 +22,7 @@
   - Toute pose valide est acceptée, pas seulement l'emplacement suggéré.
   - Après la pose : « Bien joué ! », le texte « Chaque case posée rapporte 1 point. Les pièces ne tournent pas. », la pastille « +4 », et le bouton « Suivant » à la place du plateau.
 
-- [ ] **K-27e — Étape 2 : compléter une ligne**
+- [x] **K-27e — Étape 2 : compléter une ligne**
   - Maquettes : `tuto-2a.png` et `tuto-2b.png`.
   - Grille de départ : `........ / ........ / ........ / ........ / ........ / ...p.... / oyy...cr / b.rr.pp.`
   - Plateau : la pièce `h3`. La ligne 6 est encadrée en jaune et ses trois cases vides clignotent.

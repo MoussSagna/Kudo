@@ -47,6 +47,25 @@ export const PLACE_STEP: TutorialStep = {
   mustClearLine: false,
 };
 
+/** Step 2: complete a row with the piece; nothing else is accepted. */
+export const CLEAR_STEP: TutorialStep = {
+  game: tutorialGame(
+    [
+      '........',
+      '........',
+      '........',
+      '........',
+      '........',
+      '...p....',
+      'oyy...cr',
+      'b.rr.pp.',
+    ],
+    'h3',
+  ),
+  suggestion: { col: 3, row: 6 },
+  mustClearLine: true,
+};
+
 /** The grid cells covered by the piece of a step when it is placed where the step suggests. */
 export function suggestionCells(step: TutorialStep): GridPosition[] {
   const piece = step.game.tray[TUTORIAL_TRAY_INDEX];
