@@ -20,7 +20,7 @@ Un block puzzle calme et lisible, avec un défi par jour, identique pour tous le
 Les 31 formes sont dans `src/game/pieces.ts`. Les cases sont en `[colonne, ligne]` depuis le coin haut-gauche. Chaque pièce a une couleur fixe.
 
 ## Modes
-- **Défi du jour** : la suite de pièces vient de `createRng(dailySeed())`. Une seule tentative par jour. Une partie commencée est reprise telle quelle si on quitte l'app.
+- **Défi du jour** : la suite de pièces vient de `createRng(dailySeed())`. Le défi change à minuit, heure locale de l'appareil : la graine est calculée à partir de la date locale (AAAAMMJJ). Une seule tentative par jour. Une partie commencée est reprise telle quelle si on quitte l'app.
 - **Partie libre** : graine aléatoire, rejouable à volonté, avec son propre meilleur score.
 
 ## Données sauvegardées (en local)
@@ -40,5 +40,4 @@ En fin de défi du jour : un texte avec le nom du jeu, la date, le score et la g
 Comptes utilisateurs, classement en ligne, publicité, achats intégrés, musique de fond.
 
 ## Décisions à confirmer par Moussa
-- Le jour change à minuit **UTC** (2 h du matin à Paris en été). À remplacer par l'heure locale ?
 - Pondération du tirage : toutes les pièces ont la même probabilité pour l'instant.

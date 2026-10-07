@@ -65,8 +65,10 @@ But : au premier lancement, le joueur apprend en jouant.
 
 ## Accueil
 But : le jeu a un point d'entrée.
-- **K-24** Écran d'accueil (défi du jour, partie libre, série, meilleur score).
-- **K-25** Mode partie libre.
+- **K-24** Écran d'accueil (défi du jour, partie libre, meilleur score, « Comment jouer ? »).
+- **K-25** Deux modes de jeu : défi du jour et partie libre, chacun avec son meilleur score ; en-tête de l'écran de jeu avec bouton retour.
+- **K-34** Écran de fin selon le mode.
+- **K-35** Transitions en fondu entre les écrans.
 
 ## Défi du jour et « Reviens demain »
 But : tout le monde joue la même partie, une fois par jour.
