@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Chevron } from '../components/Chevron';
 import { Logo } from '../components/Logo';
 import { PrimaryButton } from '../components/PrimaryButton';
+import type { DailyStatus } from '../game/daily';
 import { capitalize, formatWeekdayAndDate } from '../game/dates';
 import { formatScore } from '../game/formatScore';
 import { FONTS, UI } from '../theme';
@@ -17,6 +18,8 @@ const MIN_BOTTOM_PADDING = 24;
 interface HomeScreenProps {
   /** The day of the daily challenge. */
   today: Date;
+  /** Where today's challenge stands. */
+  daily: DailyStatus;
   freeBestScore: number;
   onPlayDaily: () => void;
   onPlayFree: () => void;
@@ -26,6 +29,7 @@ interface HomeScreenProps {
 /** Where the app opens: the daily challenge, the free game, and the way back to the tutorial. */
 export function HomeScreen({
   today,
+  daily,
   freeBestScore,
   onPlayDaily,
   onPlayFree,
@@ -55,7 +59,10 @@ export function HomeScreen({
         <Text style={styles.dailyDate}>{capitalize(formatWeekdayAndDate(today))}</Text>
         <Text style={styles.dailyText}>Une seule tentative. Les mêmes pièces pour tout le monde.</Text>
         <View style={styles.dailyButton}>
-          <PrimaryButton label="Jouer" onPress={onPlayDaily} />
+          <PrimaryButton
+            label={daily.kind === 'inProgress' ? 'Reprendre' : 'Jouer'}
+            onPress={onPlayDaily}
+          />
         </View>
       </View>
 

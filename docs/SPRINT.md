@@ -11,7 +11,7 @@
 
 ## Stories
 
-- [ ] **K-21 — Sauvegarde et reprise du défi**
+- [x] **K-21 — Sauvegarde et reprise du défi**
   - L'état du défi est sauvegardé après chaque coup, avec sa date.
   - Sur l'accueil, si un défi d'aujourd'hui est en cours, le bouton de la carte devient « Reprendre » et rouvre la partie exactement où elle en était : grille, plateau, score, série de combos, statistiques, tirages à venir.
   - Quitter le jeu par le bouton retour ou fermer l'app ne perd plus le défi.

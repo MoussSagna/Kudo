@@ -1,9 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { Share, StyleSheet, View } from 'react-native';
+import { Alert, Share, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { now } from '../clock';
 import { GameHeader } from '../components/GameHeader';
 import { Grid } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
@@ -76,17 +77,28 @@ const TRAY_HEIGHT_RATIO = 3.45;
 
 interface GameScreenProps {
   mode: GameMode;
-  /** Back to the home screen; the game in progress is lost. */
+  /** A game to resume instead of starting a new one. */
+  initialGame?: GameState;
+  /** Called after every move of a daily challenge, with its new state, so that it can be saved. */
+  onDailyMove: (game: GameState) => void;
+  /** Back to the home screen. */
   onExit: () => void;
   /** Starts a new free game. */
   onStartFreeGame: () => void;
 }
 
-export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
+export function GameScreen({
+  mode,
+  initialGame,
+  onDailyMove,
+  onExit,
+  onStartFreeGame,
+}: GameScreenProps) {
   const insets = useSafeAreaInsets();
   const { cellSize, trayWidth } = useBoardLayout();
   const { game, lastMove, place } = useGame(
-    () => (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || startGame(mode, new Date()),
+    () =>
+      (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || initialGame || startGame(mode, now()),
   );
   const { gridRef, preview, onTargetChange } = usePieceDrag(game);
   const feedback = useFeedback();
@@ -98,6 +110,9 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
   /** The sound and the vibration of a move that was just played. */
   const giveFeedback = (move: MoveResult) => {
     feedback.move(move);
+    if (move.next.mode === 'daily') {
+      onDailyMove(move.next);
+    }
     if (move.next.isOver) {
       const isNewRecord = submitScore(move.next.score);
       setTimeout(() => {
@@ -114,6 +129,21 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
       giveFeedback(move);
     }
     return move !== null;
+  };
+
+  /**
+   * A daily challenge is saved after every move, so leaving it loses nothing. A free game is not
+   * saved: leaving it once points are scored asks for a confirmation.
+   */
+  const handleBack = () => {
+    if (game.mode === 'daily' || game.score === 0 || game.isOver) {
+      onExit();
+      return;
+    }
+    Alert.alert('Quitter la partie ?', 'Ta progression sera perdue.', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Quitter', style: 'destructive', onPress: onExit },
+    ]);
   };
 
   /** Opens the system share sheet. Cancelling it, or a phone that cannot share, is not an error. */
@@ -142,7 +172,7 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
           },
         ]}
       >
-        <GameHeader mode={game.mode} seed={game.seed} onBack={onExit} />
+        <GameHeader mode={game.mode} seed={game.seed} onBack={handleBack} />
         <View style={styles.score}>
           <ScoreHeader score={game.score} best={best} streak={game.streak} />
         </View>

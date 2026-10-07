@@ -20,8 +20,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { LaunchScreen, NEXT_SCREEN_FADE_IN_MS } from './src/screens/LaunchScreen';
+import { useDailyChallenge } from './src/hooks/useDailyChallenge';
 import { MainScreens } from './src/screens/MainScreens';
 import type { TutorialEntry } from './src/screens/TutorialScreen';
+import { storageReady } from './src/storage/devReset';
 import { hasSeenTutorial, markTutorialSeen } from './src/storage/tutorial';
 import { UI } from './src/theme';
 
@@ -56,6 +58,7 @@ export default function App() {
     }
     return IS_TUTORIAL_FORCED ? false : null;
   });
+  const daily = useDailyChallenge();
   const nextScreenOpacity = useSharedValue(0);
   const fontsReady = fontsLoaded || fontsError !== null;
 
@@ -72,7 +75,7 @@ export default function App() {
       return;
     }
     let cancelled = false;
-    hasSeenTutorial().then((seen) => {
+    storageReady.then(hasSeenTutorial).then((seen) => {
       if (!cancelled) {
         setTutorialSeen(seen);
       }
@@ -83,7 +86,7 @@ export default function App() {
   }, []);
 
   /** The screen after the launch screen is known once the launch is over and the storage read. */
-  const isNextScreenReady = launchDone && tutorialSeen !== null;
+  const isNextScreenReady = launchDone && tutorialSeen !== null && daily.isLoaded;
 
   useEffect(() => {
     if (!isNextScreenReady) {
@@ -115,6 +118,7 @@ export default function App() {
             <Animated.View style={[StyleSheet.absoluteFill, nextScreenStyle]}>
               <MainScreens
                 startsWithTutorial={!tutorialSeen}
+                daily={daily}
                 tutorialEntry={DEV_TUTORIAL_ENTRY}
                 onTutorialDone={markTutorialSeen}
               />
