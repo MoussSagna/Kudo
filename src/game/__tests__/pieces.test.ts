@@ -1,4 +1,4 @@
-import { createRng } from '../pieces';
+import { createRng, dailySeed } from '../pieces';
 
 function take(rng: () => number, count: number): number[] {
   return Array.from({ length: count }, () => rng());
@@ -18,5 +18,22 @@ describe('createRng', () => {
       expect(value).toBeGreaterThanOrEqual(0);
       expect(value).toBeLessThan(1);
     }
+  });
+});
+
+describe('dailySeed', () => {
+  it('is the local date written as YYYYMMDD', () => {
+    expect(dailySeed(new Date(2026, 9, 7, 12, 0))).toBe(20261007);
+    expect(dailySeed(new Date(2027, 0, 1, 12, 0))).toBe(20270101);
+  });
+
+  it('changes at local midnight, whatever the time zone of the device', () => {
+    expect(dailySeed(new Date(2026, 9, 7, 23, 59, 59))).toBe(20261007);
+    expect(dailySeed(new Date(2026, 9, 8, 0, 0, 0))).toBe(20261008);
+    expect(dailySeed(new Date(2026, 9, 7, 0, 30))).toBe(20261007);
+  });
+
+  it('is the same all day long', () => {
+    expect(dailySeed(new Date(2026, 9, 7, 0, 0, 1))).toBe(dailySeed(new Date(2026, 9, 7, 23, 0)));
   });
 });
