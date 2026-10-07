@@ -121,6 +121,18 @@ Commencer par un lancement avec `EXPO_PUBLIC_RESET_DATA=1 EXPO_PUBLIC_FAKE_DATE=
 - **Accueil, trois états : 1 capture chacun** (`accueil-a-jouer.png`, `accueil-en-cours.png`, `accueil-termine.png`) : « Jouer », « Reprendre », « Défi terminé / Voir » ; la pastille « Série : 5 jours » est à la place prévue par `accueil.png`.
 - **En-tête de jeu : 1 capture** (`jeu-entete-3.png`) après la correction du sprint précédent : le titre fait 98 pt de large (maquette 95), la date 115 pt (maquette 117).
 
+### Correctif après retour de Moussa : pièces du plateau invisibles
+- **Symptômes** : une pièce disparaît du plateau, ou le nouveau tirage n'arrive pas ; quitter puis « Reprendre » rétablit l'affichage.
+- **Cause** : `src/hooks/useGame.ts`, dans `place` : le coup était calculé à partir de l'état du dernier affichage (`playMove(game, …)`). Quand deux pièces étaient relâchées avant que l'écran soit redessiné, le second coup repartait du même état que le premier et l'écrasait : le premier coup était perdu (pièce de nouveau dans l'état, points perdus), alors que sa pièce, déjà acceptée, restait affichée sur la grille au lieu du plateau (`src/components/DraggablePiece.tsx`, fonction `drop` : une pose acceptée ne ramenait jamais la pièce au repos). L'état sauvegardé n'était donc pas « le bon » : il lui manquait un coup.
+- **Reproduction** : scénario `EXPO_PUBLIC_SAMPLE_GAME=stress`, 5 essais sur 5 avant correction (3 en mode normal, 2 avec « réduire les animations »), toujours au coup 6, premier tirage où trois pièces sont relâchées au même instant. Avec des coups espacés de 80 ms, le simulateur ne reproduit pas le bug.
+- **Corrections** :
+  - `useGame` et `useDailyChallenge` enchaînent les coups à partir du dernier état connu, tenu dans une référence, et non de l'état du dernier affichage ;
+  - `DraggablePiece` : après chaque coup joué, une pièce encore dans le plateau et non tenue revient au repos ; le premier doigt posé réserve le plateau, pour que deux pièces ne soient jamais glissées ensemble ; l'apparition d'une pièce est une animation d'entrée jouée par-dessus une pièce déjà visible, et non plus une opacité partant de 0 ;
+  - `Tray` : la clé d'une pièce combine le tirage, l'emplacement et la forme.
+- **Outils gardés** : `src/dev/stressPlan.ts` (partie scriptée de 66 coups et 22 tirages : coups espacés, simultanés, refusés, annulés, pièce tenue), `src/dev/useStressTest.ts` (contrôle écrivant `[KUBO-DIVERGENCE]`), `src/dev/useTrayProbe.ts` (le scénario passe par les mêmes fonctions que le geste réel).
+- **Après correction** : 10 exécutions sur 10 sans divergence (5 par mode d'animation) ; sur les vidéos, le plateau montre ses trois pièces après chacun des 22 tirages.
+- **Non vérifié** : le geste réel. La réservation du plateau au premier doigt n'a été exercée par aucun doigt, et rien ne prouve que le déclencheur sur le téléphone de Moussa soit celui reproduit ici.
+
 ### Proposition de stories détaillées pour le sprint suivant (Réglages)
 - **K-28 — Réglages** : maquette `docs/design/reglages.png` ; interrupteurs sons et vibrations, sauvegardés (le module `preferences` existe déjà, en mémoire) ; bouton des réglages sur l'accueil et sur « Reviens demain ».
 - À prévoir dans les réglages : « Revoir le tutoriel » et, en développement, « Effacer les données ».

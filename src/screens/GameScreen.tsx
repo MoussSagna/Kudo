@@ -5,6 +5,8 @@ import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { now } from '../clock';
+import { STRESS_SEED } from '../dev/stressPlan';
+import { useStressTest } from '../dev/useStressTest';
 import { GameHeader } from '../components/GameHeader';
 import { Grid } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
@@ -20,7 +22,7 @@ import {
   SAMPLE_GAME,
   type DemoMove,
 } from '../game/sampleGame';
-import { startGame, type GameMode, type GameState } from '../game/state';
+import { createGame, startGame, type GameMode, type GameState } from '../game/state';
 import { useDemoMoves } from '../hooks/useDemoMoves';
 import { playHaptic } from '../haptics';
 import { useBestScore } from '../hooks/useBestScore';
@@ -37,7 +39,8 @@ import { ResultScreen } from './ResultScreen';
  * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
  * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `overfree` (the
  * same, as a free game), `demo` (a short scripted game
- * that plays by itself, to watch the animations) or `big` (the largest pieces in the tray).
+ * that plays by itself, to watch the animations) `big` (the largest pieces in the tray) or `stress` (a long game
+ * that plays by itself and checks that the tray on screen matches the game).
  */
 interface GameResult {
   isNewRecord: boolean;
@@ -52,6 +55,7 @@ const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   overfree: FINISHED_FREE_GAME,
   demo: DEMO_GAME,
   big: BIG_PIECES_GAME,
+  stress: createGame(STRESS_SEED, 'free'),
 };
 /** The sample games that are already over open on their result screen. */
 const INITIAL_RESULT: GameResult | null =
@@ -146,6 +150,8 @@ export function GameScreen({
     ]);
   };
 
+  useStressTest(SAMPLE_GAME_NAME === 'stress', game);
+
   useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
     playAt(
       trayIndex,
@@ -180,6 +186,7 @@ export function GameScreen({
           <Tray
             tray={game.tray}
             trayKey={`${game.seed}-${game.draws}`}
+            moveId={lastMove?.id ?? 0}
             enabled={!game.isOver}
             width={trayWidth}
             height={trayHeight}

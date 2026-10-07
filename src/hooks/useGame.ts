@@ -16,6 +16,11 @@ export function useGame(createInitialGame: () => GameState) {
   const [game, setGame] = useState(createInitialGame);
   const [lastMove, setLastMove] = useState<MoveEvent | null>(null);
   const moveCount = useRef(0);
+  /**
+   * The state after the last move, known at once. Two pieces can be released before the screen is
+   * drawn again: each move must start from the previous one, not from the state of the last render.
+   */
+  const latestGame = useRef(game);
 
   /**
    * Plays the piece of a tray slot with its top-left corner at (col, row). Returns what the move
@@ -27,10 +32,11 @@ export function useGame(createInitialGame: () => GameState) {
     row: number,
     from: { left: number; top: number },
   ): MoveResult | null => {
-    const result = playMove(game, trayIndex, col, row);
+    const result = playMove(latestGame.current, trayIndex, col, row);
     if (!result) {
       return null;
     }
+    latestGame.current = result.next;
     moveCount.current += 1;
     setGame(result.next);
     setLastMove({ ...result, id: moveCount.current, from });

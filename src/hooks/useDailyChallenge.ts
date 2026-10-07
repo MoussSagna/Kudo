@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
 import { now } from '../clock';
@@ -53,6 +53,8 @@ export function useDailyChallenge() {
   const [today, setToday] = useState(() => dayKey(now()));
   const [sample] = useState(() => sampleDailyData(today));
   const [data, setData] = useState<DailyData | null>(sample);
+  /** The data after the last move, known at once: moves can follow each other within a render. */
+  const latestData = useRef(data);
 
   useEffect(() => {
     if (sample) {
@@ -63,6 +65,7 @@ export function useDailyChallenge() {
       .then(readDailyData)
       .then((stored) => {
         if (!cancelled) {
+          latestData.current = stored;
           setData(stored);
         }
       });
@@ -86,7 +89,8 @@ export function useDailyChallenge() {
 
   /** Saves the challenge after one of its moves; the last one makes it the result of its day. */
   const recordMove = (game: GameState) => {
-    const next = recordDailyMove(data ?? EMPTY_DAILY_DATA, game);
+    const next = recordDailyMove(latestData.current ?? EMPTY_DAILY_DATA, game);
+    latestData.current = next;
     setData(next);
     if (!sample) {
       writeDailyData(next);
