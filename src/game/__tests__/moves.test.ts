@@ -1,4 +1,4 @@
-import { applyMove, clearPoints } from '../moves';
+import { applyMove, clearPoints, playMove } from '../moves';
 import { gridFrom, pieceById } from '../notation';
 import { createGame, drawTray, type GameState } from '../state';
 
@@ -195,5 +195,60 @@ describe('applyMove', () => {
     applyMove(state, 0, 0, 0);
 
     expect(JSON.stringify(state)).toBe(snapshot);
+  });
+});
+
+describe('playMove', () => {
+  it('returns null for an invalid move', () => {
+    const state = gameWith({ tray: [h3, sq2, dot] });
+
+    expect(playMove(state, 0, 6, 0)).toBeNull();
+    expect(playMove(state, 3, 0, 0)).toBeNull();
+    expect(playMove({ ...state, isOver: true }, 0, 0, 0)).toBeNull();
+  });
+
+  it('describes a move that clears nothing', () => {
+    const state = gameWith({ tray: [h3, sq2, dot] });
+
+    const result = playMove(state, 0, 2, 4);
+
+    expect(result).toMatchObject({
+      piece: h3,
+      col: 2,
+      row: 4,
+      clearedRows: [],
+      clearedCols: [],
+      placementPoints: 3,
+      clearPoints: 0,
+    });
+    expect(result?.placedGrid).toEqual(result?.next.grid);
+    expect(result?.next).toEqual(applyMove(state, 0, 2, 4));
+  });
+
+  it('tells which row and column were cleared, with the grid before the clear', () => {
+    const state = gameWith({
+      grid: gridFrom([
+        '...g....',
+        '...g....',
+        'rrr.rrrr',
+        '...g....',
+        '...g....',
+        '...g....',
+        '...g....',
+        '...g....',
+      ]),
+      tray: [dot, h3, sq2],
+      streak: 2,
+    });
+
+    const result = playMove(state, 0, 3, 2);
+
+    expect(result?.clearedRows).toEqual([2]);
+    expect(result?.clearedCols).toEqual([3]);
+    expect(result?.placementPoints).toBe(1);
+    expect(result?.clearPoints).toBe(80);
+    expect(result?.placedGrid[2]).toEqual(gridFrom(['rrryrrrr'])[0]);
+    expect(result?.next.grid[2].every((cell) => cell === null)).toBe(true);
+    expect(result?.next.score).toBe(state.score + 81);
   });
 });

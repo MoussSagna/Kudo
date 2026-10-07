@@ -6,7 +6,7 @@ describe('clearLines', () => {
   it('clears nothing on an empty grid', () => {
     const grid = createEmptyGrid();
 
-    expect(clearLines(grid)).toEqual({ grid, cleared: 0 });
+    expect(clearLines(grid)).toEqual({ grid, cleared: 0, rows: [], cols: [] });
   });
 
   it('clears nothing when no row or column is full', () => {
@@ -21,7 +21,7 @@ describe('clearLines', () => {
       '........',
     ]);
 
-    expect(clearLines(grid)).toEqual({ grid, cleared: 0 });
+    expect(clearLines(grid)).toEqual({ grid, cleared: 0, rows: [], cols: [] });
   });
 
   it('clears one full row and keeps the rest', () => {
@@ -97,6 +97,8 @@ describe('clearLines', () => {
     );
 
     expect(result.cleared).toBe(2);
+    expect(result.rows).toEqual([2]);
+    expect(result.cols).toEqual([3]);
     expect(result.grid).toEqual(
       gridFrom([
         '........',
@@ -126,6 +128,8 @@ describe('clearLines', () => {
     );
 
     expect(result.cleared).toBe(4);
+    expect(result.rows).toEqual([0, 1]);
+    expect(result.cols).toEqual([0, 1]);
     expect(result.grid).toEqual(createEmptyGrid());
   });
 

@@ -47,3 +47,38 @@ export const NEAR_END_GAME: GameState = {
 
 /** The same game once the dot is placed in the top-left corner: it is over. */
 export const FINISHED_GAME: GameState = applyMove(NEAR_END_GAME, 0, 0, 0);
+
+export interface DemoMove {
+  trayIndex: number;
+  col: number;
+  row: number;
+}
+
+/**
+ * A scripted game for the animation demo. Played in order, `DEMO_MOVES` gives: a plain placement,
+ * a cleared row, a row and a column cleared together, then a new tray.
+ */
+export const DEMO_GAME: GameState = {
+  seed: 1,
+  grid: gridFrom([
+    '...g....',
+    '...g....',
+    '...g....',
+    '...g....',
+    '...g....',
+    '...g....',
+    'bbb.bbbb',
+    'rrrrrrr.',
+  ]),
+  tray: [pieceById('sq2'), pieceById('dot'), pieceById('v2')],
+  score: 0,
+  streak: 1,
+  draws: 1,
+  isOver: false,
+};
+
+export const DEMO_MOVES: readonly DemoMove[] = [
+  { trayIndex: 0, col: 0, row: 0 },
+  { trayIndex: 1, col: 7, row: 7 },
+  { trayIndex: 2, col: 3, row: 6 },
+];

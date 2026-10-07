@@ -8,18 +8,41 @@ import { GameOverBanner } from '../components/GameOverBanner';
 import { Grid, GRID_PADDING, type GridPreview } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
+import { moveFeedback } from '../game/feedback';
+import type { MoveResult } from '../game/moves';
 import { canPlace } from '../game/placement';
-import { FINISHED_GAME, NEAR_END_GAME, SAMPLE_GAME } from '../game/sampleGame';
-import { createGame } from '../game/state';
+import {
+  DEMO_GAME,
+  DEMO_MOVES,
+  FINISHED_GAME,
+  NEAR_END_GAME,
+  SAMPLE_GAME,
+  type DemoMove,
+} from '../game/sampleGame';
+import { createGame, type GameState } from '../game/state';
+import { useDemoMoves } from '../hooks/useDemoMoves';
+import { playHaptic } from '../haptics';
 import { useGame } from '../hooks/useGame';
+import { useSounds } from '../hooks/useSounds';
 import { GRID_SIZE, UI } from '../theme';
 
 /**
- * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME=1 to show the mockup's game, or
- * with EXPO_PUBLIC_SAMPLE_GAME=end to show a game one move away from its end, or with
- * EXPO_PUBLIC_SAMPLE_GAME=over to show a finished game.
+ * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
+ * `end` (one move away from the end), `over` (a finished game) or `demo` (a short scripted game
+ * that plays by itself, to watch the animations).
  */
 const SAMPLE_GAME_NAME = __DEV__ ? process.env.EXPO_PUBLIC_SAMPLE_GAME : undefined;
+const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
+  '1': SAMPLE_GAME,
+  end: NEAR_END_GAME,
+  over: FINISHED_GAME,
+  demo: DEMO_GAME,
+};
+const DEMO_SCRIPT = SAMPLE_GAME_NAME === 'demo' ? DEMO_MOVES : null;
+/** In the demo, a piece is released this fraction of a cell away from its target. */
+const DEMO_RELEASE_OFFSET = 0.45;
+/** The end-of-game feedback comes after the feedback of the last move, not on top of it. */
+const GAME_OVER_FEEDBACK_DELAY_MS = 450;
 
 const GRID_MARGIN = 13;
 const TRAY_MARGIN = 19;
@@ -31,22 +54,15 @@ const MIN_BOTTOM_PADDING = 34;
 const TRAY_CELL_RATIO = 0.68;
 
 function createInitialGame() {
-  if (SAMPLE_GAME_NAME === '1') {
-    return SAMPLE_GAME;
-  }
-  if (SAMPLE_GAME_NAME === 'end') {
-    return NEAR_END_GAME;
-  }
-  if (SAMPLE_GAME_NAME === 'over') {
-    return FINISHED_GAME;
-  }
-  return createGame(Date.now());
+  return (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || createGame(Date.now());
 }
 
 export function GameScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { game, place, restart } = useGame(createInitialGame);
+  const { game, lastMove, place, restart } = useGame(createInitialGame);
+  const cellSize = Math.floor((width - 2 * (GRID_MARGIN + GRID_PADDING)) / GRID_SIZE);
+  const trayCellSize = Math.round(cellSize * TRAY_CELL_RATIO);
   const gridRef = useAnimatedRef<Animated.View>();
   /** The tray slot being dragged and the cell it aims at, whether the piece fits there or not. */
   const [target, setTarget] = useState<{ index: number; col: number; row: number } | null>(null);
@@ -55,14 +71,47 @@ export function GameScreen() {
     setTarget(col < 0 ? null : { index, col, row });
   }, []);
 
-  const handleDrop = (index: number, col: number, row: number) => {
-    const piece = game.tray[index];
-    if (!piece || !canPlace(game.grid, piece, col, row)) {
-      return false;
+  const playSound = useSounds();
+
+  /** The sound and the vibration of a move that was just played. */
+  const giveFeedback = (result: MoveResult) => {
+    const feedback = moveFeedback(result);
+    playSound(feedback);
+    playHaptic(feedback === 'place' ? 'place' : 'clear');
+    if (result.next.isOver) {
+      setTimeout(() => {
+        playSound('gameover');
+        playHaptic('gameover');
+      }, GAME_OVER_FEEDBACK_DELAY_MS);
     }
-    place(index, col, row);
-    return true;
   };
+
+  const playAt = (index: number, col: number, row: number, left: number, top: number) => {
+    const result = place(index, col, row, { left, top });
+    if (result) {
+      giveFeedback(result);
+    }
+    return result !== null;
+  };
+
+  const handlePickUp = () => {
+    playSound('pick');
+    playHaptic('pick');
+  };
+  const handleReturn = () => {
+    playSound('invalid');
+    playHaptic('invalid');
+  };
+
+  useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
+    playAt(
+      trayIndex,
+      col,
+      row,
+      (col + DEMO_RELEASE_OFFSET) * cellSize,
+      (row + DEMO_RELEASE_OFFSET) * cellSize,
+    );
+  });
 
   const targetPiece = target ? game.tray[target.index] : null;
   const preview: GridPreview | null =
@@ -70,8 +119,6 @@ export function GameScreen() {
       ? { piece: targetPiece, col: target.col, row: target.row }
       : null;
 
-  const cellSize = Math.floor((width - 2 * (GRID_MARGIN + GRID_PADDING)) / GRID_SIZE);
-  const trayCellSize = Math.round(cellSize * TRAY_CELL_RATIO);
 
   return (
     <LinearGradient colors={[UI.backgroundTop, UI.background]} style={styles.background}>
@@ -89,19 +136,21 @@ export function GameScreen() {
         </View>
         <View style={styles.grid}>
           <Animated.View ref={gridRef}>
-            <Grid grid={game.grid} cellSize={cellSize} preview={preview} />
+            <Grid grid={game.grid} cellSize={cellSize} preview={preview} lastMove={lastMove} />
           </Animated.View>
         </View>
         <View style={styles.tray}>
           <Tray
             tray={game.tray}
-            draws={game.draws}
+            trayKey={`${game.seed}-${game.draws}`}
             enabled={!game.isOver}
             cellSize={trayCellSize}
             gridCellSize={cellSize}
             gridRef={gridRef}
             onTargetChange={handleTargetChange}
-            onDrop={handleDrop}
+            onDrop={playAt}
+            onPickUp={handlePickUp}
+            onReturn={handleReturn}
           />
         </View>
         {game.isOver ? (
