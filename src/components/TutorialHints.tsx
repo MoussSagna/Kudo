@@ -11,7 +11,7 @@ import Animated, {
 
 import type { GridPosition } from '../game/targetCell';
 import { MOTION } from '../motion';
-import { BLOCK_IMAGES, FONTS, UI, type BlockColor } from '../theme';
+import { BLOCK_IMAGES, FONTS, TEXT_SCALE, UI, type BlockColor } from '../theme';
 
 const BLINK_MIN_OPACITY = 0.2;
 const BLINK_MAX_OPACITY = 0.6;
@@ -107,7 +107,7 @@ export function PointsBadge({ label, centerX, centerY }: PointsBadgeProps) {
     >
       <View style={styles.badgeEdge}>
         <View style={styles.badgeFace}>
-          <Text style={styles.badgeLabel}>{label}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.badgeLabel}>{label}</Text>
         </View>
       </View>
     </View>

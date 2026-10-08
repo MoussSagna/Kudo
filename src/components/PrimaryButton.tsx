@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FONTS, UI } from '../theme';
+import { FONTS, TEXT_SCALE, UI } from '../theme';
 
 const FACE_HEIGHT = 58;
 const EDGE_HEIGHT = 5;
@@ -20,7 +20,7 @@ export function PrimaryButton({ label, onPress, icon }: PrimaryButtonProps) {
       {({ pressed }) => (
         <View style={[styles.face, pressed && styles.facePressed]}>
           {icon}
-          <Text style={styles.label}>{label}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.label}>{label}</Text>
         </View>
       )}
     </Pressable>

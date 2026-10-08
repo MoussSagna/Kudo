@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chevron } from '../components/Chevron';
@@ -9,7 +9,8 @@ import { SettingsButton } from '../components/SettingsButton';
 import type { DailyStatus } from '../game/daily';
 import { capitalize, formatWeekdayAndDate } from '../game/dates';
 import { formatScore } from '../game/formatScore';
-import { BLOCK_COLORS, FONTS, UI } from '../theme';
+import { useIsCompactScreen } from '../hooks/useIsCompactScreen';
+import { BLOCK_COLORS, FONTS, TEXT_SCALE, UI } from '../theme';
 
 const MIN_TOUCH_SIZE = 44;
 const DAILY_BUTTON_LABELS: Readonly<Record<DailyStatus['kind'], string>> = {
@@ -49,71 +50,106 @@ export function HomeScreen({
   onOpenSettings,
 }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
+  const isCompact = useIsCompactScreen();
 
   return (
-    <LinearGradient
-      colors={[UI.backgroundTop, UI.background]}
-      style={[
-        styles.screen,
-        {
-          paddingTop: insets.top + TOP_BAR_TOP,
-          paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
-        },
-      ]}
-    >
-      <View style={styles.topBar}>
-        {streak >= 1 ? (
-          <View style={styles.streak}>
-            <View style={styles.flame} />
-            <Text style={styles.streakLabel}>
-              Série : {streak} {streak > 1 ? 'jours' : 'jour'}
+    <LinearGradient colors={[UI.backgroundTop, UI.background]} style={styles.background}>
+      {/* The screen only scrolls when a large system text size makes it taller than the phone. */}
+      <ScrollView
+        alwaysBounceVertical={false}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.screen,
+          {
+            paddingTop: insets.top + TOP_BAR_TOP,
+            paddingBottom: Math.max(insets.bottom, isCompact ? 14 : MIN_BOTTOM_PADDING),
+          },
+        ]}
+      >
+        <View style={styles.topBar}>
+          {streak >= 1 ? (
+            <View style={styles.streak}>
+              <View style={styles.flame} />
+              <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.streakLabel}>
+                Série : {streak} {streak > 1 ? 'jours' : 'jour'}
+              </Text>
+            </View>
+          ) : null}
+          <View style={styles.settings}>
+            <SettingsButton onPress={onOpenSettings} />
+          </View>
+        </View>
+
+        <View style={[styles.brand, isCompact && styles.brandCompact]}>
+          <Logo blockSize={isCompact ? 28 : 40} gap={isCompact ? 3 : 4} />
+          <Text
+            maxFontSizeMultiplier={TEXT_SCALE.fixed}
+            style={[styles.name, isCompact && styles.nameCompact]}
+          >
+            Kubo
+          </Text>
+          <Text
+            maxFontSizeMultiplier={TEXT_SCALE.body}
+            style={[styles.tagline, isCompact && styles.taglineCompact]}
+          >
+            Un puzzle par jour.
+          </Text>
+        </View>
+
+        <View style={[styles.daily, isCompact && styles.dailyCompact]}>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.dailyLabel}>
+            DÉFI DU JOUR
+          </Text>
+          <Text
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            maxFontSizeMultiplier={TEXT_SCALE.title}
+            style={styles.dailyDate}
+          >
+            {daily.kind === 'done' ? 'Défi terminé' : capitalize(formatWeekdayAndDate(today))}
+          </Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.dailyText}>
+            {daily.kind === 'done'
+              ? `Ton score : ${formatScore(daily.game.score)} points. Reviens demain pour le prochain défi.`
+              : 'Une seule tentative. Les mêmes pièces pour tout le monde.'}
+          </Text>
+          <View style={[styles.dailyButton, isCompact && styles.dailyButtonCompact]}>
+            <PrimaryButton label={DAILY_BUTTON_LABELS[daily.kind]} onPress={onOpenDaily} />
+          </View>
+        </View>
+
+        <Pressable accessibilityRole="button" onPress={onPlayFree} style={styles.free}>
+          <View>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.freeTitle}>
+              Partie libre
+            </Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.freeBest}>
+              Meilleur score : {formatScore(freeBestScore)}
             </Text>
           </View>
-        ) : null}
-        <View style={styles.settings}>
-          <SettingsButton onPress={onOpenSettings} />
-        </View>
-      </View>
+          <Chevron direction="right" color={UI.textSoft} size={11} />
+        </Pressable>
 
-      <View style={styles.brand}>
-        <Logo blockSize={40} gap={4} />
-        <Text style={styles.name}>Kubo</Text>
-        <Text style={styles.tagline}>Un puzzle par jour.</Text>
-      </View>
-
-      <View style={styles.daily}>
-        <Text style={styles.dailyLabel}>DÉFI DU JOUR</Text>
-        <Text style={styles.dailyDate}>
-          {daily.kind === 'done' ? 'Défi terminé' : capitalize(formatWeekdayAndDate(today))}
-        </Text>
-        <Text style={styles.dailyText}>
-          {daily.kind === 'done'
-            ? `Ton score : ${formatScore(daily.game.score)} points. Reviens demain pour le prochain défi.`
-            : 'Une seule tentative. Les mêmes pièces pour tout le monde.'}
-        </Text>
-        <View style={styles.dailyButton}>
-          <PrimaryButton label={DAILY_BUTTON_LABELS[daily.kind]} onPress={onOpenDaily} />
-        </View>
-      </View>
-
-      <Pressable accessibilityRole="button" onPress={onPlayFree} style={styles.free}>
-        <View>
-          <Text style={styles.freeTitle}>Partie libre</Text>
-          <Text style={styles.freeBest}>Meilleur score : {formatScore(freeBestScore)}</Text>
-        </View>
-        <Chevron direction="right" color={UI.textSoft} size={11} />
-      </Pressable>
-
-      <Pressable accessibilityRole="button" onPress={onShowTutorial} style={styles.help}>
-        <Text style={styles.helpLabel}>Comment jouer ?</Text>
-      </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={onShowTutorial}
+          style={[styles.help, isCompact && styles.helpCompact]}
+        >
+          <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.helpLabel}>
+            Comment jouer ?
+          </Text>
+        </Pressable>
+      </ScrollView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  background: {
     flex: 1,
+  },
+  screen: {
+    flexGrow: 1,
     paddingHorizontal: 24,
   },
   topBar: {
@@ -150,10 +186,32 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   brand: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 10,
+  },
+  brandCompact: {
+    paddingTop: 0,
+  },
+  nameCompact: {
+    marginTop: 2,
+    fontSize: 52,
+    lineHeight: 58,
+  },
+  taglineCompact: {
+    marginTop: 0,
+    fontSize: 15,
+  },
+  dailyCompact: {
+    paddingTop: 16,
+    paddingBottom: 14,
+  },
+  dailyButtonCompact: {
+    marginTop: 12,
+  },
+  helpCompact: {
+    marginTop: 4,
   },
   name: {
     marginTop: 8,

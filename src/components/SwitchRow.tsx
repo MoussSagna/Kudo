@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { MOTION } from '../motion';
-import { BLOCK_COLORS, FONTS, UI } from '../theme';
+import { BLOCK_COLORS, FONTS, TEXT_SCALE, UI } from '../theme';
 
 const TRACK_WIDTH = 60;
 const TRACK_HEIGHT = 34;
@@ -55,8 +55,10 @@ export function SwitchRow({ label, description, value, onChange }: SwitchRowProp
       style={styles.row}
     >
       <View style={styles.texts}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={styles.description}>{description}</Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE.scrolling} style={styles.label}>{label}</Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE.scrolling} style={styles.description}>
+          {description}
+        </Text>
       </View>
       <Animated.View style={[styles.track, trackStyle]}>
         <Animated.View style={[styles.thumb, thumbStyle]} />

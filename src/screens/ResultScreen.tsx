@@ -16,11 +16,13 @@ import { dateFromDailySeed, formatWeekdayAndDate } from '../game/dates';
 import { dayOfSeed, formatHoursAndMinutes } from '../game/days';
 import { formatScore } from '../game/formatScore';
 import type { GameState } from '../game/state';
+import { useIsCompactScreen } from '../hooks/useIsCompactScreen';
 import { useTimeUntilNextDay } from '../hooks/useTimeUntilNextDay';
 import { MOTION } from '../motion';
-import { FONTS, UI } from '../theme';
+import { FONTS, TEXT_SCALE, UI } from '../theme';
 
 const MINI_CELL_SIZE = 22.5;
+const COMPACT_MINI_CELL_SIZE = 19;
 
 interface ResultScreenProps {
   game: GameState;
@@ -44,6 +46,7 @@ export function ResultScreen({
   onHome,
 }: ResultScreenProps) {
   const insets = useSafeAreaInsets();
+  const isCompact = useIsCompactScreen();
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -68,40 +71,67 @@ export function ResultScreen({
     <Animated.View style={[StyleSheet.absoluteFill, fadeStyle]}>
       <LinearGradient
         colors={[UI.backgroundTop, UI.background]}
-        style={[styles.screen, { paddingTop: insets.top + 24, paddingBottom: insets.bottom }]}
+        style={[
+          styles.screen,
+          { paddingTop: insets.top + (isCompact ? 12 : 24), paddingBottom: insets.bottom },
+        ]}
       >
-        <Text style={styles.day}>
+        <Text
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          maxFontSizeMultiplier={TEXT_SCALE.title}
+          style={styles.day}
+        >
           {isDaily
             ? `Défi du ${formatWeekdayAndDate(dateFromDailySeed(game.seed))}`.toUpperCase()
             : ''}
         </Text>
-        <Text style={styles.title}>Partie terminée</Text>
-        <Text style={styles.score}>{formatScore(game.score)}</Text>
+        <Text
+          accessibilityRole="header"
+          maxFontSizeMultiplier={TEXT_SCALE.title}
+          style={[styles.title, isCompact && styles.titleCompact]}
+        >
+          Partie terminée
+        </Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={[styles.score, isCompact && styles.scoreCompact]}>
+          {formatScore(game.score)}
+        </Text>
         <View style={styles.recordSlot}>
           {isNewRecord ? (
             <View style={styles.record}>
-              <Text style={styles.recordLabel}>★ Nouveau record</Text>
+              <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.recordLabel}>
+                ★ Nouveau record
+              </Text>
             </View>
           ) : null}
         </View>
-        <View style={styles.grid}>
-          <Grid grid={game.grid} cellSize={MINI_CELL_SIZE} />
+        <View style={[styles.grid, isCompact && styles.tight]}>
+          <Grid grid={game.grid} cellSize={isCompact ? COMPACT_MINI_CELL_SIZE : MINI_CELL_SIZE} />
         </View>
-        <View style={styles.stats}>
+        <View style={[styles.stats, isCompact && styles.tight]}>
           {stats.map(({ value, label }) => (
-            <View key={label} style={styles.stat}>
-              <Text style={styles.statValue}>{value}</Text>
-              <Text style={styles.statLabel}>{label}</Text>
+            <View key={label} accessible style={[styles.stat, isCompact && styles.statCompact]}>
+              <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.statValue}>{value}</Text>
+              <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.statLabel}>{label}</Text>
             </View>
           ))}
         </View>
         {nextDailyInMs === null ? null : (
-          <Text style={styles.nextDaily}>
+          <Text
+            maxFontSizeMultiplier={TEXT_SCALE.body}
+            style={[styles.nextDaily, isCompact && styles.tight]}
+          >
             Prochain défi dans{' '}
             <Text style={styles.nextDailyTime}>{formatHoursAndMinutes(nextDailyInMs)}</Text>
           </Text>
         )}
-        <View style={[styles.share, nextDailyInMs !== null && styles.shareAfterNextDaily]}>
+        <View
+          style={[
+            styles.share,
+            nextDailyInMs !== null && styles.shareAfterNextDaily,
+            isCompact && styles.tight,
+          ]}
+        >
           <PrimaryButton
             label="Partager mon score"
             onPress={onShare}
@@ -111,12 +141,16 @@ export function ResultScreen({
         <Pressable
           accessibilityRole="button"
           onPress={onStartFreeGame}
-          style={styles.secondaryButton}
+          style={[styles.secondaryButton, isCompact && styles.secondaryButtonCompact]}
         >
-          <Text style={styles.secondaryLabel}>{isDaily ? 'Partie libre' : 'Rejouer'}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.secondaryLabel}>
+            {isDaily ? 'Partie libre' : 'Rejouer'}
+          </Text>
         </Pressable>
-        <Pressable accessibilityRole="button" onPress={onHome} style={styles.home}>
-          <Text style={styles.homeLabel}>Retour à l&apos;accueil</Text>
+        <Pressable accessibilityRole="button" onPress={onHome} style={[styles.home, isCompact && styles.homeCompact]}>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.homeLabel}>
+            Retour à l&apos;accueil
+          </Text>
         </Pressable>
       </LinearGradient>
     </Animated.View>
@@ -150,6 +184,30 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.title,
     fontSize: 88,
     lineHeight: 96,
+  },
+  /** Short screens: the same blocks, closer to each other. */
+  tight: {
+    marginTop: 10,
+  },
+  titleCompact: {
+    marginTop: 2,
+    fontSize: 26,
+    lineHeight: 30,
+  },
+  scoreCompact: {
+    marginTop: 2,
+    fontSize: 60,
+    lineHeight: 66,
+  },
+  statCompact: {
+    height: 60,
+  },
+  secondaryButtonCompact: {
+    height: 48,
+    marginTop: 8,
+  },
+  homeCompact: {
+    marginTop: 0,
   },
   recordSlot: {
     height: 32,

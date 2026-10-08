@@ -1,7 +1,15 @@
 import type { ReactNode } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { BLOCK_COLORS, BLOCK_IMAGES, CELL_EMPTY_IMAGE, FONTS, UI, type BlockColor } from '../theme';
+import {
+  BLOCK_COLORS,
+  BLOCK_IMAGES,
+  CELL_EMPTY_IMAGE,
+  FONTS,
+  TEXT_SCALE,
+  UI,
+  type BlockColor,
+} from '../theme';
 import { PrimaryButton } from './PrimaryButton';
 import { ProgressDots } from './ProgressDots';
 import { ShareIcon } from './ShareIcon';
@@ -62,8 +70,12 @@ export function TutorialDailyStep({ stepIndex, stepCount, onDone }: TutorialDail
       <View style={styles.illustration}>
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>DÉFI DU JOUR</Text>
-            <Text style={styles.streak}>Série : 3 jours</Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.cardTitle}>
+              DÉFI DU JOUR
+            </Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.streak}>
+              Série : 3 jours
+            </Text>
           </View>
           <View style={styles.week}>
             {WEEK.map(({ letter, color }, index) => (
@@ -74,6 +86,7 @@ export function TutorialDailyStep({ stepIndex, stepCount, onDone }: TutorialDail
                 />
                 {index === TODAY_INDEX ? <View style={styles.todayRing} /> : null}
                 <Text
+                  maxFontSizeMultiplier={TEXT_SCALE.fixed}
                   style={[
                     styles.dayLetter,
                     index <= TODAY_INDEX && styles.dayLetterPlayed,
@@ -89,13 +102,15 @@ export function TutorialDailyStep({ stepIndex, stepCount, onDone }: TutorialDail
           {FEATURES.map(({ icon, label }) => (
             <View key={label} style={styles.feature}>
               {icon}
-              <Text style={styles.featureLabel}>{label}</Text>
+              <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.featureLabel}>
+                {label}
+              </Text>
             </View>
           ))}
         </View>
       </View>
-      <Text style={styles.title}>Un défi par jour</Text>
-      <Text style={styles.body}>
+      <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.title}>Un défi par jour</Text>
+      <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.body}>
         Tu n&apos;as qu&apos;une tentative. La partie s&apos;arrête quand plus aucune pièce ne rentre.
       </Text>
       <View style={styles.dots}>

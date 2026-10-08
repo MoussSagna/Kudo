@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { useRiseIn, type RiseIn } from '../hooks/useRiseIn';
-import { FONTS, UI } from '../theme';
+import { FONTS, TEXT_SCALE, UI } from '../theme';
 
 interface LaunchTaglineProps {
   rise?: RiseIn;
@@ -11,7 +11,11 @@ interface LaunchTaglineProps {
 export function LaunchTagline({ rise }: LaunchTaglineProps) {
   const riseStyle = useRiseIn(rise);
 
-  return <Animated.Text style={[styles.tagline, riseStyle]}>Un puzzle par jour.</Animated.Text>;
+  return (
+    <Animated.Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={[styles.tagline, riseStyle]}>
+      Un puzzle par jour.
+    </Animated.Text>
+  );
 }
 
 const styles = StyleSheet.create({

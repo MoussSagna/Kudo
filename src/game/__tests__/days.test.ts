@@ -9,6 +9,7 @@ import {
   msUntilMinuteChanges,
   msUntilNextDay,
   seedOfDay,
+  spokenHoursAndMinutes,
   weekOf,
 } from '../days';
 import { dailySeed } from '../pieces';
@@ -129,6 +130,27 @@ describe('formatHoursAndMinutes', () => {
     expect(formatHoursAndMinutes(500)).toBe('1 min');
     expect(formatHoursAndMinutes(0)).toBe('0 min');
     expect(formatHoursAndMinutes(-3000)).toBe('0 min');
+  });
+});
+
+describe('spokenHoursAndMinutes', () => {
+  const MINUTE = 60 * 1000;
+  const HOUR = 60 * MINUTE;
+
+  it('writes hours and minutes in full words, singular or plural', () => {
+    expect(spokenHoursAndMinutes(2 * HOUR + 14 * MINUTE)).toBe('2 heures 14 minutes');
+    expect(spokenHoursAndMinutes(HOUR + MINUTE)).toBe('1 heure 1 minute');
+  });
+
+  it('leaves out what is zero, but never everything', () => {
+    expect(spokenHoursAndMinutes(3 * HOUR)).toBe('3 heures');
+    expect(spokenHoursAndMinutes(12 * MINUTE)).toBe('12 minutes');
+    expect(spokenHoursAndMinutes(0)).toBe('0 minute');
+  });
+
+  it('rounds up to the minute', () => {
+    expect(spokenHoursAndMinutes(59 * MINUTE + 1)).toBe('1 heure');
+    expect(spokenHoursAndMinutes(1)).toBe('1 minute');
   });
 });
 

@@ -9,7 +9,7 @@ import { playHaptic } from '../haptics';
 import { usePreferences } from '../hooks/usePreferences';
 import { useSounds } from '../hooks/useSounds';
 import { setPreference } from '../storage/preferences';
-import { BLOCK_IMAGES, FONTS, UI, type BlockColor } from '../theme';
+import { BLOCK_IMAGES, FONTS, TEXT_SCALE, UI, type BlockColor } from '../theme';
 
 const BUTTON_SIZE = 44;
 const MIN_TOUCH_SIZE = 44;
@@ -85,7 +85,11 @@ export function SettingsScreen({ onBack, onShowTutorial }: SettingsScreenProps) 
           >
             <Chevron direction="left" color={UI.text} />
           </Pressable>
-          <Text accessibilityRole="header" style={styles.title}>
+          <Text
+            accessibilityRole="header"
+            maxFontSizeMultiplier={TEXT_SCALE.title}
+            style={styles.title}
+          >
             Réglages
           </Text>
         </View>
@@ -107,25 +111,37 @@ export function SettingsScreen({ onBack, onShowTutorial }: SettingsScreenProps) 
         </View>
 
         <View style={styles.rules}>
-          <Text accessibilityRole="header" style={styles.rulesTitle}>
+          <Text
+            accessibilityRole="header"
+            maxFontSizeMultiplier={TEXT_SCALE.title}
+            style={styles.rulesTitle}
+          >
             Comment jouer
           </Text>
           {RULES.map(({ color, title, text }) => (
             <View key={title} style={styles.rule}>
               <Image source={BLOCK_IMAGES[color]} style={styles.ruleBlock} />
               <View style={styles.ruleTexts}>
-                <Text style={styles.ruleTitle}>{title}</Text>
-                <Text style={styles.ruleText}>{text}</Text>
+                <Text maxFontSizeMultiplier={TEXT_SCALE.scrolling} style={styles.ruleTitle}>
+                  {title}
+                </Text>
+                <Text maxFontSizeMultiplier={TEXT_SCALE.scrolling} style={styles.ruleText}>
+                  {text}
+                </Text>
               </View>
             </View>
           ))}
           <Pressable accessibilityRole="button" onPress={onShowTutorial} style={styles.tutorial}>
-            <Text style={styles.tutorialLabel}>Revoir le tutoriel</Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.tutorialLabel}>
+              Revoir le tutoriel
+            </Text>
             <Chevron direction="right" color={UI.accent} size={8} />
           </Pressable>
         </View>
 
-        <Text style={styles.version}>Kubo · version {appConfig.expo.version}</Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.version}>
+          Kubo · version {appConfig.expo.version}
+        </Text>
       </ScrollView>
     </LinearGradient>
   );

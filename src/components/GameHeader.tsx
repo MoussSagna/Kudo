@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { capitalize, dateFromDailySeed, formatWeekdayAndDate } from '../game/dates';
 import type { GameMode } from '../game/state';
-import { FONTS, UI } from '../theme';
+import { FONTS, TEXT_SCALE, UI } from '../theme';
 import { Chevron } from './Chevron';
 
 const BUTTON_SIZE = 44;
@@ -27,9 +27,13 @@ export function GameHeader({ mode, seed, onBack }: GameHeaderProps) {
         <Chevron direction="left" color={UI.text} />
       </Pressable>
       <View pointerEvents="none" style={styles.title}>
-        <Text style={styles.mode}>{mode === 'daily' ? 'DÉFI DU JOUR' : 'PARTIE LIBRE'}</Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.mode}>
+          {mode === 'daily' ? 'DÉFI DU JOUR' : 'PARTIE LIBRE'}
+        </Text>
         {mode === 'daily' ? (
-          <Text style={styles.date}>{capitalize(formatWeekdayAndDate(dateFromDailySeed(seed)))}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.date}>
+            {capitalize(formatWeekdayAndDate(dateFromDailySeed(seed)))}
+          </Text>
         ) : null}
       </View>
     </View>

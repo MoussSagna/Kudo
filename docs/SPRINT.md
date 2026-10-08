@@ -10,7 +10,7 @@
   - Toutes les variables `EXPO_PUBLIC_*` de développement (états d'exemple, date simulée, effacement des données, tutoriel forcé, scénario `stress`) et le contrôle `[KUBO-DIVERGENCE]` sont ignorés hors mode développement (`__DEV__`).
   - Un test vérifie qu'en mode production, aucune de ces variables n'a d'effet.
 
-- [ ] **K-29 — Tailles d'écran et accessibilité**
+- [x] **K-29 — Tailles d'écran et accessibilité**
   - L'app reste en portrait et ne cible que l'iPhone (pas de version iPad pour cette première version) : règle `app.json` en conséquence.
   - Vérifie chaque écran sur le plus petit iPhone disponible dans le simulateur (type iPhone SE) et sur le plus grand (type Pro Max) : rien ne déborde, rien ne se chevauche, la grille et le plateau tiennent sans défilement.
   - Taille de texte du système : limite l'agrandissement là où il casserait la mise en page (titres, score, grille), sans le bloquer pour les textes courants.

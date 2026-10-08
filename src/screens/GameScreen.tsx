@@ -76,7 +76,13 @@ const SCORE_MARGIN = 24;
 /** Space above the header, and between the header and the score. */
 const HEADER_TOP = 13;
 const HEADER_BOTTOM = 20;
-const MIN_BOTTOM_PADDING = 34;
+const HEADER_HEIGHT = 44;
+/** Height of the score block, and space between it and the grid. */
+const SCORE_HEIGHT = 86;
+const GRID_TOP = 14;
+/** The tray never touches the grid. */
+const MIN_TRAY_GAP = 8;
+const MIN_BOTTOM_PADDING = 16;
 /** Height of the tray compared to a grid cell. */
 const TRAY_HEIGHT_RATIO = 3.45;
 
@@ -103,14 +109,24 @@ export function GameScreen({
   onStartFreeGame,
 }: GameScreenProps) {
   const insets = useSafeAreaInsets();
-  const { cellSize, trayWidth } = useBoardLayout();
+  const paddingTop = insets.top + HEADER_TOP;
+  const paddingBottom = Math.max(insets.bottom, MIN_BOTTOM_PADDING);
+  const { cellSize, trayWidth, trayHeight } = useBoardLayout(
+    paddingTop +
+      HEADER_HEIGHT +
+      HEADER_BOTTOM +
+      SCORE_HEIGHT +
+      GRID_TOP +
+      MIN_TRAY_GAP +
+      paddingBottom,
+    TRAY_HEIGHT_RATIO,
+  );
   const { game, lastMove, place } = useGame(
     () =>
       (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || initialGame || startGame(mode, now()),
   );
   const { gridRef, preview, onTargetChange } = usePieceDrag(game);
   const feedback = useFeedback();
-  const trayHeight = Math.round(cellSize * TRAY_HEIGHT_RATIO);
   const { best, submit: submitScore } = useBestScore(game.mode);
   /** Set once the game is over and its result screen is due. */
   const [result, setResult] = useState<GameResult | null>(INITIAL_RESULT);
@@ -168,15 +184,7 @@ export function GameScreen({
 
   return (
     <LinearGradient colors={[UI.backgroundTop, UI.background]} style={styles.background}>
-      <View
-        style={[
-          styles.content,
-          {
-            paddingTop: insets.top + HEADER_TOP,
-            paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
-          },
-        ]}
-      >
+      <View style={[styles.content, { paddingTop, paddingBottom }]}>
         <GameHeader mode={game.mode} seed={game.seed} onBack={handleBack} />
         <View style={styles.score}>
           <ScoreHeader score={game.score} best={best} streak={game.streak} />
@@ -224,11 +232,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   score: {
+    height: SCORE_HEIGHT,
     marginTop: HEADER_BOTTOM,
     paddingHorizontal: SCORE_MARGIN,
   },
   grid: {
-    marginTop: 14,
+    marginTop: GRID_TOP,
     alignItems: 'center',
   },
   tray: {

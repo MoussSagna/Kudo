@@ -12,7 +12,11 @@ import { CLEAR_STEP, PLACE_STEP } from '../game/tutorial';
 import { UI } from '../theme';
 
 const STEP_COUNT = 3;
+const TOP_PADDING = 13;
 const MIN_BOTTOM_PADDING = 34;
+/** Heights of the header and of the progress dots, shown around a step to play. */
+const HEADER_HEIGHT = 44;
+const DOTS_HEIGHT = 8;
 const CLEAR_STEP_ROW = CLEAR_STEP.suggestion.row;
 
 /** A state of the tutorial that development tools can open directly. */
@@ -39,18 +43,13 @@ export function TutorialScreen({ entry = '1a', onDone }: TutorialScreenProps) {
   const [stepIndex, setStepIndex] = useState(ENTRY_STEP[entry]);
   /** A development entry only applies to the step it opens, not to the ones that follow. */
   const startSolved = (entry === '1b' || entry === '2b') && stepIndex === ENTRY_STEP[entry];
+  const paddingTop = insets.top + TOP_PADDING;
+  const paddingBottom = Math.max(insets.bottom, MIN_BOTTOM_PADDING);
+  const chromeHeight = paddingTop + HEADER_HEIGHT + DOTS_HEIGHT + paddingBottom;
 
   return (
     <LinearGradient colors={[UI.backgroundTop, UI.background]} style={styles.background}>
-      <View
-        style={[
-          styles.content,
-          {
-            paddingTop: insets.top + 13,
-            paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
-          },
-        ]}
-      >
+      <View style={[styles.content, { paddingTop, paddingBottom }]}>
         <TutorialHeader stepIndex={stepIndex} stepCount={STEP_COUNT} onSkip={onDone} />
         {stepIndex === 0 ? (
           <TutorialPlayStep
@@ -62,6 +61,7 @@ export function TutorialScreen({ entry = '1a', onDone }: TutorialScreenProps) {
             solvedTitle="Bien joué !"
             solvedText="Chaque case posée rapporte 1 point. Les pièces ne tournent pas."
             badge={{ label: '+4', col: 6.7, row: 2.6 }}
+            chromeHeight={chromeHeight}
             onNext={() => setStepIndex(1)}
           />
         ) : null}
@@ -76,6 +76,7 @@ export function TutorialScreen({ entry = '1a', onDone }: TutorialScreenProps) {
             solvedText="Les colonnes comptent aussi. Plusieurs d'un coup rapportent beaucoup plus."
             hint="Vise les trois cases vides de la ligne"
             badge={{ label: '+10', col: 4, row: CLEAR_STEP_ROW + 0.5 }}
+            chromeHeight={chromeHeight}
             renderGuide={(cellSize) => <RowOutline row={CLEAR_STEP_ROW} cellSize={cellSize} />}
             renderSolvedMark={(cellSize) => (
               <ClearedRowBand row={CLEAR_STEP_ROW} cellSize={cellSize} />

@@ -75,6 +75,21 @@ export function formatHoursAndMinutes(ms: number): string {
   return hours > 0 ? `${hours} h ${pad(minutes)}` : `${minutes} min`;
 }
 
+/**
+ * « 2 heures 14 minutes », for screen readers: the same duration as `formatHoursAndMinutes`, in
+ * full words.
+ */
+export function spokenHoursAndMinutes(ms: number): string {
+  const totalMinutes = Math.max(0, Math.ceil(ms / MS_PER_MINUTE));
+  const hours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
+  const minutes = totalMinutes % MINUTES_PER_HOUR;
+  const parts = [
+    hours > 0 ? `${hours} ${hours > 1 ? 'heures' : 'heure'}` : '',
+    minutes > 0 || hours === 0 ? `${minutes} ${minutes > 1 ? 'minutes' : 'minute'}` : '',
+  ];
+  return parts.filter(Boolean).join(' ');
+}
+
 /** Milliseconds left until the minute shown by `formatHoursAndMinutes` changes. */
 export function msUntilMinuteChanges(ms: number): number {
   return ms % MS_PER_MINUTE || MS_PER_MINUTE;

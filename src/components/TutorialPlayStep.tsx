@@ -19,7 +19,7 @@ import { useFeedback } from '../hooks/useFeedback';
 import { useGame } from '../hooks/useGame';
 import { usePieceDrag } from '../hooks/usePieceDrag';
 import { MOTION } from '../motion';
-import { BLOCK_COLORS, FONTS, UI } from '../theme';
+import { BLOCK_COLORS, FONTS, TEXT_SCALE, UI } from '../theme';
 import { Grid } from './Grid';
 import { PrimaryButton } from './PrimaryButton';
 import { Tray } from './Tray';
@@ -29,6 +29,9 @@ import { BlinkingCells, DragArrow, PointsBadge } from './TutorialHints';
 const TRAY_HEIGHT_RATIO = 3.1;
 /** Height kept for the title and its text, so that the grid does not move between states. */
 const TEXT_HEIGHT = 121;
+/** The tray never touches the grid, and stays above the progress dots. */
+const MIN_TRAY_GAP = 8;
+const TRAY_BOTTOM = 18;
 
 export interface TutorialPlayStepProps {
   step: TutorialStep;
@@ -46,6 +49,8 @@ export interface TutorialPlayStepProps {
   renderGuide?: (cellSize: number) => ReactNode;
   /** Drawn over the grid cells once the step is solved. */
   renderSolvedMark?: (cellSize: number) => ReactNode;
+  /** Height of what the tutorial screen shows around this step, safe areas included. */
+  chromeHeight: number;
   onNext: () => void;
 }
 
@@ -64,9 +69,13 @@ export function TutorialPlayStep({
   badge,
   renderGuide,
   renderSolvedMark,
+  chromeHeight,
   onNext,
 }: TutorialPlayStepProps) {
-  const { cellSize, trayWidth } = useBoardLayout();
+  const { cellSize, trayWidth, trayHeight } = useBoardLayout(
+    chromeHeight + TEXT_HEIGHT + MIN_TRAY_GAP + TRAY_BOTTOM,
+    TRAY_HEIGHT_RATIO,
+  );
   const { game, lastMove, place } = useGame(() =>
     startSolved ? solvedTutorialState(step) : step.game,
   );
@@ -128,14 +137,16 @@ export function TutorialPlayStep({
               <View style={styles.check}>
                 <View style={styles.checkMark} />
               </View>
-              <Text style={styles.title}>{solvedTitle}</Text>
+              <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.title}>
+                {solvedTitle}
+              </Text>
             </View>
-            <Text style={styles.body}>{solvedText}</Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.body}>{solvedText}</Text>
           </Animated.View>
         ) : (
           <>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.body}>{text}</Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.title}>{title}</Text>
+            <Text maxFontSizeMultiplier={TEXT_SCALE.body} style={styles.body}>{text}</Text>
           </>
         )}
       </View>
@@ -170,7 +181,11 @@ export function TutorialPlayStep({
           </Animated.View>
         ) : (
           <View style={styles.tray}>
-            {isHintVisible && hint ? <Text style={styles.hint}>{hint}</Text> : null}
+            {isHintVisible && hint ? (
+              <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.hint}>
+                {hint}
+              </Text>
+            ) : null}
             <View>
               <Tray
                 tray={isPlaced ? [null, null, null] : game.tray}
@@ -178,7 +193,7 @@ export function TutorialPlayStep({
                 moveId={lastMove?.id ?? 0}
                 enabled={!isPlaced}
                 width={trayWidth}
-                height={Math.round(cellSize * TRAY_HEIGHT_RATIO)}
+                height={trayHeight}
                 gridCellSize={cellSize}
                 gridRef={gridRef}
                 onTargetChange={onTargetChange}
@@ -252,7 +267,7 @@ const styles = StyleSheet.create({
   },
   tray: {
     paddingHorizontal: TRAY_MARGIN,
-    marginBottom: 18,
+    marginBottom: TRAY_BOTTOM,
   },
   hint: {
     marginBottom: 10,

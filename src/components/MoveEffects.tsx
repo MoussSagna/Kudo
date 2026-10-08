@@ -12,7 +12,7 @@ import Animated, {
 
 import type { MoveEvent } from '../hooks/useGame';
 import { MOTION } from '../motion';
-import { BLOCK_IMAGES, FONTS, UI, type BlockColor } from '../theme';
+import { BLOCK_IMAGES, FONTS, TEXT_SCALE, UI, type BlockColor } from '../theme';
 import { pieceSpan } from './PieceView';
 
 const GAIN_WIDTH = 140;
@@ -133,6 +133,7 @@ function GainLabel({ points, centerX, centerY, reducedMotion }: GainLabelProps) 
 
   return (
     <Animated.Text
+      maxFontSizeMultiplier={TEXT_SCALE.fixed}
       style={[styles.gain, { left: centerX - GAIN_WIDTH / 2, top: centerY - 20 }, labelStyle]}
     >
       +{points}

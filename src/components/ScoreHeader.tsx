@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { MOTION } from '../motion';
-import { BLOCK_COLORS, FONTS, UI } from '../theme';
+import { BLOCK_COLORS, FONTS, TEXT_SCALE, UI } from '../theme';
 import { formatScore } from '../game/formatScore';
 
 const REDUCED_MOTION_DIM = 0.5;
@@ -46,16 +46,27 @@ export function ScoreHeader({ score, best, streak }: ScoreHeaderProps) {
       : { transform: [{ scale: 1 + pulse.value * (MOTION.scorePulseScale - 1) }] },
   );
 
+  const spokenStreak = streak >= MIN_STREAK_SHOWN ? ` Série de combos : ${streak}.` : '';
+
   return (
-    <View>
-      <Text style={styles.label}>SCORE</Text>
-      <Animated.Text style={[styles.score, pulseStyle]}>{formatScore(score)}</Animated.Text>
+    <View
+      accessible
+      accessibilityLabel={`Score : ${score}.${spokenStreak} Meilleur score : ${best}.`}
+    >
+      <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.label}>SCORE</Text>
+      <Animated.Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={[styles.score, pulseStyle]}>
+        {formatScore(score)}
+      </Animated.Text>
       {streak >= MIN_STREAK_SHOWN ? (
         <View style={styles.streak}>
-          <Text style={styles.streakLabel}>Série ×{streak}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.streakLabel}>
+            Série ×{streak}
+          </Text>
         </View>
       ) : null}
-      <Text style={styles.best}>Meilleur : {formatScore(best)}</Text>
+      <Text maxFontSizeMultiplier={TEXT_SCALE.fixed} style={styles.best}>
+        Meilleur : {formatScore(best)}
+      </Text>
     </View>
   );
 }

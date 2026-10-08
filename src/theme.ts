@@ -32,6 +32,18 @@ export const FONTS = {
   bodyBold: 'DMSans_700Bold',
 } as const;
 
+/**
+ * How far the text size chosen in the system settings may enlarge a text. Texts drawn to fit a
+ * fixed place (score, countdown, grid, illustrations) keep their size; titles and labels grow a
+ * little; running texts grow more, and more still on a screen that scrolls.
+ */
+export const TEXT_SCALE = {
+  fixed: 1,
+  title: 1.15,
+  body: 1.35,
+  scrolling: 1.8,
+} as const;
+
 export const GRID_SIZE = 8;
 
 // Metro choisit automatiquement les variantes @2x / @3x.

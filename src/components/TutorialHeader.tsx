@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FONTS, UI } from '../theme';
+import { FONTS, TEXT_SCALE, UI } from '../theme';
 
 const MIN_TOUCH_SIZE = 44;
 
@@ -14,11 +14,15 @@ interface TutorialHeaderProps {
 export function TutorialHeader({ stepIndex, stepCount, onSkip }: TutorialHeaderProps) {
   return (
     <View style={styles.header}>
-      <Text style={styles.step}>
+      <Text
+        accessibilityLabel={`Étape ${stepIndex + 1} sur ${stepCount}`}
+        maxFontSizeMultiplier={TEXT_SCALE.title}
+        style={styles.step}
+      >
         {stepIndex + 1} / {stepCount}
       </Text>
       <Pressable accessibilityRole="button" onPress={onSkip} style={styles.skip}>
-        <Text style={styles.skipLabel}>Passer</Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE.title} style={styles.skipLabel}>Passer</Text>
       </Pressable>
     </View>
   );
