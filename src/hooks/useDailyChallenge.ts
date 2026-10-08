@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
 import { now } from '../clock';
+import { DEV_FLAGS } from '../dev/devFlags';
 import { dailyStatus, EMPTY_DAILY_DATA, recordDailyMove, type DailyData } from '../game/daily';
 import { addDays, dayKey, seedOfDay, type DayKey } from '../game/days';
 import { FINISHED_GAME, SAMPLE_GAME } from '../game/sampleGame';
@@ -17,7 +18,7 @@ import { storageReady } from '../storage/devReset';
  * « Reviens demain » screen; `result` is the same as a new record, and opens the app on that
  * result seen again. Nothing is read from or written to the storage then.
  */
-const SAMPLE_DAILY = __DEV__ ? process.env.EXPO_PUBLIC_SAMPLE_DAILY : undefined;
+const SAMPLE_DAILY = DEV_FLAGS.sampleDaily;
 
 /** Development only: true when the app must open on the « Reviens demain » screen. */
 export const OPENS_ON_TOMORROW_SCREEN = SAMPLE_DAILY === 'tomorrow';

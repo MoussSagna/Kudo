@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { now } from '../clock';
+import { DEV_FLAGS } from '../dev/devFlags';
 import { STRESS_SEED } from '../dev/stressPlan';
 import { useStressTest } from '../dev/useStressTest';
 import { GameHeader } from '../components/GameHeader';
@@ -46,7 +47,7 @@ interface GameResult {
   isNewRecord: boolean;
 }
 
-const SAMPLE_GAME_NAME = __DEV__ ? process.env.EXPO_PUBLIC_SAMPLE_GAME : undefined;
+const SAMPLE_GAME_NAME = DEV_FLAGS.sampleGame;
 const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   '1': SAMPLE_GAME,
   end: NEAR_END_GAME,

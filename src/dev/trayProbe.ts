@@ -1,8 +1,10 @@
+import { DEV_FLAGS } from './devFlags';
+
 /**
  * Development only: lets the stress test (EXPO_PUBLIC_SAMPLE_GAME=stress) drive the tray pieces
  * through the same code as a real gesture, and read what they actually display.
  */
-export const TRAY_PROBE_ENABLED = __DEV__ && process.env.EXPO_PUBLIC_SAMPLE_GAME === 'stress';
+export const TRAY_PROBE_ENABLED = DEV_FLAGS.sampleGame === 'stress';
 
 /** What a tray piece displays, read on the UI thread. */
 export interface PieceReading {

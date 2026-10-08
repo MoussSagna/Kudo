@@ -19,6 +19,7 @@ import Animated, {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { DEV_FLAGS } from './src/dev/devFlags';
 import { LaunchScreen, NEXT_SCREEN_FADE_IN_MS } from './src/screens/LaunchScreen';
 import { useDailyChallenge } from './src/hooks/useDailyChallenge';
 import { MainScreens } from './src/screens/MainScreens';
@@ -36,7 +37,7 @@ SplashScreen.preventAutoHideAsync();
  * even if it was never seen.
  */
 const TUTORIAL_ENTRIES: readonly string[] = ['1a', '1b', '2a', '2b', '3'] satisfies TutorialEntry[];
-const DEV_TUTORIAL = __DEV__ ? process.env.EXPO_PUBLIC_TUTORIAL : undefined;
+const DEV_TUTORIAL = DEV_FLAGS.tutorial;
 const IS_TUTORIAL_FORCED = DEV_TUTORIAL === '1' || TUTORIAL_ENTRIES.includes(DEV_TUTORIAL ?? '');
 const IS_TUTORIAL_SKIPPED = DEV_TUTORIAL === '0';
 const DEV_TUTORIAL_ENTRY = TUTORIAL_ENTRIES.includes(DEV_TUTORIAL ?? '')

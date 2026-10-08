@@ -6,7 +6,7 @@
 
 ## Stories
 
-- [ ] **K-41 — Outils de développement exclus de la version finale**
+- [x] **K-41 — Outils de développement exclus de la version finale**
   - Toutes les variables `EXPO_PUBLIC_*` de développement (états d'exemple, date simulée, effacement des données, tutoriel forcé, scénario `stress`) et le contrôle `[KUBO-DIVERGENCE]` sont ignorés hors mode développement (`__DEV__`).
   - Un test vérifie qu'en mode production, aucune de ces variables n'a d'effet.
 

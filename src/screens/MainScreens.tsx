@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { DEV_FLAGS } from '../dev/devFlags';
 import type { DailyStatus } from '../game/daily';
 import { dateFromDayKey, type DayKey } from '../game/days';
 import type { GameMode } from '../game/state';
@@ -21,7 +22,7 @@ import { TomorrowScreen } from './TomorrowScreen';
 import { TutorialScreen, type TutorialEntry } from './TutorialScreen';
 
 /** Development only: EXPO_PUBLIC_SETTINGS=1 opens the app on the settings screen. */
-const OPENS_ON_SETTINGS = __DEV__ && process.env.EXPO_PUBLIC_SETTINGS === '1';
+const OPENS_ON_SETTINGS = DEV_FLAGS.opensOnSettings;
 
 /** The screens the settings can be opened from, and go back to. */
 type SettingsOrigin = 'home' | 'tomorrow';

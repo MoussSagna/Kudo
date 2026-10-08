@@ -1,10 +1,11 @@
+import { DEV_FLAGS } from './dev/devFlags';
 import { dateFromDayKey } from './game/days';
 
 /**
  * Development only: EXPO_PUBLIC_FAKE_DATE=2026-10-08 makes the app believe it is that day, at the
  * real time of day, to test the daily challenge and the streak without waiting.
  */
-const FAKE_DAY = __DEV__ ? dateFromDayKey(process.env.EXPO_PUBLIC_FAKE_DATE ?? '') : null;
+const FAKE_DAY = dateFromDayKey(DEV_FLAGS.fakeDate ?? '');
 
 /** The current date. The game logic never reads the clock itself: it receives this date. */
 export function now(): Date {
