@@ -83,8 +83,11 @@ interface GameScreenProps {
   mode: GameMode;
   /** A game to resume instead of starting a new one. */
   initialGame?: GameState;
-  /** Called after every move of a daily challenge, with its new state, so that it can be saved. */
-  onDailyMove: (game: GameState) => void;
+  /**
+   * Called after every move of a daily challenge, with its new state, so that it can be saved.
+   * `isNewRecord` is true when that move ended the game on a new best score.
+   */
+  onDailyMove: (game: GameState, isNewRecord: boolean) => void;
   /** Back to the home screen. */
   onExit: () => void;
   /** Starts a new free game. */
@@ -114,11 +117,11 @@ export function GameScreen({
   /** The sound and the vibration of a move that was just played. */
   const giveFeedback = (move: MoveResult) => {
     feedback.move(move);
+    const isNewRecord = move.next.isOver && submitScore(move.next.score);
     if (move.next.mode === 'daily') {
-      onDailyMove(move.next);
+      onDailyMove(move.next, isNewRecord);
     }
     if (move.next.isOver) {
-      const isNewRecord = submitScore(move.next.score);
       setTimeout(() => {
         feedback.playSound(isNewRecord ? 'highscore' : 'gameover');
         playHaptic('gameover');

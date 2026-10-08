@@ -13,8 +13,10 @@ import { Grid } from '../components/Grid';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { ShareIcon } from '../components/ShareIcon';
 import { dateFromDailySeed, formatWeekdayAndDate } from '../game/dates';
+import { dayOfSeed, formatHoursAndMinutes } from '../game/days';
 import { formatScore } from '../game/formatScore';
 import type { GameState } from '../game/state';
+import { useTimeUntilNextDay } from '../hooks/useTimeUntilNextDay';
 import { MOTION } from '../motion';
 import { FONTS, UI } from '../theme';
 
@@ -31,7 +33,8 @@ interface ResultScreenProps {
 
 /**
  * The end of a game: score, final grid, statistics, and ways to share it, play a free game or go
- * back to the home screen. The daily challenge also shows its day.
+ * back to the home screen. The daily challenge also shows its day and, until that day is over,
+ * the time left before the next challenge.
  */
 export function ResultScreen({
   game,
@@ -53,6 +56,7 @@ export function ResultScreen({
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   const isDaily = game.mode === 'daily';
+  const nextDailyInMs = useTimeUntilNextDay(isDaily ? dayOfSeed(game.seed) : null);
 
   const stats = [
     { value: String(game.stats.piecesPlaced), label: 'pièces posées' },
@@ -91,7 +95,13 @@ export function ResultScreen({
             </View>
           ))}
         </View>
-        <View style={styles.share}>
+        {nextDailyInMs === null ? null : (
+          <Text style={styles.nextDaily}>
+            Prochain défi dans{' '}
+            <Text style={styles.nextDailyTime}>{formatHoursAndMinutes(nextDailyInMs)}</Text>
+          </Text>
+        )}
+        <View style={[styles.share, nextDailyInMs !== null && styles.shareAfterNextDaily]}>
           <PrimaryButton
             label="Partager mon score"
             onPress={onShare}
@@ -185,9 +195,24 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.body,
     fontSize: 13,
   },
+  nextDaily: {
+    marginTop: 14,
+    color: UI.textSoft,
+    fontFamily: FONTS.body,
+    fontSize: 15,
+    lineHeight: 20,
+  },
+  nextDailyTime: {
+    color: UI.text,
+    fontFamily: FONTS.bodyBold,
+    fontVariant: ['tabular-nums'],
+  },
   share: {
     alignSelf: 'stretch',
     marginTop: 29,
+  },
+  shareAfterNextDaily: {
+    marginTop: 14,
   },
   secondaryButton: {
     alignSelf: 'stretch',

@@ -14,12 +14,15 @@ import { storageReady } from '../storage/devReset';
  * Development only: EXPO_PUBLIC_SAMPLE_DAILY=progress shows today's challenge as left in the
  * middle of the mockup's game, and `done` as finished with the mockup's result, at the end of a
  * streak of 5 days whose record is 12; `tomorrow` is the same and opens the app on the
- * « Reviens demain » screen. Nothing is read from or written to the storage then.
+ * « Reviens demain » screen; `result` is the same as a new record, and opens the app on that
+ * result seen again. Nothing is read from or written to the storage then.
  */
 const SAMPLE_DAILY = __DEV__ ? process.env.EXPO_PUBLIC_SAMPLE_DAILY : undefined;
 
 /** Development only: true when the app must open on the « Reviens demain » screen. */
 export const OPENS_ON_TOMORROW_SCREEN = SAMPLE_DAILY === 'tomorrow';
+/** Development only: true when the app must open on today's result, seen again. */
+export const OPENS_ON_DAILY_RESULT = SAMPLE_DAILY === 'result';
 
 function sampleDailyData(today: DayKey): DailyData | null {
   const seed = seedOfDay(today);
@@ -30,10 +33,14 @@ function sampleDailyData(today: DayKey): DailyData | null {
       streak: EMPTY_STREAK,
     };
   }
-  if (SAMPLE_DAILY === 'done' || SAMPLE_DAILY === 'tomorrow') {
+  if (SAMPLE_DAILY === 'done' || SAMPLE_DAILY === 'tomorrow' || SAMPLE_DAILY === 'result') {
     return {
       inProgress: null,
-      result: { day: today, game: { ...FINISHED_GAME, seed } },
+      result: {
+        day: today,
+        game: { ...FINISHED_GAME, seed },
+        isNewRecord: SAMPLE_DAILY === 'result',
+      },
       streak: {
         count: 5,
         best: 12,
@@ -88,8 +95,8 @@ export function useDailyChallenge() {
   }, [refreshToday]);
 
   /** Saves the challenge after one of its moves; the last one makes it the result of its day. */
-  const recordMove = (game: GameState) => {
-    const next = recordDailyMove(latestData.current ?? EMPTY_DAILY_DATA, game);
+  const recordMove = (game: GameState, isNewRecord: boolean) => {
+    const next = recordDailyMove(latestData.current ?? EMPTY_DAILY_DATA, game, isNewRecord);
     latestData.current = next;
     setData(next);
     if (!sample) {

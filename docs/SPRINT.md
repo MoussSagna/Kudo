@@ -22,7 +22,7 @@
   - Le bouton des réglages apparaît en haut à droite de l'accueil et de « Reviens demain », comme sur leurs maquettes.
   - Le retour depuis les réglages ramène à l'écran d'où l'on vient.
 
-- [ ] **K-38 — Deux retouches du défi du jour**
+- [x] **K-38 — Deux retouches du défi du jour**
   - Écran de fin du défi du jour : sous les statistiques, une ligne « Prochain défi dans 5 h 12 », mise à jour chaque minute.
   - « Nouveau record » est sauvegardé avec le résultat du défi, et la pastille s'affiche aussi quand on revoit son résultat.
 

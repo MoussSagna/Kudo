@@ -47,7 +47,19 @@ describe('recordDailyMove', () => {
     const finished = recordDailyMove(data, over);
 
     expect(finished.inProgress).toBeNull();
-    expect(finished.result).toEqual({ day: '2026-10-07', game: over });
+    expect(finished.result).toEqual({ day: '2026-10-07', game: over, isNewRecord: false });
+  });
+
+  it('keeps whether the result is a new record, and shows it with the finished challenge', () => {
+    const finished = recordDailyMove(EMPTY_DAILY_DATA, over, true);
+
+    expect(finished.result?.isNewRecord).toBe(true);
+    expect(dailyStatus(finished, TODAY)).toEqual({ kind: 'done', game: over, isNewRecord: true });
+    expect(dailyStatus(recordDailyMove(EMPTY_DAILY_DATA, over), TODAY)).toEqual({
+      kind: 'done',
+      game: over,
+      isNewRecord: false,
+    });
   });
 
   it('keeps the previous result while the next challenge is being played', () => {
@@ -62,7 +74,7 @@ describe('dailyStatus — one attempt a day', () => {
   const finished = recordDailyMove(EMPTY_DAILY_DATA, over);
 
   it('is done, with the final game, as long as the day has not changed', () => {
-    expect(dailyStatus(finished, TODAY)).toEqual({ kind: 'done', game: over });
+    expect(dailyStatus(finished, TODAY)).toEqual({ kind: 'done', game: over, isNewRecord: false });
   });
 
   it('gives its score, grid and statistics back', () => {

@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { EMPTY_DAILY_DATA, type DailyData, type DailyEntry } from '../game/daily';
+import {
+  EMPTY_DAILY_DATA,
+  type DailyData,
+  type DailyEntry,
+  type DailyResult,
+} from '../game/daily';
 import { isDayKey } from '../game/days';
 import { deserializeGame, serializeGame } from '../game/serialize';
 import { EMPTY_STREAK, type Streak } from '../game/streak';
@@ -19,6 +24,15 @@ function deserializeEntry(value: unknown): DailyEntry | null {
   const { day, game } = value as { day?: unknown; game?: unknown };
   const parsed = deserializeGame(game);
   return isDayKey(day) && parsed?.mode === 'daily' ? { day, game: parsed } : null;
+}
+
+/** A result saved before records were kept with it is read as not being one. */
+function deserializeResult(value: unknown): DailyResult | null {
+  const entry = deserializeEntry(value);
+  if (!entry) {
+    return null;
+  }
+  return { ...entry, isNewRecord: (value as { isNewRecord?: unknown }).isNewRecord === true };
 }
 
 function isCount(value: unknown): value is number {
@@ -53,7 +67,7 @@ export async function readDailyData(): Promise<DailyData> {
     const { inProgress, result, streak } = stored as Record<string, unknown>;
     return {
       inProgress: deserializeEntry(inProgress),
-      result: deserializeEntry(result),
+      result: deserializeResult(result),
       streak: deserializeStreak(streak),
     };
   } catch {
@@ -68,7 +82,9 @@ export async function writeDailyData(data: DailyData): Promise<void> {
       DAILY_KEY,
       JSON.stringify({
         inProgress: serializeEntry(data.inProgress),
-        result: serializeEntry(data.result),
+        result: data.result
+          ? { ...serializeEntry(data.result), isNewRecord: data.result.isNewRecord }
+          : null,
         streak: data.streak,
       }),
     );

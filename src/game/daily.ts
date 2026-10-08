@@ -8,12 +8,18 @@ export interface DailyEntry {
   game: GameState;
 }
 
+/** A finished daily challenge. */
+export interface DailyResult extends DailyEntry {
+  /** True when its score beat the best score of the daily challenge. */
+  isNewRecord: boolean;
+}
+
 /** What is kept about the daily challenge. */
 export interface DailyData {
   /** The challenge being played, if it was left before its end. */
   inProgress: DailyEntry | null;
   /** The last challenge finished, in its final state: date, score, grid and statistics. */
-  result: DailyEntry | null;
+  result: DailyResult | null;
   /** The run of consecutive days on which a challenge was finished. */
   streak: Streak;
 }
@@ -24,7 +30,7 @@ export const EMPTY_DAILY_DATA: DailyData = { inProgress: null, result: null, str
 export type DailyStatus =
   | { kind: 'new' }
   | { kind: 'inProgress'; game: GameState }
-  | { kind: 'done'; game: GameState };
+  | { kind: 'done'; game: GameState; isNewRecord: boolean };
 
 /**
  * Today's challenge can be played once: when it is finished, it is done until the day changes.
@@ -32,7 +38,7 @@ export type DailyStatus =
  */
 export function dailyStatus(data: DailyData, today: DayKey): DailyStatus {
   if (data.result?.day === today) {
-    return { kind: 'done', game: data.result.game };
+    return { kind: 'done', game: data.result.game, isNewRecord: data.result.isNewRecord };
   }
   if (data.inProgress?.day === today) {
     return { kind: 'inProgress', game: data.inProgress.game };
@@ -43,11 +49,19 @@ export function dailyStatus(data: DailyData, today: DayKey): DailyStatus {
 /**
  * The data after a move of a daily challenge. The challenge belongs to the day of its seed, even
  * when it is finished after midnight. Its last move turns it into the result of that day, and
- * that day counts for the streak.
+ * that day counts for the streak. `isNewRecord` tells whether that last move set a new best score.
  */
-export function recordDailyMove(data: DailyData, game: GameState): DailyData {
+export function recordDailyMove(
+  data: DailyData,
+  game: GameState,
+  isNewRecord = false,
+): DailyData {
   const entry = { day: dayOfSeed(game.seed), game };
   return game.isOver
-    ? { inProgress: null, result: entry, streak: extendStreak(data.streak, entry.day) }
+    ? {
+        inProgress: null,
+        result: { ...entry, isNewRecord },
+        streak: extendStreak(data.streak, entry.day),
+      }
     : { ...data, inProgress: entry };
 }

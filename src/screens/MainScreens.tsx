@@ -6,7 +6,11 @@ import type { DailyStatus } from '../game/daily';
 import { dateFromDayKey, type DayKey } from '../game/days';
 import type { GameMode } from '../game/state';
 import { useBestScore } from '../hooks/useBestScore';
-import { OPENS_ON_TOMORROW_SCREEN, type DailyChallenge } from '../hooks/useDailyChallenge';
+import {
+  OPENS_ON_DAILY_RESULT,
+  OPENS_ON_TOMORROW_SCREEN,
+  type DailyChallenge,
+} from '../hooks/useDailyChallenge';
 import { useScreenFade } from '../hooks/useScreenFade';
 import { shareGame } from '../share';
 import { GameScreen, OPENS_ON_SAMPLE_GAME } from './GameScreen';
@@ -86,6 +90,9 @@ function initialRoute(startsWithTutorial: boolean): Route {
   }
   if (OPENS_ON_TOMORROW_SCREEN) {
     return { name: 'tomorrow' };
+  }
+  if (OPENS_ON_DAILY_RESULT) {
+    return { name: 'dailyResult' };
   }
   if (OPENS_ON_SETTINGS) {
     return { name: 'settings', from: 'home' };
@@ -223,7 +230,7 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
       return (
         <ResultScreen
           game={status.game}
-          isNewRecord={false}
+          isNewRecord={status.isNewRecord}
           onShare={() => shareGame(status.game)}
           onStartFreeGame={() => actions.startGame('free')}
           onHome={actions.goHome}
