@@ -1,54 +1,40 @@
-# Sprint en cours : Défi du jour et « Reviens demain »
+# Sprint en cours : Réglages
 
-**But** : le défi du jour ne se joue qu'une fois, se reprend si on le quitte, et donne envie de revenir le lendemain.
-**Hors périmètre** : réglages, notifications, classement en ligne.
-**Branche** : `sprint/daily-challenge`
-
-**Règles communes**
-- Toute la logique de dates (jour courant, jour suivant, série, temps restant) est en fonctions pures qui reçoivent la date en argument, avec des tests. Aucun `new Date()` caché dans la logique.
-- Les dates sont des jours locaux au format AAAA-MM-JJ.
-- Les données sauvegardées ont une clé versionnée. Une donnée illisible ou d'un format inconnu est ignorée, sans planter.
+**But** : le joueur peut couper les sons et les vibrations, et retrouver les règles.
+**Hors périmètre** : comptes, notifications, langues, thèmes, suppression des données.
+**Branche** : `sprint/settings`
 
 ## Stories
 
-- [x] **K-21 — Sauvegarde et reprise du défi**
-  - L'état du défi est sauvegardé après chaque coup, avec sa date.
-  - Sur l'accueil, si un défi d'aujourd'hui est en cours, le bouton de la carte devient « Reprendre » et rouvre la partie exactement où elle en était : grille, plateau, score, série de combos, statistiques, tirages à venir.
-  - Quitter le jeu par le bouton retour ou fermer l'app ne perd plus le défi.
-  - Un défi en cours d'un jour passé est abandonné : il ne compte pas.
-  - Partie libre : elle n'est pas sauvegardée. Si le score est supérieur à 0, le bouton retour demande une confirmation (« Quitter la partie ? Ta progression sera perdue. »).
+- [x] **K-28 — Écran des réglages**
+  - Maquette : `docs/design/reglages.png`.
+  - Contenu : le bouton retour et le titre « Réglages » ; une carte avec deux interrupteurs, « Sons » (« Pose, effacement, combo ») et « Vibrations » (« Retour tactile à la pose ») ; la carte « Comment jouer » avec ses trois règles ; en bas, « Kubo · version X », la version étant lue depuis la configuration de l'app.
+  - Ajoute sous les trois règles un lien « Revoir le tutoriel », qui rejoue le tutoriel puis revient aux réglages.
+  - Les interrupteurs sont de vrais composants accessibles (rôle « switch », état annoncé par VoiceOver), avec une cible tactile d'au moins 44 pt.
 
-- [x] **K-22 — Une seule tentative par jour**
-  - Quand le défi se termine, son résultat est enregistré : date, score, grille finale, statistiques.
-  - Tant que la date n'a pas changé, le défi ne peut plus être rejoué. Sur l'accueil, la carte affiche « Défi terminé », le score, et un bouton « Voir » qui ouvre l'écran « Reviens demain ».
-  - Sur l'écran de fin du défi, « Retour à l'accueil » reste disponible, et « Partager mon score » aussi.
+- [x] **K-39 — Préférences sauvegardées**
+  - Les deux réglages sont sauvegardés et relus au démarrage, avant le premier son possible. Clé versionnée ; une valeur illisible redonne « activé ».
+  - Le module de préférences existant devient la seule source de vérité ; le changement d'un réglage s'applique immédiatement, sans relancer l'app.
+  - Activer les sons joue `place` en confirmation ; activer les vibrations déclenche une vibration légère.
+  - Tests sur la lecture, l'écriture et la valeur par défaut.
 
-- [x] **K-23 — Série de jours**
-  - La série compte les jours consécutifs où un défi a été terminé. Elle retombe à 0 si un jour complet est manqué. Le record de série est conservé.
-  - Cas à tester : premier défi, lendemain, jour manqué, deux lancements le même jour, changement de mois et d'année.
-  - Sur l'accueil, la pastille « Série : N jours » apparaît quand N vaut 1 ou plus (« 1 jour » au singulier), comme sur `docs/design/accueil.png`.
+- [x] **K-40 — Accès aux réglages**
+  - Le bouton des réglages apparaît en haut à droite de l'accueil et de « Reviens demain », comme sur leurs maquettes.
+  - Le retour depuis les réglages ramène à l'écran d'où l'on vient.
 
-- [x] **K-36 — Écran « Reviens demain »**
-  - Maquette : `docs/design/demain.png`.
-  - Contenu : « Défi du jour terminé », le score, le compte à rebours jusqu'à minuit heure locale (heures, minutes, secondes), la série avec son record, la semaine du lundi au dimanche avec les jours joués remplis, et la phrase « Reviens demain pour la prolonger. ».
-  - Boutons : « Partie libre » et « Revoir mon résultat », qui rouvre l'écran de fin du défi du jour avec ses vraies données.
-  - Le bouton des réglages de la maquette reste absent pour l'instant.
-  - Quand le compte à rebours atteint zéro, l'écran revient à l'accueil, où le nouveau défi est disponible.
-
-- [x] **K-37 — Changement de jour pendant que l'app est ouverte**
-  - Au retour de l'app au premier plan, la date est relue. Si le jour a changé, l'accueil affiche le nouveau défi et la série est recalculée.
-  - Un défi commencé avant minuit et encore ouvert après minuit peut être terminé : il compte pour son jour de départ.
-
-## Outils de développement
-- `EXPO_PUBLIC_FAKE_DATE=2026-10-08` fait croire à l'app qu'on est ce jour-là, pour tester la série sans attendre.
-- Un état d'exemple pour ouvrir directement « Reviens demain » avec les données de la maquette (1 780 points, série de 5 jours, record 12).
-- Un moyen d'effacer toutes les données sauvegardées, documenté dans la revue.
+- [x] **K-38 — Deux retouches du défi du jour**
+  - Écran de fin du défi du jour : sous les statistiques, une ligne « Prochain défi dans 5 h 12 », mise à jour chaque minute.
+  - « Nouveau record » est sauvegardé avec le résultat du défi, et la pastille s'affiche aussi quand on revoit son résultat.
 
 ## Vérification
 - `npm run check` après chaque story.
-- Boucle « Intégration des écrans » sur « Reviens demain », 3 passages maximum.
-- Une capture de l'accueil dans ses trois états : défi à jouer, défi en cours, défi terminé. Refaire aussi la capture de l'en-tête de jeu modifié au sprint précédent.
-- Liste de contrôle à dérouler à la main : quitter et reprendre un défi, fermer l'app en pleine partie, finir le défi puis tenter de le rejouer, « Voir », « Revoir mon résultat », le compte à rebours, la série sur trois jours avec la date simulée, un jour manqué, la confirmation en partie libre.
+- Boucle « Intégration des écrans » sur les réglages, 3 passages maximum.
+- Une capture de l'accueil et de « Reviens demain » avec le bouton des réglages, et de l'écran de fin du défi avec la ligne du prochain défi.
+- Relance le scénario `stress` une fois, pour vérifier l'absence de régression : zéro `[KUBO-DIVERGENCE]`.
+- Liste de contrôle à dérouler à la main : couper les sons puis jouer, couper les vibrations puis jouer, fermer et rouvrir l'app (réglages conservés), les interrupteurs avec VoiceOver, « Revoir le tutoriel », le retour vers l'écran d'origine, la ligne du prochain défi, la pastille en revoyant un résultat record.
+
+## Fin du sprint
+Un commit par story, push après chacune, revue de sprint remplie, puis arrêt. Pas de fusion par l'agent.
 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
@@ -57,83 +43,65 @@ _L'agent note ici ce qui le bloque._
 _À remplir par l'agent à la fin, puis attendre la validation._
 
 ### Branche
-`sprint/daily-challenge`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
+`sprint/settings`, créée depuis `main` après la fusion de `sprint/daily-challenge`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
 
 ### Ce qui a été livré
-- **K-21** : le défi est sauvegardé après chaque coup, avec son jour (`src/storage/daily.ts`, clé `kubo:daily:v1`). Sur l'accueil, un défi d'aujourd'hui en cours donne le bouton « Reprendre », qui rouvre la partie telle quelle (grille, plateau, score, série de combos, statistiques, tirages à venir). Un défi en cours d'un jour passé est abandonné. Partie libre : non sauvegardée ; le bouton retour demande « Quitter la partie ? Ta progression sera perdue. » dès que le score dépasse 0.
-- **K-22** : le dernier coup du défi l'enregistre comme résultat du jour (date, score, grille finale, statistiques). Tant que le jour n'a pas changé, la carte de l'accueil affiche « Défi terminé », le score et « Voir ».
-- **K-23** : série de jours consécutifs avec son record (`src/game/streak.ts`). Pastille « Série : N jours » sur l'accueil dès 1 jour (« 1 jour » au singulier).
-- **K-36** `src/screens/TomorrowScreen.tsx` : « Défi du jour terminé », score, compte à rebours jusqu'à minuit, série et record, semaine du lundi au dimanche, « Reviens demain pour la prolonger. », boutons « Partie libre » et « Revoir mon résultat ». À zéro, retour à l'accueil.
-- **K-37** : au retour de l'app au premier plan, la date est relue ; si le jour a changé, l'accueil montre le nouveau défi et la série est recalculée. Un défi commencé avant minuit et fini après compte pour son jour de départ (le jour vient de la graine de la partie).
-- **Logique pure et testée** : `src/game/days.ts` (jours AAAA-MM-JJ, lendemain, semaine, temps restant, compte à rebours), `src/game/daily.ts` (état du défi : à jouer, en cours, terminé), `src/game/streak.ts`, `src/game/serialize.ts` (lecture défensive d'une partie sauvegardée). Seul `src/clock.ts` lit l'horloge.
+- **K-28** `src/screens/SettingsScreen.tsx` : bouton retour, titre « Réglages », carte des deux interrupteurs, carte « Comment jouer » avec ses trois règles et le lien « Revoir le tutoriel », « Kubo · version 1.0.0 » en bas (version lue dans `app.json`). Le tutoriel rejoué depuis les réglages y revient, qu'il soit terminé ou passé. `src/components/SwitchRow.tsx` : toute la ligne est l'interrupteur (rôle `switch`, libellé, description en indication, état coché annoncé), haute de 65 pt.
+- **K-39** `src/storage/preferences.ts` : les deux réglages sont sauvegardés sous la clé `kubo:preferences:v1` et relus au démarrage, avant que l'écran suivant l'écran de lancement n'apparaisse, donc avant tout son. Toute valeur absente ou illisible vaut « activé ». Sons et vibrations lisent ce module à chaque déclenchement : un changement s'applique tout de suite. Activer les sons joue `place` ; activer les vibrations déclenche une vibration légère.
+- **K-40** `src/components/SettingsButton.tsx` : bouton rond en haut à droite de l'accueil et de « Reviens demain ». Le retour des réglages ramène à l'écran d'origine (à l'accueil si le défi terminé n'est plus celui du jour).
+- **K-38** :
+  - écran de fin du défi du jour : ligne « Prochain défi dans 5 h 12 » sous les statistiques, relue à chaque changement de minute (`src/hooks/useTimeUntilNextDay.ts`, format dans `src/game/days.ts`) ;
+  - « Nouveau record » est sauvegardé avec le résultat du défi (`isNewRecord`, même clé `kubo:daily:v1`) et la pastille s'affiche en revoyant son résultat.
 
 ### Comment le vérifier
-- `npm run check` : sans erreur ni avertissement, 202 tests réussis.
-- Outils de développement (arrêter d'abord tout serveur Expo ; ils se combinent) :
-  - `EXPO_PUBLIC_FAKE_DATE=2026-10-08` : l'app se croit ce jour-là, à l'heure réelle.
-  - `EXPO_PUBLIC_RESET_DATA=1` : **efface toutes les données sauvegardées** (tutoriel vu, records, défi, série) à chaque démarrage de l'app. À retirer ensuite, sinon tout est effacé à chaque lancement.
-  - `EXPO_PUBLIC_SAMPLE_DAILY=tomorrow` : ouvre « Reviens demain » avec les données de la maquette (1 780 points, série de 5 jours, record 12) ; `done` : accueil avec le défi terminé ; `progress` : accueil avec un défi en cours. Rien n'est lu ni écrit dans le stockage avec ces trois états.
-- **Vérifié par l'agent** : `npm run check`, `expo-doctor`, et l'affichage sur le simulateur iOS de l'accueil dans ses trois états, de la pastille de série, de l'écran « Reviens demain » et de l'en-tête de jeu.
-- **Non vérifié par l'agent** : tout ce qui demande de jouer ou de toucher l'écran — la sauvegarde réelle après un coup, la reprise, la fermeture de l'app, la tentative unique, « Voir », « Revoir mon résultat », la confirmation en partie libre, le compte à rebours qui défile et son passage à zéro, le retour au premier plan après minuit. Ces comportements ne sont couverts que par les tests de la logique et du stockage.
+- `npm run check` : sans erreur ni avertissement, 228 tests réussis.
+- Outils de développement ajoutés (arrêter d'abord tout serveur Expo) :
+  - `EXPO_PUBLIC_SETTINGS=1` : ouvre l'app sur les réglages ;
+  - `EXPO_PUBLIC_SAMPLE_DAILY=result` : ouvre l'app sur le résultat du défi du jour revu, avec un nouveau record.
+- **Vérifié par l'agent** : `npm run check` après chaque story ; l'affichage sur le simulateur iOS (iPhone 18 Pro, Expo Go) des réglages, de l'accueil, de « Reviens demain » et de l'écran de fin du défi, sans erreur ni avertissement dans Metro ; le scénario `stress`, relancé une fois : 66 coups, 22 tirages, **0 `[KUBO-DIVERGENCE]`**.
+- **Non vérifié par l'agent** : tout ce qui demande de toucher l'écran ou d'écouter — basculer un interrupteur, le son et la vibration de confirmation, le silence en jeu une fois les sons coupés, la conservation après fermeture de l'app, VoiceOver, « Revoir le tutoriel » et son retour, l'ouverture des réglages par leur bouton et le retour vers l'écran d'origine, le passage d'une minute à l'autre sur la ligne du prochain défi, la pastille après une vraie partie record. Ces comportements ne sont couverts que par les tests des préférences, du stockage et de la logique de dates.
+- Android : rien n'a été testé.
 
 ### Liste de contrôle à dérouler à la main
-Commencer par un lancement avec `EXPO_PUBLIC_RESET_DATA=1 EXPO_PUBLIC_FAKE_DATE=2026-10-08`, puis relancer sans `RESET_DATA`.
-
 | # | Action | Ce que tu dois observer |
 |---|---|---|
-| 1 | Accueil, « Jouer », poser deux ou trois pièces, bouton retour | Retour à l'accueil sans confirmation ; le bouton est devenu « Reprendre » |
-| 2 | « Reprendre » | Même grille, même plateau, même score ; les tirages suivants sont ceux qu'aurait eus la partie |
-| 3 | En plein défi, fermer complètement l'app, la rouvrir | « Reprendre », et la partie est intacte |
-| 4 | Finir le défi | Écran de fin habituel, avec « Partager mon score » et « Retour à l'accueil » |
-| 5 | « Retour à l'accueil » | Carte « Défi terminé » avec le score, bouton « Voir » ; pastille « Série : 1 jour » |
-| 6 | « Voir » | Écran « Reviens demain » : score, compte à rebours qui descend chaque seconde, « Série : 1 jour », « Record : 1 », le jeudi rempli dans la semaine |
-| 7 | « Revoir mon résultat » | L'écran de fin du défi avec sa vraie grille et ses vraies statistiques ; aucun moyen de rejouer le défi |
-| 8 | « Partie libre » depuis « Reviens demain » | Une partie libre démarre |
-| 9 | En partie libre avec un score supérieur à 0, bouton retour | Alerte « Quitter la partie ? Ta progression sera perdue. » ; « Annuler » reste en jeu, « Quitter » ramène à l'accueil. À 0 point, pas d'alerte |
-| 10 | Relancer avec `EXPO_PUBLIC_FAKE_DATE=2026-10-09`, finir le défi | Nouveau défi disponible ; après la fin, « Série : 2 jours » |
-| 11 | Relancer avec `2026-10-10`, finir le défi | « Série : 3 jours », « Record : 3 », trois jours remplis dans la semaine |
-| 12 | Relancer avec `2026-10-12` (un jour manqué) | Pas de pastille de série sur l'accueil ; après le défi, « Série : 1 jour », « Record : 3 » |
-| 13 | Commencer un défi sans le finir, relancer avec la date du lendemain | Bouton « Jouer » et non « Reprendre » : l'ancien défi est abandonné |
-| 14 | Sans date simulée : finir le défi, régler l'heure du téléphone à 23 h 59, ouvrir « Reviens demain » | À 00:00:00, retour à l'accueil avec le nouveau défi |
-| 15 | Mettre l'app en arrière-plan avant minuit, y revenir après | L'accueil affiche la nouvelle date et « Jouer » |
+| 1 | Accueil, bouton en haut à droite | Les réglages s'ouvrent ; les deux interrupteurs sont activés au premier lancement |
+| 2 | Couper « Sons », revenir, jouer une partie libre | Aucun son (prise, pose, refus, effacement, fin) ; les vibrations restent |
+| 3 | Réactiver « Sons » | Le son de pose se fait entendre tout de suite |
+| 4 | Couper « Vibrations », jouer | Aucune vibration ; les sons restent |
+| 5 | Réactiver « Vibrations » | Une vibration légère tout de suite |
+| 6 | Couper les deux, fermer complètement l'app, la rouvrir | Les deux interrupteurs sont toujours coupés, et le jeu est muet dès le premier coup |
+| 7 | VoiceOver sur les réglages | « Sons, interrupteur, activé / désactivé », avec l'indication « Pose, effacement, combo » ; un double appui bascule et l'état est annoncé ; de même pour « Vibrations » |
+| 8 | « Revoir le tutoriel », le terminer ; recommencer avec « Passer » | Retour aux réglages dans les deux cas ; le retour mène ensuite à l'écran d'origine |
+| 9 | Ouvrir les réglages depuis l'accueil, retour | Accueil |
+| 10 | Défi terminé, « Voir », bouton des réglages, retour | « Reviens demain » |
+| 11 | Finir le défi du jour | Sous les statistiques : « Prochain défi dans X h YY » (ou « YY min » à moins d'une heure) ; la valeur baisse d'une minute en même temps que l'horloge |
+| 12 | Finir le défi sur un record, « Retour à l'accueil », « Voir », « Revoir mon résultat » | La pastille « ★ Nouveau record » est là ; elle y est encore après fermeture et réouverture de l'app |
+| 13 | « Revoir mon résultat » d'un défi sans record | Pas de pastille |
 
 ### Dépendances ajoutées et pourquoi
-- Aucune.
+- Aucune. La version vient d'un import de `app.json`, sans `expo-constants`.
 
 ### Écarts par rapport au plan
-- **Écran de fin juste après le défi** : son bouton « Retour à l'accueil » mène à l'accueil, d'où « Voir » ouvre « Reviens demain ». « Reviens demain » ne s'ouvre pas automatiquement.
-- **« Revoir mon résultat »** : l'écran de fin rouvert n'affiche pas la pastille « Nouveau record », même si le défi en avait établi un ; cette information n'est pas sauvegardée.
-- **Semaine de « Reviens demain »** : les jours joués sont remplis en orange, sans marque particulière pour aujourd'hui. Les 14 derniers jours joués sont mémorisés.
-- **Série sur l'accueil** : elle tient encore le lendemain du dernier défi, tant que ce jour-là n'est pas fini ; elle disparaît après un jour entier manqué.
-- **Date simulée** : elle remplace le jour mais garde l'heure réelle, pour que le compte à rebours reste vivant.
-- **Confirmation en partie libre** : alerte native du système (`Alert`), pas un écran dessiné.
-- **Icônes** : la flamme de la pastille et la coche sont dessinées avec des vues ; plus simples que sur les maquettes.
-- **Réécriture d'une partie sauvegardée abîmée** : elle est ignorée à la lecture, puis remplacée au prochain coup ; rien n'est supprimé activement.
-- **Captures lentes** : la machine était très chargée (pgAdmin et le simulateur), certaines captures ont mis plus de dix minutes. Le lancement avec `EXPO_PUBLIC_RESET_DATA=1` a effacé les données d'Expo Go **sur le simulateur** (tutoriel vu, records).
-- **Android** : rien n'a été testé.
+- **Version affichée** : « 1.0.0 », telle qu'écrite dans `app.json` ; la maquette montre « 1.0 ».
+- **Interrupteurs** : dessinés (piste 60 × 34, vert du pack, pastille blanche) plutôt que le `Switch` natif, pour suivre la maquette et faire de toute la ligne la cible tactile. Éteinte, la piste prend la couleur `dotInactive` ; la maquette ne montre pas cet état.
+- **« Revoir le tutoriel »** : lien jaune avec un chevron, aligné sur le texte des règles ; il n'est pas sur la maquette, sa forme est un choix de l'agent.
+- **Défilement** : les réglages défilent si l'écran est trop petit pour tout afficher.
+- **Résultat enregistré avant K-38** : il est relu comme n'étant pas un record.
+- **Ligne du prochain défi** : affichée seulement tant que le jour du défi est le jour courant ; elle disparaît à minuit (ou pour un défi fini après minuit), sans texte de remplacement. À moins d'une heure, elle s'écrit « 12 min ». Elle ajoute 19 pt à la hauteur de l'écran de fin du défi (29 pt d'espace avant « Partager mon score » deviennent 14 pt, la ligne de 20 pt, puis 14 pt).
+- **Record et sauvegarde** : le record est maintenant calculé juste avant l'enregistrement du dernier coup du défi, pour être sauvegardé avec lui.
+- **Icône des réglages** : deux curseurs dessinés avec des vues, un peu plus épais que sur la maquette.
+- **Liste des sons** : l'écran des réglages charge tous les sons du jeu pour n'en jouer qu'un (`place`), en réutilisant `useSounds` tel quel.
+- **Serveur Expo** : un serveur tournait déjà sur le port 8081 (`expo start --ios`, lancé à 22 h 37) ; je ne l'ai pas arrêté. Mes captures viennent d'un second serveur sur le port 8082, arrêté à la fin ; Expo Go du simulateur a été relancé sur le 8081.
 
 ### Passages de la boucle d'intégration et écarts restants, par écran
-- **« Reviens demain » : 2 passages** (`demain-1.png`, `demain-2.png`), avec les données de la maquette et la date simulée du mardi 6 octobre.
-  - Passage 1 : titre trop petit (251 pt de large pour 270), compte à rebours et titre de la série un peu petits. Corrigés.
-  - Passage 2 : titre 270 pt, compte à rebours 191 pt (maquette 200), cartes, semaine (lundi et mardi remplis), boutons conformes.
-  - Écarts restants : chiffres du compte à rebours environ 5 % plus étroits ; la coche repose sur l'image du bloc vert du pack, avec son reflet.
-  - Volontairement absent : le bouton des réglages.
-- **Accueil, trois états : 1 capture chacun** (`accueil-a-jouer.png`, `accueil-en-cours.png`, `accueil-termine.png`) : « Jouer », « Reprendre », « Défi terminé / Voir » ; la pastille « Série : 5 jours » est à la place prévue par `accueil.png`.
-- **En-tête de jeu : 1 capture** (`jeu-entete-3.png`) après la correction du sprint précédent : le titre fait 98 pt de large (maquette 95), la date 115 pt (maquette 117).
+- **Réglages : 2 passages** (`reglages-1.png`, `reglages-2.png`). Le simulateur fait 402 pt de large pour 390 sur la maquette.
+  - Passage 1 : titre trop grand (121 pt de large pour 114), descriptions des interrupteurs et textes des règles trop grands (environ 7 %), « Comment jouer » trop petit (129 pt pour 136), blocs des règles trop petits (28 pt visibles pour 31), première ligne de la carte des interrupteurs 2,5 pt trop haute. Corrigés.
+  - Passage 2 : titre 113 pt (maquette 114), « Pose, effacement, combo » 164 pt (164), « Comment jouer » 136 pt (136), titre de règle 216 pt (216), blocs 31,5 pt (31), interrupteurs 60 × 34.
+  - Écarts restants : carte des interrupteurs haute de 140 pt pour 138 ; les textes des règles 2 et 3 coupent leurs lignes ailleurs, l'écran étant plus large ; « 1.0.0 » ; le lien ajouté.
+  - Sur les captures, la roue bleue en haut à droite est le bouton d'outils d'Expo Go, pas un élément de l'app.
+- **Accueil et « Reviens demain » avec le bouton des réglages : 1 capture chacun** (`accueil-reglages.png`, `demain-reglages.png`). **Le bouton d'outils d'Expo Go recouvre exactement le bouton des réglages sur ces deux captures : on ne l'y voit pas.** Je n'ai aucun moyen de déplacer ce bouton flottant sans toucher l'écran. Pour contrôler le dessin de l'icône, j'ai décalé le bouton de 70 pt vers le bas le temps de deux captures non conservées (décalage retiré, absent du code) : rond de 44 pt, deux curseurs, pastille gauche en haut et droite en bas, comme sur la maquette. Sa position réelle (aligné à droite, sur la ligne du bouton retour ou de la pastille de série) n'a donc pas été vue : à vérifier sur ton téléphone.
+- **Écran de fin du défi : 1 capture** (`resultat-defi-prochain.png`, état `EXPO_PUBLIC_SAMPLE_DAILY=result`) : la pastille « ★ Nouveau record » et la ligne « Prochain défi dans 1 h 02 » à 22 h 58, tout l'écran tient sans chevauchement.
 
-### Correctif après retour de Moussa : pièces du plateau invisibles
-- **Symptômes** : une pièce disparaît du plateau, ou le nouveau tirage n'arrive pas ; quitter puis « Reprendre » rétablit l'affichage.
-- **Cause** : `src/hooks/useGame.ts`, dans `place` : le coup était calculé à partir de l'état du dernier affichage (`playMove(game, …)`). Quand deux pièces étaient relâchées avant que l'écran soit redessiné, le second coup repartait du même état que le premier et l'écrasait : le premier coup était perdu (pièce de nouveau dans l'état, points perdus), alors que sa pièce, déjà acceptée, restait affichée sur la grille au lieu du plateau (`src/components/DraggablePiece.tsx`, fonction `drop` : une pose acceptée ne ramenait jamais la pièce au repos). L'état sauvegardé n'était donc pas « le bon » : il lui manquait un coup.
-- **Reproduction** : scénario `EXPO_PUBLIC_SAMPLE_GAME=stress`, 5 essais sur 5 avant correction (3 en mode normal, 2 avec « réduire les animations »), toujours au coup 6, premier tirage où trois pièces sont relâchées au même instant. Avec des coups espacés de 80 ms, le simulateur ne reproduit pas le bug.
-- **Corrections** :
-  - `useGame` et `useDailyChallenge` enchaînent les coups à partir du dernier état connu, tenu dans une référence, et non de l'état du dernier affichage ;
-  - `DraggablePiece` : après chaque coup joué, une pièce encore dans le plateau et non tenue revient au repos ; le premier doigt posé réserve le plateau, pour que deux pièces ne soient jamais glissées ensemble ; l'apparition d'une pièce est une animation d'entrée jouée par-dessus une pièce déjà visible, et non plus une opacité partant de 0 ;
-  - `Tray` : la clé d'une pièce combine le tirage, l'emplacement et la forme.
-- **Outils gardés** : `src/dev/stressPlan.ts` (partie scriptée de 66 coups et 22 tirages : coups espacés, simultanés, refusés, annulés, pièce tenue), `src/dev/useStressTest.ts` (contrôle écrivant `[KUBO-DIVERGENCE]`), `src/dev/useTrayProbe.ts` (le scénario passe par les mêmes fonctions que le geste réel).
-- **Après correction** : 10 exécutions sur 10 sans divergence (5 par mode d'animation) ; sur les vidéos, le plateau montre ses trois pièces après chacun des 22 tirages.
-- **Non vérifié** : le geste réel. La réservation du plateau au premier doigt n'a été exercée par aucun doigt, et rien ne prouve que le déclencheur sur le téléphone de Moussa soit celui reproduit ici.
-
-### Proposition de stories détaillées pour le sprint suivant (Réglages)
-- **K-28 — Réglages** : maquette `docs/design/reglages.png` ; interrupteurs sons et vibrations, sauvegardés (le module `preferences` existe déjà, en mémoire) ; bouton des réglages sur l'accueil et sur « Reviens demain ».
-- À prévoir dans les réglages : « Revoir le tutoriel » et, en développement, « Effacer les données ».
-- Points à trancher : faut-il ouvrir « Reviens demain » directement après l'écran de fin du défi ? Faut-il sauvegarder aussi la partie libre ?
+### Proposition pour la suite
+- Le sprint suivant du backlog est « Finition » (K-29 accessibilité et tailles d'écran, K-30 build de test). Avec un build de test, le bouton d'Expo Go ne gênerait plus les captures.

@@ -4,7 +4,9 @@ import {
   dayKey,
   dayOfSeed,
   formatCountdown,
+  formatHoursAndMinutes,
   isDayKey,
+  msUntilMinuteChanges,
   msUntilNextDay,
   seedOfDay,
   weekOf,
@@ -103,6 +105,41 @@ describe('formatCountdown', () => {
     expect(formatCountdown(500)).toBe('00:00:01');
     expect(formatCountdown(0)).toBe('00:00:00');
     expect(formatCountdown(-3000)).toBe('00:00:00');
+  });
+});
+
+describe('formatHoursAndMinutes', () => {
+  const MINUTE = 60 * 1000;
+  const HOUR = 60 * MINUTE;
+
+  it('writes hours, then minutes on two digits', () => {
+    expect(formatHoursAndMinutes(5 * HOUR + 12 * MINUTE)).toBe('5 h 12');
+    expect(formatHoursAndMinutes(23 * HOUR + 5 * MINUTE)).toBe('23 h 05');
+    expect(formatHoursAndMinutes(HOUR)).toBe('1 h 00');
+  });
+
+  it('writes minutes alone under an hour', () => {
+    expect(formatHoursAndMinutes(12 * MINUTE)).toBe('12 min');
+    expect(formatHoursAndMinutes(MINUTE)).toBe('1 min');
+  });
+
+  it('rounds up to the minute and stops at zero', () => {
+    expect(formatHoursAndMinutes(5 * HOUR + 11 * MINUTE + 1)).toBe('5 h 12');
+    expect(formatHoursAndMinutes(59 * MINUTE + 1000)).toBe('1 h 00');
+    expect(formatHoursAndMinutes(500)).toBe('1 min');
+    expect(formatHoursAndMinutes(0)).toBe('0 min');
+    expect(formatHoursAndMinutes(-3000)).toBe('0 min');
+  });
+});
+
+describe('msUntilMinuteChanges', () => {
+  it('is the time left in the current minute', () => {
+    expect(msUntilMinuteChanges(5 * 60 * 1000 + 20 * 1000)).toBe(20 * 1000);
+    expect(msUntilMinuteChanges(1)).toBe(1);
+  });
+
+  it('is a whole minute when a minute has just started', () => {
+    expect(msUntilMinuteChanges(5 * 60 * 1000)).toBe(60 * 1000);
   });
 });
 

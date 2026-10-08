@@ -81,7 +81,10 @@ But : tout le monde joue la même partie, une fois par jour.
 
 ## Réglages
 But : le joueur règle le son et les vibrations.
-- **K-28** Réglages (son, vibrations).
+- **K-28** Écran des réglages (sons, vibrations, « Comment jouer », « Revoir le tutoriel », version).
+- **K-39** Préférences sauvegardées et appliquées immédiatement.
+- **K-40** Accès aux réglages depuis l'accueil et « Reviens demain ».
+- **K-38** Deux retouches du défi du jour : ligne « Prochain défi dans… » et pastille « Nouveau record » sauvegardée.
 
 ## Finition
 But : prêt à être montré ou publié.

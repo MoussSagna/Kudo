@@ -41,6 +41,24 @@ describe('daily challenge storage', () => {
     expect(stored.result?.game.stats).toEqual(FINISHED_GAME.stats);
   });
 
+  it('reads back whether the result was a new record', async () => {
+    await writeDailyData(recordDailyMove(EMPTY_DAILY_DATA, FINISHED_GAME, true));
+
+    expect((await readDailyData()).result?.isNewRecord).toBe(true);
+  });
+
+  it('reads a result saved without the record information as not being a record', async () => {
+    await writeDailyData(recordDailyMove(EMPTY_DAILY_DATA, FINISHED_GAME, true));
+    const saved = JSON.parse((await AsyncStorage.getItem(DAILY_KEY)) ?? '');
+    delete saved.result.isNewRecord;
+    await AsyncStorage.setItem(DAILY_KEY, JSON.stringify(saved));
+
+    const stored = await readDailyData();
+
+    expect(stored.result?.game).toEqual(FINISHED_GAME);
+    expect(stored.result?.isNewRecord).toBe(false);
+  });
+
   it('keeps a readable result when the game in progress is damaged', async () => {
     await writeDailyData(recordDailyMove(EMPTY_DAILY_DATA, FINISHED_GAME));
     const saved = JSON.parse((await AsyncStorage.getItem(DAILY_KEY)) ?? '{}');

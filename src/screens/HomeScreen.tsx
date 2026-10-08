@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Chevron } from '../components/Chevron';
 import { Logo } from '../components/Logo';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { SettingsButton } from '../components/SettingsButton';
 import type { DailyStatus } from '../game/daily';
 import { capitalize, formatWeekdayAndDate } from '../game/dates';
 import { formatScore } from '../game/formatScore';
@@ -16,7 +17,7 @@ const DAILY_BUTTON_LABELS: Readonly<Record<DailyStatus['kind'], string>> = {
   inProgress: 'Reprendre',
   done: 'Voir',
 };
-/** The top bar holds the streak badge; the settings button of the mockup will join it. */
+/** The top bar holds the streak badge, when there is a streak, and the settings button. */
 const TOP_BAR_TOP = 13;
 const TOP_BAR_HEIGHT = 44;
 const MIN_BOTTOM_PADDING = 24;
@@ -33,6 +34,7 @@ interface HomeScreenProps {
   onOpenDaily: () => void;
   onPlayFree: () => void;
   onShowTutorial: () => void;
+  onOpenSettings: () => void;
 }
 
 /** Where the app opens: the daily challenge, the free game, and the way back to the tutorial. */
@@ -44,6 +46,7 @@ export function HomeScreen({
   onOpenDaily,
   onPlayFree,
   onShowTutorial,
+  onOpenSettings,
 }: HomeScreenProps) {
   const insets = useSafeAreaInsets();
 
@@ -67,6 +70,9 @@ export function HomeScreen({
             </Text>
           </View>
         ) : null}
+        <View style={styles.settings}>
+          <SettingsButton onPress={onOpenSettings} />
+        </View>
       </View>
 
       <View style={styles.brand}>
@@ -123,6 +129,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     backgroundColor: UI.cell,
+  },
+  settings: {
+    marginLeft: 'auto',
   },
   /** A drop with its point up: a square with one sharp corner, turned by 45 degrees. */
   flame: {

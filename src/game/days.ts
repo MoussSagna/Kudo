@@ -3,6 +3,8 @@ export type DayKey = string;
 
 const DAY_KEY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const MS_PER_SECOND = 1000;
+const MS_PER_MINUTE = 60 * MS_PER_SECOND;
+const MINUTES_PER_HOUR = 60;
 const DAYS_PER_WEEK = 7;
 
 function pad(value: number): string {
@@ -60,6 +62,22 @@ export function formatCountdown(ms: number): string {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   return `${pad(hours)}:${pad(minutes)}:${pad(totalSeconds % 60)}`;
+}
+
+/**
+ * « 5 h 12 », or « 12 min » under an hour: a duration to the minute, rounded up so that it never
+ * reads as less time than there is.
+ */
+export function formatHoursAndMinutes(ms: number): string {
+  const totalMinutes = Math.max(0, Math.ceil(ms / MS_PER_MINUTE));
+  const hours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
+  const minutes = totalMinutes % MINUTES_PER_HOUR;
+  return hours > 0 ? `${hours} h ${pad(minutes)}` : `${minutes} min`;
+}
+
+/** Milliseconds left until the minute shown by `formatHoursAndMinutes` changes. */
+export function msUntilMinuteChanges(ms: number): number {
+  return ms % MS_PER_MINUTE || MS_PER_MINUTE;
 }
 
 /** The seed of the daily challenge of a day: AAAAMMJJ. */
