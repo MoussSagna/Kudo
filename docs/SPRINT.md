@@ -18,7 +18,7 @@
   - Activer les sons joue `place` en confirmation ; activer les vibrations déclenche une vibration légère.
   - Tests sur la lecture, l'écriture et la valeur par défaut.
 
-- [ ] **K-40 — Accès aux réglages**
+- [x] **K-40 — Accès aux réglages**
   - Le bouton des réglages apparaît en haut à droite de l'accueil et de « Reviens demain », comme sur leurs maquettes.
   - Le retour depuis les réglages ramène à l'écran d'où l'on vient.
 

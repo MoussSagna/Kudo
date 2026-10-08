@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { now } from '../clock';
 import { Chevron } from '../components/Chevron';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { SettingsButton } from '../components/SettingsButton';
 import { dayKey, formatCountdown, msUntilNextDay, weekOf, type DayKey } from '../game/days';
 import { formatScore } from '../game/formatScore';
 import type { Streak } from '../game/streak';
@@ -25,6 +26,7 @@ interface TomorrowScreenProps {
   /** Length of the streak as it stands today. */
   streakToday: number;
   onBack: () => void;
+  onOpenSettings: () => void;
   onPlayFree: () => void;
   onShowResult: () => void;
   /** Called when midnight passes: the next challenge is available. */
@@ -38,6 +40,7 @@ export function TomorrowScreen({
   streak,
   streakToday,
   onBack,
+  onOpenSettings,
   onPlayFree,
   onShowResult,
   onDayOver,
@@ -68,14 +71,17 @@ export function TomorrowScreen({
         },
       ]}
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Retour à l'accueil"
-        onPress={onBack}
-        style={styles.back}
-      >
-        <Chevron direction="left" color={UI.text} />
-      </Pressable>
+      <View style={styles.topBar}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Retour à l'accueil"
+          onPress={onBack}
+          style={styles.back}
+        >
+          <Chevron direction="left" color={UI.text} />
+        </Pressable>
+        <SettingsButton onPress={onOpenSettings} />
+      </View>
 
       <View style={styles.summary}>
         <View style={styles.done}>
@@ -134,6 +140,10 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingHorizontal: 24,
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   back: {
     width: BUTTON_SIZE,

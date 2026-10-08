@@ -41,10 +41,19 @@ interface HomeProps {
   onOpenDaily: () => void;
   onPlayFree: () => void;
   onShowTutorial: () => void;
+  onOpenSettings: () => void;
 }
 
 /** The home screen with the best score it reads when it opens. */
-function Home({ today, daily, streak, onOpenDaily, onPlayFree, onShowTutorial }: HomeProps) {
+function Home({
+  today,
+  daily,
+  streak,
+  onOpenDaily,
+  onPlayFree,
+  onShowTutorial,
+  onOpenSettings,
+}: HomeProps) {
   const { best } = useBestScore('free');
 
   return (
@@ -56,6 +65,7 @@ function Home({ today, daily, streak, onOpenDaily, onPlayFree, onShowTutorial }:
       onOpenDaily={onOpenDaily}
       onPlayFree={onPlayFree}
       onShowTutorial={onShowTutorial}
+      onOpenSettings={onOpenSettings}
     />
   );
 }
@@ -121,6 +131,7 @@ export function MainScreens({
           navigate(settingsFrom ? { name: 'settings', from: settingsFrom } : { name: 'home' });
         },
         onShowTutorial: (settingsFrom) => navigate({ name: 'tutorial', settingsFrom }),
+        onOpenSettings: (from) => navigate({ name: 'settings', from }),
         // The finished challenge may no longer be today's: its screen is then gone.
         onLeaveSettings: (from) =>
           navigate({ name: from === 'tomorrow' && isDailyDone ? 'tomorrow' : 'home' }),
@@ -145,6 +156,7 @@ interface RouteActions {
   /** `settingsFrom` is set when the tutorial was replayed from the settings. */
   onTutorialDone: (settingsFrom?: SettingsOrigin) => void;
   onShowTutorial: (settingsFrom?: SettingsOrigin) => void;
+  onOpenSettings: (from: SettingsOrigin) => void;
   onLeaveSettings: (from: SettingsOrigin) => void;
   onOpenDaily: () => void;
   onShowDailyResult: () => void;
@@ -196,6 +208,7 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
           streak={streak}
           streakToday={streakToday}
           onBack={actions.goHome}
+          onOpenSettings={() => actions.onOpenSettings('tomorrow')}
           onPlayFree={() => actions.startGame('free')}
           onShowResult={actions.onShowDailyResult}
           onDayOver={actions.onDayOver}
@@ -226,6 +239,7 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
           onOpenDaily={actions.onOpenDaily}
           onPlayFree={() => actions.startGame('free')}
           onShowTutorial={() => actions.onShowTutorial()}
+          onOpenSettings={() => actions.onOpenSettings('home')}
         />
       );
   }
