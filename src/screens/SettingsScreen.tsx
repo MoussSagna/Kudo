@@ -5,7 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import appConfig from '../../app.json';
 import { Chevron } from '../components/Chevron';
 import { SwitchRow } from '../components/SwitchRow';
+import { playHaptic } from '../haptics';
 import { usePreferences } from '../hooks/usePreferences';
+import { useSounds } from '../hooks/useSounds';
 import { setPreference } from '../storage/preferences';
 import { BLOCK_IMAGES, FONTS, UI, type BlockColor } from '../theme';
 
@@ -45,6 +47,21 @@ interface SettingsScreenProps {
 export function SettingsScreen({ onBack, onShowTutorial }: SettingsScreenProps) {
   const insets = useSafeAreaInsets();
   const preferences = usePreferences();
+  const playSound = useSounds();
+
+  /** A setting that is turned on confirms itself: the player hears or feels what it brings back. */
+  const changeSounds = (enabled: boolean) => {
+    setPreference('sounds', enabled);
+    if (enabled) {
+      playSound('place');
+    }
+  };
+  const changeHaptics = (enabled: boolean) => {
+    setPreference('haptics', enabled);
+    if (enabled) {
+      playHaptic('pick');
+    }
+  };
 
   return (
     <LinearGradient colors={[UI.backgroundTop, UI.background]} style={styles.screen}>
@@ -78,14 +95,14 @@ export function SettingsScreen({ onBack, onShowTutorial }: SettingsScreenProps) 
             label="Sons"
             description="Pose, effacement, combo"
             value={preferences.sounds}
-            onChange={(enabled) => setPreference('sounds', enabled)}
+            onChange={changeSounds}
           />
           <View style={styles.divider} />
           <SwitchRow
             label="Vibrations"
             description="Retour tactile à la pose"
             value={preferences.haptics}
-            onChange={(enabled) => setPreference('haptics', enabled)}
+            onChange={changeHaptics}
           />
         </View>
 

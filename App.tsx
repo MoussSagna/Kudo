@@ -24,6 +24,7 @@ import { useDailyChallenge } from './src/hooks/useDailyChallenge';
 import { MainScreens } from './src/screens/MainScreens';
 import type { TutorialEntry } from './src/screens/TutorialScreen';
 import { storageReady } from './src/storage/devReset';
+import { loadPreferences } from './src/storage/preferences';
 import { hasSeenTutorial, markTutorialSeen } from './src/storage/tutorial';
 import { UI } from './src/theme';
 
@@ -58,6 +59,8 @@ export default function App() {
     }
     return IS_TUTORIAL_FORCED ? false : null;
   });
+  /** False until the saved preferences are read: no sound can play before that. */
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
   const daily = useDailyChallenge();
   const nextScreenOpacity = useSharedValue(0);
   const fontsReady = fontsLoaded || fontsError !== null;
@@ -85,8 +88,21 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    storageReady.then(loadPreferences).then(() => {
+      if (!cancelled) {
+        setPreferencesLoaded(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   /** The screen after the launch screen is known once the launch is over and the storage read. */
-  const isNextScreenReady = launchDone && tutorialSeen !== null && daily.isLoaded;
+  const isNextScreenReady =
+    launchDone && tutorialSeen !== null && preferencesLoaded && daily.isLoaded;
 
   useEffect(() => {
     if (!isNextScreenReady) {

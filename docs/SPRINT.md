@@ -12,7 +12,7 @@
   - Ajoute sous les trois règles un lien « Revoir le tutoriel », qui rejoue le tutoriel puis revient aux réglages.
   - Les interrupteurs sont de vrais composants accessibles (rôle « switch », état annoncé par VoiceOver), avec une cible tactile d'au moins 44 pt.
 
-- [ ] **K-39 — Préférences sauvegardées**
+- [x] **K-39 — Préférences sauvegardées**
   - Les deux réglages sont sauvegardés et relus au démarrage, avant le premier son possible. Clé versionnée ; une valeur illisible redonne « activé ».
   - Le module de préférences existant devient la seule source de vérité ; le changement d'un réglage s'applique immédiatement, sans relancer l'app.
   - Activer les sons joue `place` en confirmation ; activer les vibrations déclenche une vibration légère.
