@@ -12,16 +12,27 @@ import { shareGame } from '../share';
 import { GameScreen, OPENS_ON_SAMPLE_GAME } from './GameScreen';
 import { HomeScreen } from './HomeScreen';
 import { ResultScreen } from './ResultScreen';
+import { SettingsScreen } from './SettingsScreen';
 import { TomorrowScreen } from './TomorrowScreen';
 import { TutorialScreen, type TutorialEntry } from './TutorialScreen';
 
-/** `gameId` changes with every new game, so that its screen starts from scratch. */
+/** Development only: EXPO_PUBLIC_SETTINGS=1 opens the app on the settings screen. */
+const OPENS_ON_SETTINGS = __DEV__ && process.env.EXPO_PUBLIC_SETTINGS === '1';
+
+/** The screens the settings can be opened from, and go back to. */
+type SettingsOrigin = 'home' | 'tomorrow';
+
+/**
+ * `gameId` changes with every new game, so that its screen starts from scratch. The tutorial
+ * replayed from the settings remembers where the settings were opened from, to go back to them.
+ */
 type Route =
   | { name: 'home' }
   | { name: 'game'; mode: GameMode; gameId: number }
   | { name: 'tomorrow' }
   | { name: 'dailyResult' }
-  | { name: 'tutorial' };
+  | { name: 'settings'; from: SettingsOrigin }
+  | { name: 'tutorial'; settingsFrom?: SettingsOrigin };
 
 interface HomeProps {
   today: DayKey;
@@ -66,6 +77,9 @@ function initialRoute(startsWithTutorial: boolean): Route {
   if (OPENS_ON_TOMORROW_SCREEN) {
     return { name: 'tomorrow' };
   }
+  if (OPENS_ON_SETTINGS) {
+    return { name: 'settings', from: 'home' };
+  }
   return { name: startsWithTutorial ? 'tutorial' : 'home' };
 }
 
@@ -102,11 +116,14 @@ export function MainScreens({
       {renderRoute(route, {
         daily,
         tutorialEntry,
-        onTutorialDone: () => {
+        onTutorialDone: (settingsFrom) => {
           onTutorialDone();
-          goHome();
+          navigate(settingsFrom ? { name: 'settings', from: settingsFrom } : { name: 'home' });
         },
-        onShowTutorial: () => navigate({ name: 'tutorial' }),
+        onShowTutorial: (settingsFrom) => navigate({ name: 'tutorial', settingsFrom }),
+        // The finished challenge may no longer be today's: its screen is then gone.
+        onLeaveSettings: (from) =>
+          navigate({ name: from === 'tomorrow' && isDailyDone ? 'tomorrow' : 'home' }),
         // Once today's challenge is finished, it cannot be replayed: the player waits for tomorrow.
         onOpenDaily: () =>
           daily.status.kind === 'done' ? navigate({ name: 'tomorrow' }) : startGame('daily'),
@@ -125,8 +142,10 @@ export function MainScreens({
 interface RouteActions {
   daily: DailyChallenge;
   tutorialEntry?: TutorialEntry;
-  onTutorialDone: () => void;
-  onShowTutorial: () => void;
+  /** `settingsFrom` is set when the tutorial was replayed from the settings. */
+  onTutorialDone: (settingsFrom?: SettingsOrigin) => void;
+  onShowTutorial: (settingsFrom?: SettingsOrigin) => void;
+  onLeaveSettings: (from: SettingsOrigin) => void;
   onOpenDaily: () => void;
   onShowDailyResult: () => void;
   onDayOver: () => void;
@@ -138,7 +157,17 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
   switch (route.name) {
     case 'tutorial':
       return (
-        <TutorialScreen entry={actions.tutorialEntry} onDone={actions.onTutorialDone} />
+        <TutorialScreen
+          entry={actions.tutorialEntry}
+          onDone={() => actions.onTutorialDone(route.settingsFrom)}
+        />
+      );
+    case 'settings':
+      return (
+        <SettingsScreen
+          onBack={() => actions.onLeaveSettings(route.from)}
+          onShowTutorial={() => actions.onShowTutorial(route.from)}
+        />
       );
     case 'game':
       return (
@@ -196,7 +225,7 @@ function renderRoute(route: Route, actions: RouteActions): ReactNode {
           streak={actions.daily.streakToday}
           onOpenDaily={actions.onOpenDaily}
           onPlayFree={() => actions.startGame('free')}
-          onShowTutorial={actions.onShowTutorial}
+          onShowTutorial={() => actions.onShowTutorial()}
         />
       );
   }

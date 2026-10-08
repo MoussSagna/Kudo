@@ -38,6 +38,9 @@ export const MOTION = {
   /** Going from one screen to another: the screen fades out, then the next one fades in. */
   screenFadeMs: 160,
 
+  /** Settings: the thumb of a switch slides to its other side. */
+  switchMs: 150,
+
   /** Tutorial: the suggested cells blink, and the arrow above the piece bobs up and down. */
   tutorialBlinkMs: 700,
   tutorialArrowMs: 650,

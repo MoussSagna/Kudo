@@ -6,7 +6,7 @@
 
 ## Stories
 
-- [ ] **K-28 — Écran des réglages**
+- [x] **K-28 — Écran des réglages**
   - Maquette : `docs/design/reglages.png`.
   - Contenu : le bouton retour et le titre « Réglages » ; une carte avec deux interrupteurs, « Sons » (« Pose, effacement, combo ») et « Vibrations » (« Retour tactile à la pose ») ; la carte « Comment jouer » avec ses trois règles ; en bas, « Kubo · version X », la version étant lue depuis la configuration de l'app.
   - Ajoute sous les trois règles un lien « Revoir le tutoriel », qui rejoue le tutoriel puis revient aux réglages.

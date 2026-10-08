@@ -1,4 +1,9 @@
-import { getPreferences, resetPreferences, setPreference } from '../preferences';
+import {
+  getPreferences,
+  resetPreferences,
+  setPreference,
+  subscribeToPreferences,
+} from '../preferences';
 
 describe('preferences', () => {
   afterEach(resetPreferences);
@@ -18,5 +23,17 @@ describe('preferences', () => {
     resetPreferences();
 
     expect(getPreferences()).toEqual({ sounds: true, haptics: true });
+  });
+
+  it('tells its listeners about every change, until they unsubscribe', () => {
+    const listener = jest.fn();
+    const unsubscribe = subscribeToPreferences(listener);
+
+    setPreference('sounds', false);
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    unsubscribe();
+    setPreference('sounds', true);
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 });
