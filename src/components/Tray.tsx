@@ -11,8 +11,10 @@ const NO_PIECE = -1;
 
 interface TrayProps {
   tray: TrayState;
-  /** Changes with every new tray, so that a slot starts fresh with its new piece. */
+  /** Changes with every new tray: with its slot and its shape, it identifies a piece. */
   trayKey: string;
+  /** Changes with every move played. */
+  moveId: number;
   /** False once the game is over: pieces can no longer be picked up. */
   enabled: boolean;
   /** Width of the tray, shared equally by its slots. */
@@ -30,6 +32,7 @@ interface TrayProps {
 export function Tray({
   tray,
   trayKey,
+  moveId,
   enabled,
   width,
   height,
@@ -49,7 +52,8 @@ export function Tray({
         <View key={index} style={styles.slot}>
           {piece ? (
             <DraggablePiece
-              key={trayKey}
+              key={`${trayKey}-${index}-${piece.id}`}
+              moveId={moveId}
               piece={piece}
               index={index}
               enabled={enabled}

@@ -175,6 +175,7 @@ export function TutorialPlayStep({
               <Tray
                 tray={isPlaced ? [null, null, null] : game.tray}
                 trayKey="tutorial"
+                moveId={lastMove?.id ?? 0}
                 enabled={!isPlaced}
                 width={trayWidth}
                 height={Math.round(cellSize * TRAY_HEIGHT_RATIO)}

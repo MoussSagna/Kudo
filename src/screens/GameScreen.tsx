@@ -1,15 +1,17 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { Share, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { now } from '../clock';
+import { STRESS_SEED } from '../dev/stressPlan';
+import { useStressTest } from '../dev/useStressTest';
 import { GameHeader } from '../components/GameHeader';
 import { Grid } from '../components/Grid';
 import { ScoreHeader } from '../components/ScoreHeader';
 import { Tray } from '../components/Tray';
 import type { MoveResult } from '../game/moves';
-import { buildShareText } from '../game/share';
 import {
   BIG_PIECES_GAME,
   FINISHED_FREE_GAME,
@@ -20,7 +22,7 @@ import {
   SAMPLE_GAME,
   type DemoMove,
 } from '../game/sampleGame';
-import { startGame, type GameMode, type GameState } from '../game/state';
+import { createGame, startGame, type GameMode, type GameState } from '../game/state';
 import { useDemoMoves } from '../hooks/useDemoMoves';
 import { playHaptic } from '../haptics';
 import { useBestScore } from '../hooks/useBestScore';
@@ -29,6 +31,7 @@ import { useFeedback } from '../hooks/useFeedback';
 import { useGame } from '../hooks/useGame';
 import { usePieceDrag } from '../hooks/usePieceDrag';
 import { MOTION } from '../motion';
+import { shareGame } from '../share';
 import { UI } from '../theme';
 import { ResultScreen } from './ResultScreen';
 
@@ -36,7 +39,8 @@ import { ResultScreen } from './ResultScreen';
  * Development only: start the app with EXPO_PUBLIC_SAMPLE_GAME set to `1` (the mockup's game),
  * `end` (one move away from the end), `over` (the mockup's finished game), `record` (the same, as a new record), `overfree` (the
  * same, as a free game), `demo` (a short scripted game
- * that plays by itself, to watch the animations) or `big` (the largest pieces in the tray).
+ * that plays by itself, to watch the animations) `big` (the largest pieces in the tray) or `stress` (a long game
+ * that plays by itself and checks that the tray on screen matches the game).
  */
 interface GameResult {
   isNewRecord: boolean;
@@ -51,6 +55,7 @@ const SAMPLE_GAMES: Readonly<Record<string, GameState>> = {
   overfree: FINISHED_FREE_GAME,
   demo: DEMO_GAME,
   big: BIG_PIECES_GAME,
+  stress: createGame(STRESS_SEED, 'free'),
 };
 /** The sample games that are already over open on their result screen. */
 const INITIAL_RESULT: GameResult | null =
@@ -76,17 +81,28 @@ const TRAY_HEIGHT_RATIO = 3.45;
 
 interface GameScreenProps {
   mode: GameMode;
-  /** Back to the home screen; the game in progress is lost. */
+  /** A game to resume instead of starting a new one. */
+  initialGame?: GameState;
+  /** Called after every move of a daily challenge, with its new state, so that it can be saved. */
+  onDailyMove: (game: GameState) => void;
+  /** Back to the home screen. */
   onExit: () => void;
   /** Starts a new free game. */
   onStartFreeGame: () => void;
 }
 
-export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
+export function GameScreen({
+  mode,
+  initialGame,
+  onDailyMove,
+  onExit,
+  onStartFreeGame,
+}: GameScreenProps) {
   const insets = useSafeAreaInsets();
   const { cellSize, trayWidth } = useBoardLayout();
   const { game, lastMove, place } = useGame(
-    () => (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || startGame(mode, new Date()),
+    () =>
+      (SAMPLE_GAME_NAME && SAMPLE_GAMES[SAMPLE_GAME_NAME]) || initialGame || startGame(mode, now()),
   );
   const { gridRef, preview, onTargetChange } = usePieceDrag(game);
   const feedback = useFeedback();
@@ -98,6 +114,9 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
   /** The sound and the vibration of a move that was just played. */
   const giveFeedback = (move: MoveResult) => {
     feedback.move(move);
+    if (move.next.mode === 'daily') {
+      onDailyMove(move.next);
+    }
     if (move.next.isOver) {
       const isNewRecord = submitScore(move.next.score);
       setTimeout(() => {
@@ -116,10 +135,22 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
     return move !== null;
   };
 
-  /** Opens the system share sheet. Cancelling it, or a phone that cannot share, is not an error. */
-  const handleShare = () => {
-    Share.share({ message: buildShareText(game) }).catch(() => undefined);
+  /**
+   * A daily challenge is saved after every move, so leaving it loses nothing. A free game is not
+   * saved: leaving it once points are scored asks for a confirmation.
+   */
+  const handleBack = () => {
+    if (game.mode === 'daily' || game.score === 0 || game.isOver) {
+      onExit();
+      return;
+    }
+    Alert.alert('Quitter la partie ?', 'Ta progression sera perdue.', [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Quitter', style: 'destructive', onPress: onExit },
+    ]);
   };
+
+  useStressTest(SAMPLE_GAME_NAME === 'stress', game);
 
   useDemoMoves(DEMO_SCRIPT, ({ trayIndex, col, row }: DemoMove) => {
     playAt(
@@ -142,7 +173,7 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
           },
         ]}
       >
-        <GameHeader mode={game.mode} seed={game.seed} onBack={onExit} />
+        <GameHeader mode={game.mode} seed={game.seed} onBack={handleBack} />
         <View style={styles.score}>
           <ScoreHeader score={game.score} best={best} streak={game.streak} />
         </View>
@@ -155,6 +186,7 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
           <Tray
             tray={game.tray}
             trayKey={`${game.seed}-${game.draws}`}
+            moveId={lastMove?.id ?? 0}
             enabled={!game.isOver}
             width={trayWidth}
             height={trayHeight}
@@ -171,7 +203,7 @@ export function GameScreen({ mode, onExit, onStartFreeGame }: GameScreenProps) {
         <ResultScreen
           game={game}
           isNewRecord={result.isNewRecord}
-          onShare={handleShare}
+          onShare={() => shareGame(game)}
           onStartFreeGame={onStartFreeGame}
           onHome={onExit}
         />

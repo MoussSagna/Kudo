@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ReduceMotion,
   useAnimatedStyle,
@@ -20,18 +20,26 @@ export function useScreenFade<Route>(initialRoute: Route) {
   const [route, setRoute] = useState(initialRoute);
   const opacity = useSharedValue(1);
 
-  const show = (next: Route) => {
-    setRoute(next);
-    opacity.value = withTiming(1, FADE);
-  };
+  const show = useCallback(
+    (next: Route) => {
+      setRoute(next);
+      opacity.set(withTiming(1, FADE));
+    },
+    [opacity],
+  );
 
-  const navigate = (next: Route) => {
-    opacity.value = withTiming(0, FADE, (finished) => {
-      if (finished) {
-        scheduleOnRN(show, next);
-      }
-    });
-  };
+  const navigate = useCallback(
+    (next: Route) => {
+      opacity.set(
+        withTiming(0, FADE, (finished) => {
+          if (finished) {
+            scheduleOnRN(show, next);
+          }
+        }),
+      );
+    },
+    [opacity, show],
+  );
 
   const fadeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
