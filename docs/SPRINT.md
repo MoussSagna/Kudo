@@ -88,7 +88,7 @@ _À remplir par l'agent à la fin, puis attendre la validation._
 - **« Revoir le tutoriel »** : lien jaune avec un chevron, aligné sur le texte des règles ; il n'est pas sur la maquette, sa forme est un choix de l'agent.
 - **Défilement** : les réglages défilent si l'écran est trop petit pour tout afficher.
 - **Résultat enregistré avant K-38** : il est relu comme n'étant pas un record.
-- **Ligne du prochain défi** : affichée seulement tant que le jour du défi est le jour courant ; elle disparaît à minuit (ou pour un défi fini après minuit), sans texte de remplacement. À moins d'une heure, elle s'écrit « 12 min ». Elle ajoute environ 5 pt à la hauteur de l'écran de fin du défi (l'espace avant « Partager mon score » passe de 29 à 14 pt de part et d'autre de la ligne).
+- **Ligne du prochain défi** : affichée seulement tant que le jour du défi est le jour courant ; elle disparaît à minuit (ou pour un défi fini après minuit), sans texte de remplacement. À moins d'une heure, elle s'écrit « 12 min ». Elle ajoute 19 pt à la hauteur de l'écran de fin du défi (29 pt d'espace avant « Partager mon score » deviennent 14 pt, la ligne de 20 pt, puis 14 pt).
 - **Record et sauvegarde** : le record est maintenant calculé juste avant l'enregistrement du dernier coup du défi, pour être sauvegardé avec lui.
 - **Icône des réglages** : deux curseurs dessinés avec des vues, un peu plus épais que sur la maquette.
 - **Liste des sons** : l'écran des réglages charge tous les sons du jeu pour n'en jouer qu'un (`place`), en réutilisant `useSounds` tel quel.
