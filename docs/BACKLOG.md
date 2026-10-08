@@ -88,8 +88,9 @@ But : le joueur règle le son et les vibrations.
 
 ## Finition
 But : prêt à être montré ou publié.
-- **K-29** Accessibilité et tailles d'écran (petits téléphones, tablettes).
-- **K-30** Build de test (EAS).
+- **K-41** Outils de développement exclus de la version finale.
+- **K-29** Tailles d'écran et accessibilité (iPhone uniquement, du plus petit au plus grand).
+- **K-30** Préparer le build (identifiant, icônes, splash, `eas.json`, `docs/BUILD.md`).
 
 ## Idées (non planifiées)
 _L'agent ajoute ici ce qui sort du périmètre._
