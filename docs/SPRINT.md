@@ -66,7 +66,7 @@ _À remplir par l'agent à la fin, puis attendre la validation._
 - `npm run check` : sans erreur ni avertissement, 238 tests réussis.
 - Scénario `stress` en mode développement, relancé une fois en fin de sprint : 66 coups, 22 tirages, **0 `[KUBO-DIVERGENCE]`**.
 - **Vérifié par l'agent sur simulateur** (Expo Go, mode développement) : chaque écran sur un iPhone SE (3e génération, 375 × 667) et un iPhone 18 Pro Max — accueil, tutoriel (5 états), jeu (partie d'exemple et plus grandes pièces), fin de défi, fin de partie libre, « Reviens demain », réglages. Rien ne déborde ni ne se chevauche ; la grille et le plateau tiennent sans défilement. Avec la plus grande taille de texte du système : accueil, jeu, réglages, « Reviens demain », écran de fin, tutoriel.
-- **Vérifié sur le build Release local** : compilation et installation sans compte ; sur l'écran d'accueil du simulateur, l'icône de Kubo et le nom « Kubo » ; au lancement, le fond `#12162B` du splash. Le fichier JavaScript embarqué ne contient aucune valeur de variable de développement.
+- **Vérifié sur le build Release local** : compilation et installation sans compte ; sur l'écran d'accueil du simulateur, l'icône de Kubo et le nom « Kubo » ; au lancement, le fond `#12162B` du splash.
 - **Non vérifié** :
   - dans le build Release : tout ce qui suit le splash — l'animation de lancement et l'absence de flash, le tutoriel, le jeu, l'absence d'outil actif à l'écran — puisque l'app se ferme ;
   - VoiceOver n'a pas été écouté : les libellés sont dans le code, leur lecture réelle reste à faire sur ton téléphone ;
@@ -87,7 +87,7 @@ Elle est dans `docs/BUILD.md`, section « Liste de contrôle sur le build instal
 - Aucune.
 
 ### Écarts par rapport au plan
-- **Petits écrans** : sur l'iPhone SE, la grille ne remplit plus la largeur (cases de 35 pt au lieu de 42) pour que le plateau tienne ; logo, titres et cartes sont réduits sur l'accueil, l'écran de fin et « Reviens demain ».
+- **Petits écrans** : sur l'iPhone SE, la grille ne remplit plus la largeur (cases d'environ 35 pt au lieu de 42) pour que le plateau tienne ; logo, titres et cartes sont réduits sur l'accueil, l'écran de fin et « Reviens demain ».
 - **Bas de l'écran de jeu** : la marge minimale passe de 34 à 16 pt sur les téléphones sans barre d'accueil ; rien ne change sur les autres.
 - **Textes courants** : ils ne suivent pas le système sans limite (× 1,35, × 1,8 dans les réglages), parce que la plupart vivent dans des cartes de hauteur fixe. C'est un choix de l'agent, à ajuster si tu veux aller plus loin.
 - **Dates longues** : la date de la carte du défi et la ligne « Défi du … » de l'écran de fin rétrécissent pour tenir sur une ligne.
