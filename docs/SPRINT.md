@@ -96,7 +96,13 @@ Elle est dans `docs/BUILD.md`, section « Liste de contrôle sur le build instal
 | 5 | Une partie sur un petit iPhone si tu en as un | La grille est plus petite que la largeur de l'écran, le plateau ne la touche pas |
 
 ### Dépendances ajoutées et pourquoi
-- Aucune.
+- `expo-updates` (installée avec `npx expo install`) : demandée par Moussa le 9 octobre 2026 pour publier Kubo avec EAS Update et l'ouvrir dans Expo Go sans compte Apple ni Mac allumé. Elle fait partie d'Expo Go.
+
+### Ajout après la revue : version de test dans Expo Go
+- EAS Update est configuré (`updates.url`, `runtimeVersion` en politique `sdkVersion`, un canal par profil dans `eas.json`).
+- La version de `sprint/release` est publiée sur le canal `preview` : <https://expo.dev/accounts/mousgamee/projects/kubo/updates/6e42cab6-c1b7-423f-ade2-cf8423da7681>.
+- Lien, QR code et procédure : `docs/BUILD.md`, section « Version de test dans Expo Go ».
+- Vérifié : le lien s'ouvre dans Expo Go sur le simulateur iOS et affiche le tutoriel. Non vérifié : l'ouverture sur un vrai iPhone, où Expo Go peut demander une connexion, et sur Android.
 
 ### Écarts par rapport au plan
 - **Petits écrans** : sur l'iPhone SE, la grille ne remplit plus la largeur (cases d'environ 35 pt au lieu de 42) pour que le plateau tienne ; logo, titres et cartes sont réduits sur l'accueil, l'écran de fin et « Reviens demain ».

@@ -9,7 +9,7 @@ Les builds se font dans le cloud avec EAS Build. Ce qui est marqué **Moussa** d
 
 ## Ce qui est en place
 - `app.json` : nom « Kubo », identifiant `com.moussasagna.kubo` (iOS et Android), portrait, iPhone uniquement, icône, icône adaptative Android, splash natif sur fond `#12162B`, et le lien vers le projet EAS `@mousgamee/kubo` (`extra.eas.projectId`, `owner`).
-- `eas.json` : trois profils.
+- `eas.json` : trois profils, chacun avec son canal EAS Update du même nom.
   - `simulator` : build iOS pour le simulateur, sans signature ni compte Apple.
   - `preview` : installation interne, hors stores. iOS : un `.ipa` signé pour les appareils enregistrés. Android : un `.apk`.
   - `production` : build pour les stores, numéro de build incrémenté automatiquement. Non utilisé pour l'instant.
@@ -72,6 +72,36 @@ eas build --platform android --profile preview
 2. Sur le téléphone, autorise l'installation depuis cette source si Android le demande.
 
 Aucun compte Google n'est nécessaire pour un APK installé à la main. Android n'a pas été testé pendant le développement : prévois une vérification complète sur le premier APK.
+
+## Version de test dans Expo Go (sans compte Apple, Mac éteint)
+Kubo est publié avec EAS Update sur le canal `preview`. La version publiée est hébergée par Expo : elle s'ouvre dans Expo Go sans serveur sur le Mac.
+
+**Ce que dit la documentation d'Expo**
+- Page [Updates](https://docs.expo.dev/versions/latest/sdk/updates/) : « To test the content of an update in Expo Go, run eas update and then browse to the update in Expo Go. » Avec deux réserves : cela « only simulates what an update will look like in your app » et « only updates using Expo Go-compatible libraries are supported ». Kubo n'utilise que des bibliothèques présentes dans Expo Go.
+- Page [qr.expo.dev](https://docs.expo.dev/more/qr-codes/) : les QR codes d'EAS Update servent à ouvrir une mise à jour « in development builds and Expo Go ».
+- La documentation ne dit pas quelle « runtime version » Expo Go accepte. Le projet utilise la politique `sdkVersion`, qui donne `exposdk:57.0.0` ; c'est avec elle que l'ouverture a été vérifiée sur le simulateur.
+- Annonce [Login now required for running projects in Expo Go](https://expo.dev/changelog/expo-go-57-login) : sur iPhone, Expo Go exige une connexion pour lancer un projet « in development mode ». Elle ne dit pas si une mise à jour publiée l'exige aussi : à vérifier sur ton iPhone. Si Expo Go la demande, chaque testeur devra créer un compte Expo gratuit.
+
+**Ouvrir Kubo sur un téléphone**
+1. Installer Expo Go depuis l'App Store ou le Play Store. Il doit être en version SDK 57.
+2. Scanner le QR code avec l'appareil photo : fichier `docs/kubo-expo-go-qr.svg`, ou cette page à ouvrir sur un écran : <https://qr.expo.dev/eas-update?projectId=2e1e7757-6391-46fa-bde8-0897acc36bde&runtimeVersion=exposdk:57.0.0&channel=preview>
+3. Ou ouvrir ce lien directement sur le téléphone :
+   `exp://u.expo.dev/2e1e7757-6391-46fa-bde8-0897acc36bde?runtime-version=exposdk%3A57.0.0&channel-name=preview`
+
+Le lien et le QR code restent les mêmes à chaque nouvelle publication. Toute personne qui les a peut ouvrir l'app.
+
+**Publier une nouvelle version**
+```
+npm run check
+eas update --channel preview --environment preview --message "ce qui change"
+```
+Committe avant de publier : le message et le commit sont affichés sur la page du projet, <https://expo.dev/accounts/mousgamee/projects/kubo/updates>. Les testeurs reçoivent la nouvelle version en rouvrant le lien.
+
+**Limites**
+- Le bouton d'outils d'Expo Go (roue bleue) flotte par-dessus l'app, et recouvre le bouton des réglages en haut à droite tant qu'on ne le déplace pas.
+- L'icône, le nom sous l'icône et le splash natif sont ceux d'Expo Go, pas ceux de Kubo.
+- Quand Expo Go passera au SDK 58 sur l'App Store, il n'ouvrira plus cette version : il faudra migrer le projet (voir « Idées » du backlog).
+- La politique `sdkVersion` s'applique aussi aux builds : un build et une mise à jour du même SDK sont considérés comme compatibles. Ne publie pas sur le canal d'un build une mise à jour qui dépend d'un module natif absent de ce build.
 
 ## Build local (déconseillé pour l'instant)
 ```
