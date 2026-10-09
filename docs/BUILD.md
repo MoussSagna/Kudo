@@ -78,7 +78,7 @@ Aucun compte Google n'est nécessaire pour un APK installé à la main. Android 
 npx expo run:ios --configuration Release --no-bundler
 ```
 - Avec Xcode 27, l'app obtenue plante au lancement (voir plus haut). À réserver à un Mac avec Xcode 26, ou à l'après-SDK 58.
-- **Le chemin du projet ne doit contenir aucun espace.** Depuis `…/Mouss coding/Kubo`, la compilation échoue dans un script d'`expo-constants` (« No such file or directory: /Users/…/Mouss »). Le contournement a été de compiler depuis une copie temporaire du projet placée dans un dossier sans espace.
+- **Le chemin du projet ne doit contenir aucun espace**, sinon la compilation échoue dans un script d'`expo-constants` (« No such file or directory »). Le dossier de travail `~/dev/kubo` convient.
 - La commande génère le dossier `ios/` (ignoré par git) et modifie les scripts `ios` et `android` de `package.json` : annule ce changement avec `git checkout package.json` pour garder le lancement dans Expo Go.
 
 ## Liste de contrôle sur le build installé

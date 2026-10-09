@@ -110,6 +110,7 @@ Elle est dans `docs/BUILD.md`, section « Liste de contrôle sur le build instal
 - **Simulateurs** : j'ai créé un simulateur « Kubo iPhone SE » (aucun petit iPhone n'était installé) et utilisé l'iPhone 18 Pro Max ; j'y ai installé Expo Go en le recopiant depuis l'iPhone 18 Pro, avec son autorisation d'ouverture des liens. Les deux sont éteints. J'ai redémarré l'iPhone 18 Pro pour fermer une alerte système restée ouverte, et j'en ai désinstallé le build Release qui plantait.
 - **Machine très chargée** (pgAdmin, charge système au-dessus de 100) : le build Release local a pris environ trois heures.
 - **Builds distants** : lancés par l'agent à la demande de Moussa, contrairement à ce que prévoyait la story au départ. Deux builds ont été consommés sur le compte (un iOS, un Android).
+- **Nouveau dossier** : le dépôt est cloné dans `~/dev/kubo`, sur `sprint/release` ; `npm install` et `npm run check` y passent (238 tests). L'ancien dossier `Documents/Mouss coding/Kubo` n'est pas supprimé ; ses captures (`docs/design/captures/`, ignorées par git) n'existent que là.
 - **Simulateur** : le build EAS est resté installé sur l'iPhone 18 Pro, avec le tutoriel marqué comme vu.
 
 ### Passages de la boucle d'intégration et écarts restants, par écran
