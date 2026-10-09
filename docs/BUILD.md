@@ -1,46 +1,51 @@
 # Kubo — produire un build
 
 Ce document explique comment obtenir une version de Kubo installable hors d'Expo Go.
-L'agent ne se connecte à aucun compte et ne lance aucun build distant : tout ce qui est marqué **Moussa** demande ton intervention.
+Les builds se font dans le cloud avec EAS Build. Ce qui est marqué **Moussa** demande ton intervention.
 
-## À savoir avant de lancer un build iOS
-**Le build local Release plante au lancement sur le simulateur iOS 27 (Xcode 27).** Constaté le 9 octobre 2026 : l'app se compile, s'installe, affiche le fond du splash, puis se ferme. Le rapport de crash désigne `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption` : iOS 27 exige que l'app adopte le cycle de vie « UIScene ». Expo 57.0.27 fournit la classe prévue pour cela (`ExpoAppSceneDelegate`), mais le projet natif qu'il génère ne la branche pas (ni dans `Info.plist`, ni dans `AppDelegate.swift`).
+## Ce qui marche, et ce qui ne marche pas
+- **Marche : build EAS avec Xcode 26.6.** Le build iOS `simulator` du 9 octobre 2026 démarre sans planter sur le simulateur iOS 27 : splash natif, animation de lancement sans flash, tutoriel, accueil, aucun outil de développement.
+- **Ne marche pas : build local avec Xcode 27.** L'app se compile et s'installe, puis se ferme au lancement (`UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`). Une app compilée avec Xcode 27 doit adopter le cycle de vie « UIScene », ce que le projet natif généré par Expo 57 ne fait pas. Décision : on ne touche pas au projet natif ; on compile avec Xcode 26 sur EAS, et on passera à Expo SDK 58 à sa sortie stable (voir « Idées » du backlog).
 
-Ce que cela implique :
-- tant que ce point n'est pas réglé, un build fait avec Xcode 27 ne démarrera pas, sur simulateur comme sur iPhone ;
-- un build EAS dépend de la version de Xcode de l'image choisie : rien n'a été essayé, l'agent ne lançant aucun build distant ;
-- pistes, à décider par Moussa : attendre ou installer une version d'Expo 57 dont le projet généré adopte « UIScene » ; ou ajouter un plugin de configuration qui le branche. Voir « Questions ouvertes » dans `docs/SPRINT.md`.
-
-## Ce qui est déjà prêt dans le dépôt
-- `app.json` : nom « Kubo », identifiant `com.moussasagna.kubo` (iOS et Android), portrait, iPhone uniquement, icône, icône adaptative Android et splash natif sur fond `#12162B`.
-- `eas.json` : deux profils.
-  - `preview` : installation interne, hors stores. iOS : un fichier `.ipa` signé pour les appareils enregistrés. Android : un `.apk`.
+## Ce qui est en place
+- `app.json` : nom « Kubo », identifiant `com.moussasagna.kubo` (iOS et Android), portrait, iPhone uniquement, icône, icône adaptative Android, splash natif sur fond `#12162B`, et le lien vers le projet EAS `@mousgamee/kubo` (`extra.eas.projectId`, `owner`).
+- `eas.json` : trois profils.
+  - `simulator` : build iOS pour le simulateur, sans signature ni compte Apple.
+  - `preview` : installation interne, hors stores. iOS : un `.ipa` signé pour les appareils enregistrés. Android : un `.apk`.
   - `production` : build pour les stores, numéro de build incrémenté automatiquement. Non utilisé pour l'instant.
+- **Image de compilation iOS** : `macos-tahoe-26.5-xcode-26.6`, fixée dans les trois profils. C'est l'image que la documentation d'EAS donne pour le SDK 57 (« latest, sdk-57 »), page [Build server infrastructure](https://docs.expo.dev/build-reference/infrastructure/). Ne la remplace pas par une image Xcode 27 tant que le projet est sur Expo 57.
+- Projet EAS : <https://expo.dev/accounts/mousgamee/projects/kubo>. La clé de signature Android a été créée par EAS au premier build et y est conservée.
 - Les outils de développement (variables `EXPO_PUBLIC_*`, scénario `stress`) sont ignorés dans tout build qui n'est pas en mode développement.
 
 ## Ce qui demande ton intervention
 | Étape | Pourquoi |
 |---|---|
-| Compte Expo (gratuit) et `eas login` | Les builds `preview` et `production` tournent sur les serveurs d'Expo |
-| `eas init`, une seule fois | Relie le projet à ton compte ; ajoute `extra.eas.projectId` dans `app.json`, à committer |
+| `eas login` | La connexion à ton compte Expo se fait dans ton terminal ; l'agent ne saisit jamais d'identifiants |
 | Compte Apple Developer (payant) | Obligatoire pour installer un build sur un iPhone hors Expo Go |
 | Enregistrer ton iPhone (`eas device:create`) | Un build interne iOS ne s'installe que sur les appareils déclarés |
-| Répondre aux questions d'EAS sur les certificats | EAS crée et garde le certificat et le profil de provisionnement ; il te demande ton identifiant Apple |
+| Répondre aux questions d'EAS sur les certificats Apple | EAS crée et garde le certificat et le profil de provisionnement ; il te demande ton identifiant Apple |
 | Autoriser l'installation sur le téléphone | iOS : mode développeur à activer. Android : autoriser les sources inconnues |
 
 ## Avant tout build
 ```
 npm install
 npm run check
+eas whoami
 ```
-`npm run check` doit passer sans erreur ni avertissement.
+`npm run check` doit passer sans erreur ni avertissement. `eas whoami` doit afficher ton compte ; sinon, `eas login` (**Moussa**). EAS envoie les fichiers suivis par git : committe avant de lancer un build.
 
-Installe l'outil en ligne de commande d'Expo, puis connecte-toi (**Moussa**) :
+## Build iOS pour le simulateur
+Sans compte Apple. C'est le moyen de vérifier la version finale sur ton Mac.
 ```
-npm install --global eas-cli
-eas login
-eas init
+eas build --platform ios --profile simulator
 ```
+1. À la fin (une dizaine de minutes), EAS affiche le lien d'une archive `.tar.gz`. Télécharge-la et décompresse-la : elle contient `Kubo.app`.
+2. Ouvre un simulateur, puis installe et lance :
+   ```
+   xcrun simctl install booted Kubo.app
+   xcrun simctl launch booted com.moussasagna.kubo
+   ```
+   Tu peux aussi répondre « oui » quand `eas build` propose d'installer le build sur le simulateur.
 
 ## Build iOS installable sur ton iPhone
 1. **Moussa** — enregistre ton iPhone, une seule fois :
@@ -52,40 +57,35 @@ eas init
    ```
    eas build --platform ios --profile preview
    ```
-   Au premier lancement, EAS demande ton identifiant Apple et propose de créer le certificat et le profil : accepte. Le build dure une quinzaine de minutes.
+   Au premier lancement, EAS demande ton identifiant Apple et propose de créer le certificat et le profil : accepte.
 3. À la fin, EAS affiche un lien et un QR code. Ouvre-le sur l'iPhone et installe.
 4. Au premier lancement de l'app, iOS peut demander d'activer le mode développeur : Réglages › Confidentialité et sécurité › Mode développeur, puis redémarrage.
 
 Si tu ajoutes un autre iPhone plus tard, refais `eas device:create` puis un nouveau build : la liste des appareils est figée dans chaque build.
+Ce build n'a pas encore été fait : seul le build `simulator` a été vérifié.
 
 ## APK Android
-1. **Moussa** — lance le build :
-   ```
-   eas build --platform android --profile preview
-   ```
-   Au premier lancement, EAS propose de créer la clé de signature : accepte, il la conserve.
-2. Télécharge le `.apk` depuis le lien affiché, ou scanne le QR code sur le téléphone.
-3. Sur le téléphone, autorise l'installation depuis cette source si Android le demande.
+```
+eas build --platform android --profile preview
+```
+1. Télécharge le `.apk` depuis le lien affiché, ou scanne le QR code sur le téléphone.
+2. Sur le téléphone, autorise l'installation depuis cette source si Android le demande.
 
-Aucun compte Google n'est nécessaire pour un APK installé à la main. Android n'a pas été testé pendant le développement : prévois une vérification complète sur ce premier APK.
+Aucun compte Google n'est nécessaire pour un APK installé à la main. Android n'a pas été testé pendant le développement : prévois une vérification complète sur le premier APK.
 
-## Build local pour le simulateur iOS (sans compte)
-Utile pour vérifier la version finale sans rien signer. Il faut Xcode et CocoaPods.
+## Build local (déconseillé pour l'instant)
 ```
 npx expo run:ios --configuration Release --no-bundler
 ```
-- **Le chemin du projet ne doit contenir aucun espace.** Depuis `…/Mouss coding/Kubo`, la compilation échoue dans un script d'`expo-constants` (« No such file or directory: /Users/…/Mouss »). Copie ou clone le projet dans un dossier sans espace, par exemple `~/dev/kubo`, et lance la commande depuis là. Les builds EAS ne sont pas concernés : ils tournent sur les serveurs d'Expo.
-- La commande génère le dossier `ios/` (ignoré par git), installe les pods, compile, installe et lance l'app sur le simulateur ouvert. Compte dix à vingt minutes la première fois.
-- Elle modifie aussi les scripts `ios` et `android` de `package.json` : annule ce changement avec `git checkout package.json` pour garder le lancement dans Expo Go.
-- Pour repartir de zéro : supprime le dossier `ios/`.
-
-Un build branché sur un vrai iPhone par câble (`npx expo run:ios --configuration Release --device`) est possible aussi, mais il demande ton compte Apple dans Xcode pour signer (**Moussa**).
+- Avec Xcode 27, l'app obtenue plante au lancement (voir plus haut). À réserver à un Mac avec Xcode 26, ou à l'après-SDK 58.
+- **Le chemin du projet ne doit contenir aucun espace.** Depuis `…/Mouss coding/Kubo`, la compilation échoue dans un script d'`expo-constants` (« No such file or directory: /Users/…/Mouss »). Le contournement a été de compiler depuis une copie temporaire du projet placée dans un dossier sans espace.
+- La commande génère le dossier `ios/` (ignoré par git) et modifie les scripts `ios` et `android` de `package.json` : annule ce changement avec `git checkout package.json` pour garder le lancement dans Expo Go.
 
 ## Liste de contrôle sur le build installé
 | # | Action | Ce que tu dois observer |
 |---|---|---|
 | 1 | Écran d'accueil du téléphone | L'icône de Kubo, avec « Kubo » dessous |
-| 2 | Premier lancement | Splash natif sur fond bleu nuit, puis l'animation du logo, sans flash blanc ni saut entre les deux |
+| 2 | Premier lancement | Splash natif sur fond bleu nuit, puis l'animation du logo, sans flash blanc |
 | 3 | Suite du premier lancement | Le tutoriel en trois étapes, puis l'accueil |
 | 4 | Défi du jour | Une partie complète, sons et vibrations, écran de fin avec « Prochain défi dans… » |
 | 5 | Partie libre | Une partie complète, le meilleur score est conservé |

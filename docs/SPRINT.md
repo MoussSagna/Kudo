@@ -17,7 +17,7 @@
   - VoiceOver : chaque bouton et lien a un libellé en français ; le score, la série et le compte à rebours sont lisibles. Le glisser-déposer n'est pas rendu jouable au lecteur d'écran dans cette version : note-le dans le backlog, section « Idées ».
   - Contrastes : vérifie que les textes secondaires (`#A9B0DA` et équivalents) restent lisibles sur leur fond.
 
-- [ ] **K-30 — Préparer le build**
+- [x] **K-30 — Préparer le build**
   - Identifiant d'application : `com.moussasagna.kubo` pour iOS et Android. Nom affiché sous l'icône : « Kubo ».
   - Vérifie l'icône, l'icône adaptative Android et le splash natif (fond `#12162B`) dans `app.json`, et que le passage du splash natif à l'écran de lancement animé se fait sans flash, comme demandé en K-31.
   - Ajoute un fichier `eas.json` avec un profil `preview` (installation interne) et un profil `production`.
@@ -35,8 +35,9 @@ Un commit par story, push après chacune, revue de sprint remplie, puis arrêt. 
 ## Questions ouvertes
 _L'agent note ici ce qui le bloque._
 
-- **K-30 — le build Release plante au lancement sur iOS 27.** Le build local pour le simulateur (Xcode 27, iPhone 18 Pro, iOS 27) se compile et s'installe, mais l'app se ferme dès le lancement : `UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption` (rapports `Kubo-2026-10-09-080943.ips` et `Kubo-2026-10-09-113741.ips` dans `~/Library/Logs/DiagnosticReports/`). iOS 27 exige le cycle de vie « UIScene » ; Expo 57.0.27 contient `ExpoAppSceneDelegate` mais son gabarit natif (`node_modules/expo/template.tgz`) ne le branche pas. Je n'ai pas tenté de correctif : cela revient à modifier le projet natif généré (plugin maison) ou à changer de version d'Expo ou de gabarit, ce qui dépasse la story et demande ton accord. Que veux-tu : (a) que j'essaie le gabarit `expo-template-bare-minimum@57.0.29`, plus récent que celui livré avec Expo, (b) un plugin de configuration qui branche `ExpoAppSceneDelegate`, (c) attendre une mise à jour d'Expo, ou (d) tenter d'abord un build EAS de ton côté ?
-- **K-30 — chemin du projet avec un espace.** Depuis `Mouss coding/Kubo`, la compilation native échoue dans un script d'`expo-constants`. J'ai compilé depuis une copie temporaire sans espace. Veux-tu déplacer le projet, ou garder cette contrainte documentée dans `docs/BUILD.md` ?
+Aucune question ouverte. Les deux questions posées sur K-30 ont été tranchées par Moussa le 9 octobre 2026 :
+- **Plantage au lancement avec Xcode 27** : on ne touche pas au projet natif et on ne change pas de version d'Expo dans ce sprint ; on compile dans le cloud avec EAS et Xcode 26. Le passage à Expo SDK 58 est noté dans les idées du backlog.
+- **Chemin du projet avec un espace** : le dépôt est cloné dans `~/dev/kubo`, qui devient le dossier de travail.
 
 ## Revue de sprint
 _À remplir par l'agent à la fin, puis attendre la validation._
@@ -45,8 +46,9 @@ _À remplir par l'agent à la fin, puis attendre la validation._
 `sprint/release`, créée depuis `main` après la fusion de `sprint/settings`, poussée sur `origin`. Non fusionnée : c'est Moussa qui fusionne dans `main` après validation.
 
 ### État du sprint
-- K-41 et K-29 : terminées.
-- **K-30 : non cochée.** La configuration, `eas.json` et `docs/BUILD.md` sont livrés, le build local se compile et s'installe, mais **l'app plante au lancement** dans ce build (voir « Questions ouvertes »). Le but du sprint — une version installable hors d'Expo Go — n'est donc pas atteint.
+- K-41, K-29 et K-30 : terminées.
+- Le build iOS fait sur EAS avec Xcode 26.6 démarre sans planter sur le simulateur iOS 27. Le build local fait avec Xcode 27 plante au lancement : il est abandonné pour ce sprint, sur décision de Moussa.
+- Restent à faire par Moussa : jouer une partie dans le build (l'agent ne peut pas toucher l'écran), le build `preview` pour son iPhone, et l'essai de l'APK Android.
 
 ### Ce qui a été livré
 - **K-41** `src/dev/devFlags.ts` : seul endroit du code qui lit les variables `EXPO_PUBLIC_*`. Hors `__DEV__`, `readDevFlags` rend toujours « aucun outil » : date simulée, effacement des données, tutoriel forcé, parties et défis d'exemple, ouverture sur les réglages, scénario `stress` et son contrôle `[KUBO-DIVERGENCE]`. Test : en production, avec toutes les variables renseignées, aucun outil n'est demandé.
@@ -57,24 +59,34 @@ _À remplir par l'agent à la fin, puis attendre la validation._
   - VoiceOver : bloc du score (« Score : 1240. Série de combos : 2. Meilleur score : … »), compte à rebours (« Prochain défi dans 2 heures 14 minutes »), semaine (« Jours joués cette semaine : lundi, mardi »), statistiques de fin (« 38 pièces posées »), étape du tutoriel (« Étape 1 sur 3 »), titres annoncés comme titres. Les boutons et liens avaient déjà leur libellé.
   - Contrastes calculés (WCAG) : `#A9B0DA` de 6,3 à 8,4 selon le fond ; `#8F97C4` de 4,7 à 6,3 ; jaune `#FFD23F` de 9,3 à 12,4. Tous au-dessus de 4,5. Aucune couleur changée.
   - Backlog, « Idées » : le jeu au lecteur d'écran, et la piste de l'interrupteur éteint.
-- **K-30** (partiel)
+- **K-30**
   - `app.json` : `ios.bundleIdentifier` et `android.package` à `com.moussasagna.kubo`. Nom « Kubo », icône 1024 × 1024 sans transparence, icône adaptative (premier plan transparent, fond `#12162B`), splash natif sur `#12162B` : vérifiés dans la configuration, inchangés.
-  - `eas.json` : profils `preview` (interne, APK pour Android) et `production`.
-  - `docs/BUILD.md` : build iOS pour ton iPhone, APK Android, build local, ce qui demande ton intervention, liste de contrôle.
+  - `eas.json` : profils `simulator` (iOS, simulateur), `preview` (interne, APK pour Android) et `production`. L'image iOS `macos-tahoe-26.5-xcode-26.6` est fixée dans les trois ; c'est celle que la documentation d'EAS donne pour le SDK 57 (« latest, sdk-57 »), page <https://docs.expo.dev/build-reference/infrastructure/>.
+  - Projet EAS `@mousgamee/kubo` créé et lié (<https://expo.dev/accounts/mousgamee/projects/kubo>). `eas init` a ajouté à `app.json` l'identifiant du projet, le propriétaire `mousgamee` et la permission Android `MODIFY_AUDIO_SETTINGS`.
+  - Build iOS `simulator`, lancé une seule fois : <https://expo.dev/accounts/mousgamee/projects/kubo/builds/22a070e1-8894-4b67-9f92-297086edd063>.
+  - APK Android `preview`, non installé : <https://expo.dev/artifacts/eas/74N7KwohuEtT0yxr41a6e4D-yM_7t5uEgVoYuJJX09w.apk> (page du build : <https://expo.dev/accounts/mousgamee/projects/kubo/builds/6d932419-a97d-49da-bada-f90d64426199>). EAS a créé la clé de signature Android à cette occasion et la conserve.
+  - `docs/BUILD.md` : ce qui marche et ce qui ne marche pas, build pour le simulateur, build pour ton iPhone, APK Android, ce qui demande ton intervention, liste de contrôle.
 
 ### Comment le vérifier
 - `npm run check` : sans erreur ni avertissement, 238 tests réussis.
 - Scénario `stress` en mode développement, relancé une fois en fin de sprint : 66 coups, 22 tirages, **0 `[KUBO-DIVERGENCE]`**.
 - **Vérifié par l'agent sur simulateur** (Expo Go, mode développement) : chaque écran sur un iPhone SE (3e génération, 375 × 667) et un iPhone 18 Pro Max — accueil, tutoriel (5 états), jeu (partie d'exemple et plus grandes pièces), fin de défi, fin de partie libre, « Reviens demain », réglages. Rien ne déborde ni ne se chevauche ; la grille et le plateau tiennent sans défilement. Avec la plus grande taille de texte du système : accueil, jeu, réglages, « Reviens demain », écran de fin, tutoriel.
-- **Vérifié sur le build Release local** : compilation et installation sans compte ; sur l'écran d'accueil du simulateur, l'icône de Kubo et le nom « Kubo » ; au lancement, le fond `#12162B` du splash.
+- **Vérifié sur le build EAS `simulator`** (compilé avec Xcode 26.6, installé sur l'iPhone 18 Pro du simulateur, iOS 27), captures dans `docs/design/captures/release/` :
+  - il se lance sans planter, aucun rapport de crash ;
+  - l'icône de Kubo et le nom « Kubo » sur l'écran d'accueil du simulateur (`icone.png`) ;
+  - splash natif, puis animation de lancement, puis tutoriel : 12 images prises toutes les 0,45 s environ (`l01.jpg` à `l12.jpg`). Le fond reste `#12162B` sur toutes les images jusqu'au tutoriel : pas de flash. Le logo du splash natif est plus petit que celui de l'animation, qui le remplace ;
+  - le tutoriel au premier lancement (`tutoriel.png`), sans bouton d'outils ;
+  - l'accueil (`accueil.png`) : la vraie date du jour, « Jouer », et le bouton des réglages à sa place en haut à droite, enfin visible sans le bouton d'Expo Go. Pour y arriver sans toucher l'écran, j'ai écrit « tutoriel vu » dans le stockage de l'app sur le simulateur.
+- **Build local avec Xcode 27** : il se compile et s'installe sans compte, puis plante au lancement. Abandonné.
 - **Non vérifié** :
-  - dans le build Release : tout ce qui suit le splash — l'animation de lancement et l'absence de flash, le tutoriel, le jeu, l'absence d'outil actif à l'écran — puisque l'app se ferme ;
+  - **une partie dans le build** : je ne peux ni toucher ni glisser sur le simulateur, et le build n'a aucun outil de développement pour jouer à ma place. Même chose pour passer le tutoriel au doigt et pour les réglages ;
+  - l'APK Android : construit, ni installé ni lancé ;
   - VoiceOver n'a pas été écouté : les libellés sont dans le code, leur lecture réelle reste à faire sur ton téléphone ;
   - l'écran de lancement n'a pas été capturé sur les deux tailles (il ne dure que trois secondes) ;
-  - Android : rien n'a été testé ; aucun build distant n'a été lancé.
+  - le build `preview` pour iPhone : pas lancé, il demande ton compte Apple.
 
 ### Liste de contrôle à dérouler à la main
-Elle est dans `docs/BUILD.md`, section « Liste de contrôle sur le build installé » (9 points). Elle ne pourra être déroulée qu'une fois le plantage au lancement réglé. En attendant, dans Expo Go :
+Elle est dans `docs/BUILD.md`, section « Liste de contrôle sur le build installé » (9 points). À dérouler sur le build `simulator` ou, mieux, sur un build `preview` installé sur ton iPhone. Et dans Expo Go ou dans le build :
 | # | Action | Ce que tu dois observer |
 |---|---|---|
 | 1 | Réglages iOS › Accessibilité › Taille du texte au maximum, puis ouvrir chaque écran | Les textes courants grossissent, les titres un peu, le score et la grille pas du tout ; rien ne se chevauche ; l'accueil et « Reviens demain » défilent si besoin |
@@ -96,7 +108,9 @@ Elle est dans `docs/BUILD.md`, section « Liste de contrôle sur le build instal
 - **Interrupteur éteint** : sa piste a un contraste de 1,9 sur la carte ; noté dans les idées, pas corrigé.
 - **Captures** : `docs/design/captures/` est ignoré par git ; les captures de ce sprint sont dans `docs/design/captures/tailles/` sur cette machine seulement.
 - **Simulateurs** : j'ai créé un simulateur « Kubo iPhone SE » (aucun petit iPhone n'était installé) et utilisé l'iPhone 18 Pro Max ; j'y ai installé Expo Go en le recopiant depuis l'iPhone 18 Pro, avec son autorisation d'ouverture des liens. Les deux sont éteints. J'ai redémarré l'iPhone 18 Pro pour fermer une alerte système restée ouverte, et j'en ai désinstallé le build Release qui plantait.
-- **Machine très chargée** (pgAdmin, charge système au-dessus de 100) : le build Release a pris environ trois heures.
+- **Machine très chargée** (pgAdmin, charge système au-dessus de 100) : le build Release local a pris environ trois heures.
+- **Builds distants** : lancés par l'agent à la demande de Moussa, contrairement à ce que prévoyait la story au départ. Deux builds ont été consommés sur le compte (un iOS, un Android).
+- **Simulateur** : le build EAS est resté installé sur l'iPhone 18 Pro, avec le tutoriel marqué comme vu.
 
 ### Passages de la boucle d'intégration et écarts restants, par écran
 Captures dans `docs/design/captures/tailles/`, suffixes `-se` et `-max`. La roue bleue en haut à droite est le bouton d'Expo Go ; elle recouvre le bouton des réglages.
@@ -109,5 +123,7 @@ Captures dans `docs/design/captures/tailles/`, suffixes `-se` et `-max`. La roue
 - **Pro Max** : aucun défaut relevé sur aucun écran.
 
 ### Proposition pour la suite
-- Trancher la question du plantage au lancement (« Questions ouvertes »), puis refaire le build Release et dérouler la liste de contrôle de `docs/BUILD.md`.
-- Ensuite seulement : enregistrement de ton iPhone et premier build `preview`.
+- Dérouler la liste de contrôle de `docs/BUILD.md` sur le build, en commençant par une partie de chaque mode.
+- Enregistrer ton iPhone et lancer le premier build `preview`.
+- Essayer l'APK sur un téléphone Android.
+- Passer à Expo SDK 58 à sa sortie stable, pour pouvoir compiler avec Xcode 27.

@@ -97,3 +97,4 @@ _L'agent ajoute ici ce qui sort du périmètre._
 - `SHARE_EMOJI` (`src/theme.ts`) : `cyan` et `blue` utilisent le même emoji 🟦, donc indistinguables dans le partage (K-26). À trancher avec Moussa.
 - Jouer avec VoiceOver (K-29) : le glisser-déposer n'est pas utilisable au lecteur d'écran. La grille et le plateau ne sont pas annoncés ; seuls le score, les boutons et les autres écrans le sont. Piste : choisir une pièce puis une case par des actions d'accessibilité, avec l'annonce des cases libres.
 - Interrupteur éteint des réglages (K-29) : sa piste (`#4B5586`) a un contraste de 1,9 sur la carte ; l'état reste lisible par la position de la pastille blanche et par VoiceOver. Une piste plus claire ou un contour le rendrait plus visible.
+- Passer à Expo SDK 58 (adoption d'UIScene pour iOS 27) dès sa sortie stable.
