@@ -48,6 +48,12 @@
         "projectId": "2e1e7757-6391-46fa-bde8-0897acc36bde"
       }
     },
-    "owner": "mousgamee"
+    "owner": "mousgamee",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2e1e7757-6391-46fa-bde8-0897acc36bde"
+    }
   }
 }
